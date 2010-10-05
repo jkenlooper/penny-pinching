@@ -1,0 +1,9 @@
+alice:
+  password: 123
+  permission: write
+  database: penny
+bob:
+  password: abc
+  permission: admin
+  database: penny
+
