@@ -18,6 +18,11 @@ TRANSACTION_STATUS_ENUM = ('suspect', 'no_receipt', 'receipt', 'scheduled', 'cle
 CHART_TYPE_ENUM = ['income', 'expense', 'bill', 'saving']
 period = "([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})"
 urls = (
+    '/', 'IndexPage',
+    '/transactions\.html', 'TransactionsPage',
+    '/categories\.html', 'CategoriesPage',
+    '/([a-z]+)/authorize/?', 'AuthorizeView', # GET
+
     '/([a-z]+)/?', 'DatabaseView', # GET
 
     '/([a-z]+)/account-list/?', 'AccountListView', # GET
@@ -146,11 +151,10 @@ def authorize(permission = ("read", "write", "admin")):
         if user_credentials:
           keywords["_user"] = user_credentials
           return func(*args, **keywords)
-      else:
-        web.ctx.status = "401 UNAUTHORIZED"
-        web.header("WWW-Authenticate", 'Basic realm="%s %s"'  % (web.websafe(args[1]), permission) )
-        web.header('Content-type', "text/html; charset=utf-8")
-        return 'unauthorized'
+      web.ctx.status = "401 UNAUTHORIZED"
+      web.header("WWW-Authenticate", 'Basic realm="%s %s"'  % (web.websafe(args[1]), permission) )
+      web.header('Content-type', "text/html; charset=utf-8")
+      return 'unauthorized'
     return f
   return decorator
 
@@ -235,6 +239,34 @@ def validate(user_input, valid):
 def data_formatted(data_format, data):
   if data_format == 'yaml':
     return yaml.safe_dump(data)
+
+
+from string import Template
+class IndexPage(object):
+  def GET(self):
+    web.header('Content-type', "text/html; charset=utf-8")
+    index_template = Template(open('www/index.html', 'r').read())
+    content = "This is the index page."
+    if os.path.exists('www/data/index_content.html'):
+      content = open('www/data/index_content.html', 'r').read()
+    database_link_template = "<a href='%(database_name)s/authorize' title='login'>%(database_name)s</a><br/>"
+    #db_names = dict(zip([users[x]['database'] for x in users.keys()], (None,))).keys()
+    db_names = set()
+    for user in users.keys():
+      db_names.add(users[user]['database'])
+    print db_names
+    database_links = ""
+    for db_name in db_names:
+      database_links = "%s%s" % (database_links, database_link_template % ({'database_name':db_name}))
+
+    return index_template.safe_substitute(content=content, database_links=database_links)
+
+class AuthorizeView(object):
+  " login to the requested database "
+  @read_permission
+  def GET(self, db_name, _user=None):
+    web.header('Content-type', "text/html; charset=utf-8")
+    return 'yup'
 
 class ListView(object):
   query = "select * from ExpenseCategory;"
