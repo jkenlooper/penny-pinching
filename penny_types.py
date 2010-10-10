@@ -14,9 +14,9 @@ class Type(object):
       self.category_attr_list.extend(("goal_date", "goal_total"))
 
 types = (
-    Type(True, 'upe', 'Unplanned Expense', "UnPlannedChart"),
+    #Type(True, 'upe', 'Unplanned Expense', "UnPlannedChart"),
     Type(True, 'pec', 'Planned Expense', "PlannedChart"),
-    Type(False, 'upi', 'Unplanned Income', "UnPlannedChart"),
+    #Type(False, 'upi', 'Unplanned Income', "UnPlannedChart"),
     Type(False, 'pic', 'Planned Income', "PlannedChart"),
     Type(True, 'bill', 'Bills', "BillsChart"),
     Type(True, 'savings_e', 'Savings', "SavingsChart"),
