@@ -3,7 +3,7 @@
 import web
 import doctest
 import sys
-from view import DatabaseView, AccountListView, AccountAdd , AccountUpdate , FinancialTransactionAdd , FinancialTransactionItemAdd, FinancialTransactionItemListView, ExpenseCategoryListView, ExpenseCategoryAdd, PeriodFinancialTransactionListView, PeriodFinancialTransactionItemListView, PeriodFinancialTransactionAccountListView, PeriodFinancialTransactionItemAccountListView, PeriodItemsView, PeriodItemsCategoryView, PeriodTransactionItemListView, PeriodTransactionItemExpenseListView, PeriodTransactionItemExpenseCategoryListView, PeriodTransactionItemBillListView, PeriodTransactionItemBillCategoryListView, PeriodTransactionItemSavingListView, PeriodTransactionItemSavingCategoryListView
+from view import *
 from controller import IndexPage, TransactionsPage, CategoriesPage
 
 period = "([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})"
@@ -11,11 +11,12 @@ urls = (
     '/', 'IndexPage',
     '/([a-z]+)/transactions\.html', 'TransactionsPage',
     '/([a-z]+)/categories\.html', 'CategoriesPage',
-    '/([a-z]+)/authorize/?', 'AuthorizeView', # Redundant
+    '/([a-z]+)/user/?', 'UserView', 
 
     '/([a-z]+)/?', 'DatabaseView', # GET
 
     '/([a-z]+)/account-list/?', 'AccountListView', # GET
+    '/([a-z]+)/account-list-active/?', 'AccountListActiveView', # GET
     '/([a-z]+)/account/?', 'AccountAdd', # POST
     '/([a-z]+)/account/([0-9]+)/?', 'AccountView', # GET
     '/([a-z]+)/account/([0-9]+)/?', 'AccountUpdate', # POST delete attr
@@ -37,16 +38,19 @@ urls = (
     '/([a-z]+)/transaction-item/([0-9]+)/?', 'TransactionItemUpdate', # POST delete attr
 
     '/([a-z]+)/expense-list/?', 'ExpenseCategoryListView', # GET
+    '/([a-z]+)/expense-list-active/?', 'ExpenseCategoryListActiveView', # GET
     '/([a-z]+)/expense/?', 'ExpenseCategoryAdd', # POST
     '/([a-z]+)/expense/([0-9]+)/?', 'ExpenseCategoryView', # GET
     '/([a-z]+)/expense/([0-9]+)/?', 'ExpenseCategoryUpdate', # POST delete attr
 
     '/([a-z]+)/bill-list/?', 'BillCategoryListView', # GET
+    '/([a-z]+)/bill-list-active/?', 'BillCategoryListActiveView', # GET
     '/([a-z]+)/bill/?', 'BillCategoryAdd', # POST
     '/([a-z]+)/bill/([0-9]+)/?', 'BillCategoryView', # GET
     '/([a-z]+)/bill/([0-9]+)/?', 'BillCategoryUpdate', # POST delete attr
 
     '/([a-z]+)/saving-list/?', 'SavingCategoryListView', # GET
+    '/([a-z]+)/saving-list-active/?', 'SavingCategoryListActiveView', # GET
     '/([a-z]+)/saving/?', 'SavingCategoryAdd', # POST
     '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryView', # GET
     '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryUpdate', # POST delete attr

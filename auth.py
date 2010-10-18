@@ -34,6 +34,7 @@ def check_credentials(login, password, db_name, permission=None):
   if login:
     u = users.get(login, None)
     if u != None:
+      u['name'] = login
       if db_name == u['database']:
         if password == u['password']:
           if (permission == None) or (u['permission'] in permission):

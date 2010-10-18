@@ -31,6 +31,7 @@ class MainInterface(Interface):
 
   opt_account_add = MenuOption('a', 'accounts', 'Add an Account', order=3.0)
   opt_account_update = MenuOption('u', 'updateaccounts', 'Update an Account', order=3.1)
+  opt_account_list = MenuOption('l', 'accounts', 'list accounrs', order=3.2)
 
   opt_add_transaction = MenuOption('t', 'transaction', 'add a financial transaction', order=4.0)
 
@@ -204,6 +205,10 @@ class MainInterface(Interface):
         response = urllib2.urlopen('http://%(host)s/%(database)s/financial-transaction-item/' % authenticate, encoded_data)
       except urllib2.HTTPError, inst:
         print inst
+
+    elif res in self.opt_account_list():
+      data = urllib2.urlopen('http://%(host)s/%(database)s/account-list/' % authenticate) 
+      print data.read()
 
     elif res in self.opt_expense_category_list():
       data = urllib2.urlopen('http://%(host)s/%(database)s/expense-list/' % authenticate) 

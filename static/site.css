@@ -1,0 +1,15 @@
+body {
+  background-color: white;
+  color: #1f1605; /* drk_brwn */
+  font-size: 62.8%;
+  line-height: 1em;
+  font-family: sans-serif;
+}
+
+input[type='text'] {
+  border: 1px dotted #aaa;
+  background-color: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}

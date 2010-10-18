@@ -1,32 +1,100 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<title>Penny Pinching - Transactions</title>
+<title>Penny Pinching - Transactions - $db_name</title>
 <meta name="description" content="tracking finances by categorizing expenses">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta http-equiv="content-style-type" content="text/css">
 
-<link href="static/site.css" type="text/css" rel="stylesheet" media="all"/>
-<link href="static/jquery-ui-1.7.2.custom.css" type="text/css" rel="stylesheet" media="all"/>
+<link href="/static/site.css" type="text/css" rel="stylesheet" media="all"/>
+<link href="/static/css/custom-theme/jquery-ui-1.8.5.custom.css" type="text/css" rel="stylesheet" media="all"/>
 
-<script type="text/javascript" src="/static/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="/static/jquery-ui-1.7.2.custom.min.js"></script>
-<!--
-<script type="text/javascript" src="/static/jquery.verify_form.js"></script>
-<script type="text/javascript" src="/static/jquery.constrain.js"></script>		
--->
-<script type="text/javascript" src="/static/site.js"></script>		
+<script type="text/javascript" src="/static/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/static/jquery-ui-1.8.5.custom.min.js"></script>
+
+<script type="text/javascript" src="/static/jquery.constrain.js"></script>
+<script type="text/javascript" src="/static/json2.js"></script>		
+<script type="text/javascript" src="/static/mustache.js"></script>		
+<script type="text/javascript" src="/static/ICanHaz.min.js"></script>		
+
+<script type="text/javascript"> var db_name='$db_name'; </script>
+
+<script id="user_details" type="text/html">
+  <label>Database:</label>{{db_name}}
+  {{#user}}
+  <label>Name:</label> {{name}}
+  <label>Permission:</label> {{permission}}
+  {{/user}}
+</script>
+
+<script id="account_select_list" type="text/html">
+  {{#accounts}}
+    <option value="{{id}}">{{name}}</option>
+  {{/accounts}}
+</script>
+<script id="transaction_item" type="text/html">
+  <div class="transaction_item">
+    <button class="remove_item"><span>-</span></button>
+    <input name="transaction_item_name" type="text">
+    <select id="chart_type_select_list" name="chart_type">
+      <option selected="selected" value="expense">Expense</option>
+      <option value="income">Income</option>
+      <option value="bill">Bill</option>
+      <option value="saving">Saving</option>
+    </select>
+    <select id="category_select_list" name="category">
+      {{#category}}
+      <option value="{{id}}">{{name}} $currency {{balance}}</option>
+      {{/category}}
+    </select>
+    <input type="text" name="item_amount" value="0.00">
+  </div>
+</script>
+
+<script id="category_list" type="text/html">
+  {{#category}}
+  <option value="{{name}}">{{name}} ${{balance}}</option>
+  {{/category}}
+</script>
+
+<script type="text/javascript" src="/static/transactions.js"></script>		
 
 </head>
 <body>
   <div id="page">
+    <div id="user_details"></div>
 
     <div id="content">
-      $add_transaction
-    </div>
+      <button id="add_transaction">Add Transaction</button>
+      <div id="new_transaction">
+        $transaction_status_select
+        <select id="account_select_list" name="account"></select>
+        <div id="new_transaction_date"> </div>
+        <input type="text" name="transaction_name">
+        $currency <input type="text" id="transaction_amount"></input> <span id="transaction_amount_remainder"></span>
+        <br>
+        
+        <button class="add_item"><span>+</span></button>
+        <div id="transaction_items"> </div> 
 
-  </div>
+        <!--
+        <div id="cleared_and_suspect_transactions">
+          <div class="listing">
+            #for $column in $cleared_and_suspect_transactions
+              <div class="col two">
+                #if $column
+                  #for $transaction in $column
+                    $transaction_box($transaction)
+                  #end for
+                #end if
+              </div>
+            #end for
+          </div>
+        -->
+
+      </div> <!-- #new_transaction -->
+    </div> <!-- #content -->
+
+  </div> <!-- #page -->
 </body>
 </html>
-
-

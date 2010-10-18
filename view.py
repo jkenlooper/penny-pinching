@@ -3,6 +3,7 @@
 import web
 import doctest
 import yaml
+import json
 import sqlite3
 import os.path
 from decimal import Decimal
@@ -10,7 +11,7 @@ from datetime import date
 import ConfigParser
 from auth import read_permission, write_permission, admin_permission
 
-TRANSACTION_STATUS_ENUM = ('suspect', 'no_receipt', 'receipt', 'scheduled', 'cleared', 'reconciled')
+TRANSACTION_STATUS_ENUM = ['suspect', 'no_receipt', 'receipt', 'scheduled', 'cleared', 'reconciled']
 
 CHART_TYPE_ENUM = ['income', 'expense', 'bill', 'saving']
 
@@ -33,7 +34,7 @@ def initialize_database_tables(db_name):
     db_cnx = get_db_cnx(db_name)
     db_cnx.execute("""create table Account(id integer primary key,
         name unique not null,
-        active default true,
+        active default 1,
         balance default 0,
         balance_date not null);""")
     db_cnx.execute("""create table FinancialTransaction(id integer primary key,
@@ -66,6 +67,7 @@ def initialize_database_tables(db_name):
         active default 1,
         cap default 0,
         allotment not null);""")
+    db_cnx.commit()
   
 
 def normalize(l, description):
@@ -117,9 +119,18 @@ def validate(user_input, valid):
       raise ValueError("keys are not valid. expected: %s but got %s" % (valid.keys(), user_input.keys()))
   return d
     
-def data_formatted(data_format, data):
+def dump_data_formatted(data_format, data):
   if data_format == 'yaml':
     return yaml.safe_dump(data)
+  elif data_format == 'json':
+    return json.write(data)
+
+def load_formatted_data(data_format, data_string):
+  if data_format == 'yaml':
+    return yaml.safe_load(data_string)
+  elif data_format == 'json':
+    print data_string
+    return json.read(data_string) # TODO:
 
 class ListView(object):
   query = "select * from ExpenseCategory;"
@@ -128,7 +139,7 @@ class ListView(object):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
     data = normalize(cur.execute(self.query).fetchall(), cur.description)
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class Add(object):
   query = "insert into TableName (column1, column2) values (:column1, :column2);"
@@ -136,8 +147,7 @@ class Add(object):
   @write_permission
   def POST(self, db_name, _user=None):
     user_input = web.input(data_string=None)
-    if _user['data_format'] == 'yaml':
-      user_data = yaml.safe_load(user_input.data_string)
+    user_data = load_formatted_data(_user["data_format"], user_input.data_string)
     c = validate(user_data, self.valid_data_format)
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
@@ -153,7 +163,8 @@ class Update(object):
     user_input = web.input(data_string=None)
     user_data = {'id':id}
     if _user['data_format'] == 'yaml':
-      user_data.update(yaml.safe_load(user_input.data_string))
+      d = load_formatted_data(_user["data_format"], user_input.data_string)
+      user_data.update(d)
     try:
       d = validate(user_data, self.valid_data_format)
     except ValueError:
@@ -165,6 +176,13 @@ class Update(object):
     except:
       return web.internalerror()
     return web.created()
+
+class UserView(object):
+  """ Show the user information for just the user that logged in """
+  @read_permission
+  def GET(self, db_name, _user=None):
+    data = {'db_name':db_name, 'user':[_user,]}
+    return dump_data_formatted(_user["data_format"], data)
 
 class DatabaseView(object):
   @read_permission
@@ -179,10 +197,13 @@ class DatabaseView(object):
       result = cur.execute("select * from %s;" % (t,)).fetchall()
       description = cur.description
       data[t] = normalize(result, description)
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class AccountListView(ListView):
   query = "select * from Account;"
+
+class AccountListActiveView(ListView):
+  query = "select * from Account where active = 1;"
 
 class AccountAdd(Add): 
   query = "insert into Account (name, balance, balance_date) values (:name, :balance, date(current_timestamp));"
@@ -196,7 +217,7 @@ class FinancialTransactionAdd(object):
   @write_permission
   def POST(self, db_name, _user=None):
     user_input = web.input(yaml_data_string=None)
-    user_data = yaml.safe_load(user_input.yaml_data_string)
+    user_data = load_formatted_data(_user["data_format"], user_input.data_string)
     d = validate(user_data, {'name':str, 'status':int, 'date':year_month_day, 'account':int})
 
     db_cnx = get_db_cnx(db_name)
@@ -210,8 +231,7 @@ class FinancialTransactionItemAdd(object):
   @write_permission
   def POST(self, db_name, _user=None):
     user_input = web.input(data_string=None)
-    if _user['data_format'] == 'yaml':
-      user_data = yaml.safe_load(user_input.data_string)
+    user_data = load_formatted_data(_user["data_format"], str(user_input.data_string))
     t = validate(user_data, {'name':str, 'status':int, 'date':year_month_day, 'account':int, 'items':list})
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
@@ -236,14 +256,30 @@ class FinancialTransactionItemListView(object):
     for transaction in data:
       items = normalize(cur.execute("select * from TransactionItem where financial_transaction = ?;", (transaction['id'])), cur.description)
       transaction['items'] = items
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class ExpenseCategoryListView(ListView):
   query = "select * from ExpenseCategory;"
 
+class ExpenseCategoryListActiveView(ListView):
+  query = "select * from ExpenseCategory where active = 1;"
+
 class ExpenseCategoryAdd(Add):
   query = "insert into ExpenseCategory (name, balance, active, cap, allotment) values (:name, :balance, :active, :cap, :allotment)"
   valid_data_format = {'name':str, 'balance':Decimal, 'active':bool, 'cap':Decimal, 'allotment':int}
+
+class BillCategoryListView(ListView):
+  query = "select * from BillCategory;"
+
+class BillCategoryListActiveView(ListView):
+  query = "select * from BillCategory where active = 1;"
+
+class SavingCategoryListView(ListView):
+  query = "select * from SavingCategory;"
+
+class SavingCategoryListActiveView(ListView):
+  query = "select * from SavingCategory where active = 1;"
+
 
 class PeriodFinancialTransactionListView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
@@ -255,7 +291,7 @@ class PeriodFinancialTransactionListView(object):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
     data = normalize(cur.execute(self.query, valid_data).fetchall(), cur.description)
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class PeriodFinancialTransactionItemListView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
@@ -271,7 +307,7 @@ class PeriodFinancialTransactionItemListView(object):
     for transaction in data:
       items = normalize(cur.execute(self.subquery, (transaction['id'])), cur.description)
       transaction['items'] = items
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class PeriodFinancialTransactionAccountListView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start and account = :account order by date"
@@ -283,7 +319,7 @@ class PeriodFinancialTransactionAccountListView(object):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
     data = normalize(cur.execute(self.query, valid_data).fetchall(), cur.description)
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class PeriodFinancialTransactionItemAccountListView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start and account = :account order by date"
@@ -299,7 +335,7 @@ class PeriodFinancialTransactionItemAccountListView(object):
     for transaction in data:
       items = normalize(cur.execute(self.subquery, (transaction['id'])), cur.description)
       transaction['items'] = items
-    return data_formatted(_user["data_format"], data)
+    return dump_data_formatted(_user["data_format"], data)
 
 class PeriodItemsView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
@@ -315,7 +351,7 @@ class PeriodItemsView(object):
     items = []
     for transaction in data:
       items.append(normalize(cur.execute(self.subquery, (transaction['id'])), cur.description))
-    return data_formatted(_user["data_format"], items)
+    return dump_data_formatted(_user["data_format"], items)
 
 class PeriodItemsCategoryView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
@@ -332,7 +368,7 @@ class PeriodItemsCategoryView(object):
     for transaction in data:
       valid_sub_data = validate({'transaction_id':transaction['id'], 'category':category}, {'transaction_id':int, 'category_id':int})
       items.append(normalize(cur.execute(self.subquery, valid_sub_data), cur.description))
-    return data_formatted(_user["data_format"], items)
+    return dump_data_formatted(_user["data_format"], items)
 
 class PeriodTransactionItemListView(PeriodItemsView):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
