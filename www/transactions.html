@@ -57,6 +57,20 @@
   {{/category}}
 </script>
 
+<script id="transaction_listing" type="text/html">
+    <div class="listing">
+      {{#column}}
+        <div class="column">
+          {{#transaction}}
+            <div class="transaction">
+              {{id}} {{name}} {{status}} {{date}} {{account}}
+            </div>
+          {{/transaction}}
+        </div>
+      {{/column}}
+    </div>
+</script>
+
 <script type="text/javascript" src="/static/transactions.js"></script>		
 
 </head>
@@ -77,22 +91,9 @@
         <button class="add_item"><span>+</span></button>
         <div id="transaction_items"> </div> 
 
-        <!--
-        <div id="cleared_and_suspect_transactions">
-          <div class="listing">
-            #for $column in $cleared_and_suspect_transactions
-              <div class="col two">
-                #if $column
-                  #for $transaction in $column
-                    $transaction_box($transaction)
-                  #end for
-                #end if
-              </div>
-            #end for
-          </div>
-        -->
-
       </div> <!-- #new_transaction -->
+      <div class="transaction_list" id="cleared_suspect_transactions"></div>
+      <div class="transaction_list" id="receipt_no_receipt_scheduled_transactions"></div>
     </div> <!-- #content -->
 
   </div> <!-- #page -->

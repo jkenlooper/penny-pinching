@@ -19,6 +19,40 @@ jQuery(document).ready(function($) {
     html = ich.account_select_list(hash);
     $('#account_select_list').append(html);
   });
+  function split_transactions(data, target){
+    var target_width = target.innerWidth();
+    var column_width = 212;
+    var number_of_columns = Math.floor(target_width / column_width);
+    var margin = Math.floor((target_width % column_width) / number_of_columns);
+
+    hash = {'column':[], 'margin':margin};
+
+    rem = data.length % number_of_columns;
+    items_per_column = Math.floor(data.length/number_of_columns);
+    for (i=0; i<number_of_columns; i++) {
+      hash['column'].push({'transaction':[]});
+      for (j=0; j<items_per_column; j++) {
+        hash['column'][i]['transaction'].push(data.shift());
+      }
+      if (rem > 0) {
+        hash['column'][i]['transaction'].push(data.shift());
+        rem--;
+      }
+    }
+    return hash;
+  }
+  function load_transaction_list(status_set) { // cleared_suspect || receipt_no_receipt_scheduled
+    $.getJSON("/"+db_name+"/financial-transaction-list/"+status_set, function(data){
+      var transactions_div = $('#'+status_set+'_transactions');
+      hash = split_transactions(data, transactions_div);
+      html = ich.transaction_listing(hash);
+      transactions_div.html(html);
+      transactions_div.find("div.column").css({'margin-left':hash['margin']+"px"});
+    });
+  }
+  load_transaction_list('cleared_suspect');
+  load_transaction_list('receipt_no_receipt_scheduled');
+
   add_blank_transaction_item();
 
   $("#transaction_items").delegate(".chart_type_select_list", "change", function(){
@@ -87,7 +121,15 @@ jQuery(document).ready(function($) {
 
       d = {'data_string':JSON.stringify(data_string)};
       console.log(d['data_string']);
-      $.post("/"+db_name+"/financial-transaction-item", d);
+      $.post("/"+db_name+"/financial-transaction-item", d, function(data){
+        console.log(data);
+        return_data = JSON.parse(data);
+        if (return_data['status'] == 0 || return_data['status'] == 4) {
+          load_transaction_list('cleared_suspect');
+        } else {
+          load_transaction_list('receipt_no_receipt_scheduled');
+        }
+      });
   });
 
 

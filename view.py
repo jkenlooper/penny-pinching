@@ -39,7 +39,7 @@ def initialize_database_tables(db_name):
         balance_date not null);""")
     db_cnx.execute("""create table FinancialTransaction(id integer primary key,
         name not null,
-        status integer default 0,
+        status integer default 2,
         date not null,
         account not null);""")
     db_cnx.execute("""create table TransactionItem(id integer primary key,
@@ -213,18 +213,27 @@ class AccountUpdate(Update):
   query = "update Account (name, active, balance, balance_date) values (:name, :active, :balance, :balance_date) where id = :id;"
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
-class FinancialTransactionAdd(object): 
-  @write_permission
-  def POST(self, db_name, _user=None):
-    user_input = web.input(yaml_data_string=None)
-    user_data = load_formatted_data(_user["data_format"], user_input.data_string)
-    d = validate(user_data, {'name':str, 'status':int, 'date':year_month_day, 'account':int})
+class FinancialTransactionListView(ListView):
+  query = "select * from FinancialTransaction;"
 
+class FinancialTransactionStatusListView(object):
+  query = "select * from FinancialTransaction where status = :status;"
+  @read_permission
+  def GET(self, db_name, status, _user=None):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
-    cur.execute("insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);", d)
-    db_cnx.commit()
-    return web.created()
+    data = normalize(cur.execute(self.query, {'status':status}).fetchall(), cur.description)
+    return dump_data_formatted(_user["data_format"], data)
+
+class FinancialTransactionClearedSuspectListView(ListView):
+  query = "select * from FinancialTransaction where status = 4 or status = 0;"
+
+class FinancialTransactionReceiptNoReceiptScheduledListView(ListView):
+  query = "select * from FinancialTransaction where status = 2 or status = 1 or status = 3;"
+
+class FinancialTransactionAdd(Add): 
+  query = "insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);"
+  valid_data_format = {'name':str, 'status':int, 'date':year_month_day, 'account':int}
 
 class FinancialTransactionItemAdd(object):
   """ adding a transaction with items """
@@ -245,6 +254,7 @@ class FinancialTransactionItemAdd(object):
       validated_items.append(item)
     db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", validated_items)
     db_cnx.commit()
+    return dump_data_formatted(_user["data_format"], t)
 
 
 class FinancialTransactionItemListView(object):

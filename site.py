@@ -5,7 +5,7 @@ import doctest
 import sys
 from view import *
 from controller import IndexPage, TransactionsPage, CategoriesPage
-
+status_or = "|".join(TRANSACTION_STATUS_ENUM)
 period = "([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})"
 urls = (
     '/', 'IndexPage',
@@ -22,6 +22,9 @@ urls = (
     '/([a-z]+)/account/([0-9]+)/?', 'AccountUpdate', # POST delete attr
 
     '/([a-z]+)/financial-transaction-list/?', 'FinancialTransactionListView', # GET
+    '/([a-z]+)/financial-transaction-list/status/(%s)/?' % status_or, 'FinancialTransactionStatusListView', # GET
+    '/([a-z]+)/financial-transaction-list/cleared_suspect/?', 'FinancialTransactionClearedSuspectListView', # GET
+    '/([a-z]+)/financial-transaction-list/receipt_no_receipt_scheduled/?', 'FinancialTransactionReceiptNoReceiptScheduledListView', # GET
     '/([a-z]+)/financial-transaction/?', 'FinancialTransactionAdd', # POST
     '/([a-z]+)/financial-transaction/([0-9]+)/?', 'FinancialTransactionView', # GET
     '/([a-z]+)/financial-transaction/([0-9]+)/?', 'FinancialTransactionUpdate', # POST delete attr
