@@ -10,6 +10,10 @@ from decimal import Decimal
 from datetime import date
 import ConfigParser
 from auth import read_permission, write_permission, admin_permission
+import logging
+logging.basicConfig()
+
+logger = logging.getLogger('view')
 
 TRANSACTION_STATUS_ENUM = ['suspect', 'no_receipt', 'receipt', 'scheduled', 'cleared', 'reconciled']
 
@@ -67,6 +71,9 @@ def initialize_database_tables(db_name):
         active default 1,
         cap default 0,
         allotment not null);""")
+    db_cnx.execute("""insert into ExpenseCategory (name, allotment) values ("buffer", 0);""")
+    db_cnx.execute("""insert into BillCategory (name, allotment) values ("buffer", 0);""")
+    db_cnx.execute("""insert into SavingCategory (name, allotment) values ("buffer", 0);""")
     db_cnx.commit()
   
 
@@ -130,7 +137,7 @@ def load_formatted_data(data_format, data_string):
     return yaml.safe_load(data_string)
   elif data_format == 'json':
     print data_string
-    return json.read(data_string) # TODO:
+    return json.read(data_string)
 
 class ListView(object):
   query = "select * from ExpenseCategory;"
@@ -214,10 +221,10 @@ class AccountUpdate(Update):
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
 class FinancialTransactionListView(ListView):
-  query = "select * from FinancialTransaction;"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id);"
 
 class FinancialTransactionStatusListView(object):
-  query = "select * from FinancialTransaction where status = :status;"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = :status;"
   @read_permission
   def GET(self, db_name, status, _user=None):
     db_cnx = get_db_cnx(db_name)
@@ -226,10 +233,10 @@ class FinancialTransactionStatusListView(object):
     return dump_data_formatted(_user["data_format"], data)
 
 class FinancialTransactionClearedSuspectListView(ListView):
-  query = "select * from FinancialTransaction where status = 4 or status = 0;"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = 4 or status = 0;"
 
 class FinancialTransactionReceiptNoReceiptScheduledListView(ListView):
-  query = "select * from FinancialTransaction where status = 2 or status = 1 or status = 3;"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = 2 or status = 1 or status = 3;"
 
 class FinancialTransactionAdd(Add): 
   query = "insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);"
@@ -248,25 +255,59 @@ class FinancialTransactionItemAdd(object):
     db_cnx.commit()
     inserted_transaction_id = cur.execute("select id from FinancialTransaction where name = :name and status = :status and date = :date and account = :account limit 1;", t).next()[0]
     validated_items = []
+    v_i = {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int}
     for item in t['items']:
-      item = validate(item, {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int})
+      item = validate(item, v_i)
       item['financial_transaction'] = inserted_transaction_id
-      validated_items.append(item)
+      if item['type'] == 1:
+        category_select = "select * from ExpenseCategory where id = :id;"
+        category_update = "update ExpenseCategory set balance = :balance where id = :id;"
+       
+      category = normalize(cur.execute(category_select, {'id':item['category']}), cur.description)
+      print category
+      if len(category):
+        category = category[0]
+        if float(item['amount']) > float(category['balance']):
+          item_amount_over = float(item['amount']) - float(category['balance'])
+          buffer_category = normalize(cur.execute(category_select, {'id':0}), cur.description)
+          if len(buffer_category):
+            buffer_category = buffer_category[0]
+            if item_amount_over > float(buffer_category['balance']):
+              print "item_amount_over" #TODO: show error?
+            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0}
+            buffer_item = validate(b, v_i) 
+            buffer_balance = Decimal(str(float(buffer_category['balance'])-float(item_amount_over)))
+            cur.execute(category_update, {'balance':str(buffer_balance), 'id':0})
+            validated_items.append(buffer_item)
+            item['amount'] = category['balance']
+
+        balance = Decimal(str(float(category['balance'])-float(item['amount'])))
+        cur.execute(category_update, {'balance':str(balance), 'id':item['category']})
+        validated_items.append(item)
+      else:
+        print "no category"
+
+
     db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", validated_items)
     db_cnx.commit()
     return dump_data_formatted(_user["data_format"], t)
 
 
 class FinancialTransactionItemListView(object):
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id);"
+  subquery = "select * from TransactionItem where financial_transaction = :id;"
   @read_permission
   def GET(self, db_name, _user=None):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
-    data = normalize(cur.execute("select * from FinancialTransaction;").fetchall(), cur.description)
+    data = normalize(cur.execute(self.query).fetchall(), cur.description)
     for transaction in data:
-      items = normalize(cur.execute("select * from TransactionItem where financial_transaction = :id;", {'id':transaction['id']}), cur.description)
+      items = normalize(cur.execute(self.subquery, {'id':transaction['id']}), cur.description)
       transaction['items'] = items
     return dump_data_formatted(_user["data_format"], data)
+
+class TransactionItemListView(ListView):
+  query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction)";
 
 class ExpenseCategoryListView(ListView):
   query = "select * from ExpenseCategory;"
@@ -361,8 +402,7 @@ class PeriodFinancialTransactionItemAccountListView(object):
     return dump_data_formatted(_user["data_format"], data)
 
 class PeriodItemsView(object):
-  query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
-  subquery = "select * from TransactionItem where financial_transaction = ?;"
+  query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction) where date <= :end and date >= :start order by date";
   @read_permission
   def GET(self, db_name, period, _user=None):
     k = ('start', 'end')
@@ -371,10 +411,7 @@ class PeriodItemsView(object):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
     data = normalize(cur.execute(self.query, valid_data).fetchall(), cur.description)
-    items = []
-    for transaction in data:
-      items.append(normalize(cur.execute(self.subquery, (transaction['id'])), cur.description))
-    return dump_data_formatted(_user["data_format"], items)
+    return dump_data_formatted(_user["data_format"], data)
 
 class PeriodItemsCategoryView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
@@ -394,28 +431,24 @@ class PeriodItemsCategoryView(object):
     return dump_data_formatted(_user["data_format"], items)
 
 class PeriodTransactionItemListView(PeriodItemsView):
-  query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
-  subquery = "select * from TransactionItem where financial_transaction = ?;"
+  query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction) where date <= :end and date >= :start order by date";
 
 class PeriodTransactionItemExpenseListView(PeriodItemsView):
-  query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
-  subquery = "select * from TransactionItem where financial_transaction = ? and type = 1;"
+  query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction) where date <= :end and date >= :start and type = 1 order by date";
 
 class PeriodTransactionItemExpenseCategoryListView(PeriodItemsCategoryView):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
   subquery = "select * from TransactionItem where financial_transaction = :transaction_id and type = 1 and category = :category_id;"
 
 class PeriodTransactionItemBillListView(PeriodItemsView):
-  query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
-  subquery = "select * from TransactionItem where financial_transaction = ? and type = 2;"
+  query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction) where date <= :end and date >= :start and type = 2 order by date";
 
 class PeriodTransactionItemBillCategoryListView(PeriodItemsCategoryView):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
   subquery = "select * from TransactionItem where financial_transaction = :transaction_id and type = 2 and category = :category_id;"
 
 class PeriodTransactionItemSavingListView(PeriodItemsView):
-  query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
-  subquery = "select * from TransactionItem where financial_transaction = ? and type = 3;"
+  query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction) where date <= :end and date >= :start and type = 3 order by date";
 
 class PeriodTransactionItemSavingCategoryListView(PeriodItemsCategoryView):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"

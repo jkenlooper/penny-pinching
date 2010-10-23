@@ -79,52 +79,52 @@ class MainInterface(Interface):
           name: smiths
           status: 1
           date: 2010-09-28
-          account: 1
+          account: 0
           items:
             -
               name: food
               amount: 23.92
               type: 1
-              category: 1
+              category: 0
             -
               name: rocks
               amount: 3.92
               type: 1
-              category: 1
+              category: 0
 
               
         -
           name: smiths
-          status: 1
+          status: 2
           date: 2010-09-18
-          account: 1
+          account: 0
           items:
             -
               name: sandwiches
               amount: 2.10
               type: 1
-              category: 1
+              category: 0
             -
               name: pebbles
               amount: 33.92
               type: 1
-              category: 1
+              category: 0
         -
           name: albertsons
           status: 1
           date: 2010-08-18
-          account: 1
+          account: 0
           items:
             -
               name: cookies
               amount: 22.10
               type: 1
-              category: 2
+              category: 0
             -
               name: sand
               amount: 10.92
               type: 1
-              category: 1
+              category: 0
       expense:
         -
           name: groceries

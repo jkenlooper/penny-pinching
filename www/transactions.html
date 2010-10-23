@@ -36,13 +36,13 @@
   <div class="transaction_item">
     <button class="remove_item"><span>-</span></button>
     <input name="transaction_item_name" type="text">
-    <select id="chart_type_select_list" name="chart_type">
+    <select class="chart_type_select_list" name="chart_type">
       <option selected="selected" value="expense">Expense</option>
       <option value="income">Income</option>
       <option value="bill">Bill</option>
       <option value="saving">Saving</option>
     </select>
-    <select id="category_select_list" name="category">
+    <select class="category_select_list" name="category">
       {{#category}}
       <option value="{{id}}">{{name}} $currency {{balance}}</option>
       {{/category}}
@@ -62,7 +62,7 @@
     <div class="column">
       {{#transaction}}
         <div class="transaction">
-          {{id}} {{name}} {{status}} {{date}} {{account}}
+          {{id}} {{name}} {{status}} {{date}} {{account}} {{total}}
         </div>
       {{/transaction}}
     </div>
@@ -112,6 +112,7 @@
 
       <label for="group_by">Transaction Name</label><input type="radio" name="group_by" value="financial_transaction" checked="checked">
       <label for="group_by">Category</label><input type="radio" name="group_by" value="category">
+      <label for="group_by">Date</label><input type="radio" name="group_by" value="date">
       <h2>Start</h2>
       <div id="period-start"></div>
       <h2>End</h2>
