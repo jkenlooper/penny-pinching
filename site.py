@@ -6,7 +6,7 @@ import sys
 from view import *
 from controller import IndexPage, TransactionsPage, CategoriesPage
 status_or = "|".join(TRANSACTION_STATUS_ENUM)
-period = "([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})"
+period = "[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}"
 urls = (
     '/', 'IndexPage',
     '/([a-z]+)/transactions\.html', 'TransactionsPage',
@@ -58,17 +58,19 @@ urls = (
     '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryView', # GET
     '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryUpdate', # POST delete attr
 
-    '/([a-z]+)/period/%s/financial-transaction-list/?' % (period), 'PeriodFinancialTransactionListView', # GET
-    '/([a-z]+)/period/%s/financial-transaction-item-list/?' % (period), 'PeriodFinancialTransactionItemListView', # GET
-    '/([a-z]+)/period/%s/financial-transaction-list/account/([0-9]+)/?' % (period), 'PeriodFinancialTransactionAccountListView', # GET
-    '/([a-z]+)/period/%s/financial-transaction-item-list/account/([0-9]+)/?' % (period), 'PeriodFinancialTransactionItemAccountListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/?' % (period), 'PeriodTransactionItemListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/expense/?' % (period), 'PeriodTransactionItemExpenseListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/expense/([0-9]+)/?' % (period), 'PeriodTransactionItemExpenseCategoryListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/bill/?' % (period), 'PeriodTransactionItemBillListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/bill/([0-9]+)/?' % (period), 'PeriodTransactionItemBillCategoryListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/saving/?' % (period), 'PeriodTransactionItemSavingListView', # GET
-    '/([a-z]+)/period/%s/transaction-item-list/saving/([0-9]+)/?' % (period), 'PeriodTransactionItemSavingCategoryListView', # GET
+    '/([a-z]+)/all-category-list-active/?', 'AllCategoryListActiveView', # GET
+
+    '/([a-z]+)/period/(%s)/financial-transaction-list/?' % (period), 'PeriodFinancialTransactionListView', # GET
+    '/([a-z]+)/period/(%s)/financial-transaction-item-list/?' % (period), 'PeriodFinancialTransactionItemListView', # GET
+    '/([a-z]+)/period/(%s)/financial-transaction-list/account/([0-9]+)/?' % (period), 'PeriodFinancialTransactionAccountListView', # GET
+    '/([a-z]+)/period/(%s)/financial-transaction-item-list/account/([0-9]+)/?' % (period), 'PeriodFinancialTransactionItemAccountListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/?' % (period), 'PeriodTransactionItemListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/expense/?' % (period), 'PeriodTransactionItemExpenseListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/expense/([0-9]+)/?' % (period), 'PeriodTransactionItemExpenseCategoryListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/bill/?' % (period), 'PeriodTransactionItemBillListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/bill/([0-9]+)/?' % (period), 'PeriodTransactionItemBillCategoryListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/saving/?' % (period), 'PeriodTransactionItemSavingListView', # GET
+    '/([a-z]+)/period/(%s)/transaction-item-list/saving/([0-9]+)/?' % (period), 'PeriodTransactionItemSavingCategoryListView', # GET
 
     )
 

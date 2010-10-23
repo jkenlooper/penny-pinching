@@ -264,7 +264,7 @@ class FinancialTransactionItemListView(object):
     cur = db_cnx.cursor()
     data = normalize(cur.execute("select * from FinancialTransaction;").fetchall(), cur.description)
     for transaction in data:
-      items = normalize(cur.execute("select * from TransactionItem where financial_transaction = ?;", (transaction['id'])), cur.description)
+      items = normalize(cur.execute("select * from TransactionItem where financial_transaction = :id;", {'id':transaction['id']}), cur.description)
       transaction['items'] = items
     return dump_data_formatted(_user["data_format"], data)
 
@@ -290,6 +290,19 @@ class SavingCategoryListView(ListView):
 class SavingCategoryListActiveView(ListView):
   query = "select * from SavingCategory where active = 1;"
 
+class AllCategoryListActiveView(object):
+  query = {'expense':"select * from ExpenseCategory where active = 1;",
+           'bill':"select * from BillCategory where active = 1;",
+           'saving':"select * from SavingCategory where active = 1;"}
+  @read_permission
+  def GET(self, db_name, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    cur = db_cnx.cursor()
+    data = {}
+    for (t, q) in self.query.items():
+      data[t] = normalize(cur.execute(q).fetchall(), cur.description)
+    return dump_data_formatted(_user["data_format"], data)
+
 
 class PeriodFinancialTransactionListView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
@@ -305,7 +318,7 @@ class PeriodFinancialTransactionListView(object):
 
 class PeriodFinancialTransactionItemListView(object):
   query = "select * from FinancialTransaction where date <= :end and date >= :start order by date"
-  subquery = "select * from TransactionItem where financial_transaction = ?;"
+  subquery = "select * from TransactionItem where financial_transaction = :id;"
   @read_permission
   def GET(self, db_name, period, _user=None):
     k = ('start', 'end')
@@ -315,7 +328,7 @@ class PeriodFinancialTransactionItemListView(object):
     cur = db_cnx.cursor()
     data = normalize(cur.execute(self.query, valid_data).fetchall(), cur.description)
     for transaction in data:
-      items = normalize(cur.execute(self.subquery, (transaction['id'])), cur.description)
+      items = normalize(cur.execute(self.subquery, {'id':transaction['id']}), cur.description)
       transaction['items'] = items
     return dump_data_formatted(_user["data_format"], data)
 
