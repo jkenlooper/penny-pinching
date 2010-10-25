@@ -118,6 +118,7 @@ def validate(user_input, valid):
       if t == str:
         v = v.strip()
         v = v[:255]
+        v = v.lower()
       if t == Decimal:
         v = str(v)
         v = v.strip()
@@ -210,7 +211,14 @@ class AccountListView(ListView):
   query = "select * from Account;"
 
 class AccountListActiveView(ListView):
-  query = "select * from Account where active = 1;"
+  query = """
+    select * from Account left outer join (
+      select account as id, total(total) as transaction_total from (
+        select * from FinancialTransaction join (
+          select total(amount) as total, financial_transaction as id from TransactionItem group by id
+        ) using (id)
+      ) group by id
+    ) using (id) where active = 1;"""
 
 class AccountAdd(Add): 
   query = "insert into Account (name, balance, balance_date) values (:name, :balance, date(current_timestamp));"
@@ -250,47 +258,63 @@ class FinancialTransactionItemAdd(object):
     user_data = load_formatted_data(_user["data_format"], str(user_input.data_string))
     t = validate(user_data, {'name':str, 'status':int, 'date':year_month_day, 'account':int, 'items':list})
     db_cnx = get_db_cnx(db_name)
-    cur = db_cnx.cursor()
-    cur.execute("insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);", t)
+    self.cur = db_cnx.cursor()
+    self.cur.execute("insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);", t)
     db_cnx.commit()
-    inserted_transaction_id = cur.execute("select id from FinancialTransaction where name = :name and status = :status and date = :date and account = :account limit 1;", t).next()[0]
+    inserted_transaction_id = self.cur.execute("select last_insert_rowid() as id;").next()[0]
     validated_items = []
     v_i = {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int}
     for item in t['items']:
       item = validate(item, v_i)
       item['financial_transaction'] = inserted_transaction_id
-      if item['type'] == 1:
-        category_select = "select * from ExpenseCategory where id = :id;"
-        category_update = "update ExpenseCategory set balance = :balance where id = :id;"
-       
-      category = normalize(cur.execute(category_select, {'id':item['category']}), cur.description)
-      print category
-      if len(category):
-        category = category[0]
-        if float(item['amount']) > float(category['balance']):
-          item_amount_over = float(item['amount']) - float(category['balance'])
-          buffer_category = normalize(cur.execute(category_select, {'id':0}), cur.description)
-          if len(buffer_category):
-            buffer_category = buffer_category[0]
-            if item_amount_over > float(buffer_category['balance']):
-              print "item_amount_over" #TODO: show error?
-            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0}
-            buffer_item = validate(b, v_i) 
-            buffer_balance = Decimal(str(float(buffer_category['balance'])-float(item_amount_over)))
-            cur.execute(category_update, {'balance':str(buffer_balance), 'id':0})
-            validated_items.append(buffer_item)
-            item['amount'] = category['balance']
+      if item['type'] != 0:
+        self._update_category_balance(item)
+        item['amount'] = "-%s" % (item['amount'])
 
-        balance = Decimal(str(float(category['balance'])-float(item['amount'])))
-        cur.execute(category_update, {'balance':str(balance), 'id':item['category']})
-        validated_items.append(item)
-      else:
-        print "no category"
-
+      validated_items.append(item)
 
     db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", validated_items)
     db_cnx.commit()
     return dump_data_formatted(_user["data_format"], t)
+
+  def _update_category_balance(self, item):
+    "Update the category balance from the item amount"
+    if item['type'] == 1:
+      table = "ExpenseCategory"
+    elif item['type'] == 2:
+      table = "BillCategory"
+    elif item['type'] == 3:
+      table = "SavingCategory"
+    category_select = "select * from %s where id = :id;" % (table)
+    category_update = "update %s set balance = :balance where id = :id;" % (table)
+     
+    category = normalize(self.cur.execute(category_select, {'id':item['category']}), self.cur.description)
+    if len(category):
+      category = category[0]
+      print "%s > %s" % (float(item['amount']), float(category['balance']))
+      if float(item['amount']) > float(category['balance']):
+        print "item amount exceds category balance"
+        item_amount_over = float(item['amount']) - float(category['balance'])
+        buffer_category = normalize(self.cur.execute(category_select, {'id':0}), self.cur.description)
+        if len(buffer_category):
+          buffer_category = buffer_category[0]
+          if item_amount_over > float(buffer_category['balance']):
+            print "item amount over exceds buffer balance"
+          else:
+            print "splitting item amount with buffer balance"
+            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0}
+            buffer_item = validate(b, v_i) 
+            buffer_balance = Decimal(str(float(buffer_category['balance'])-float(item_amount_over)))
+            self.cur.execute(category_update, {'balance':str(buffer_balance), 'id':0})
+            validated_items.append(buffer_item)
+            item['amount'] = category['balance']
+        else:
+          print "no buffer found"
+
+      balance = Decimal(str(float(category['balance'])-float(item['amount'])))
+      self.cur.execute(category_update, {'balance':str(balance), 'id':item['category']})
+    else:
+      print "no category"
 
 
 class FinancialTransactionItemListView(object):

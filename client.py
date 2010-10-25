@@ -79,52 +79,52 @@ class MainInterface(Interface):
           name: smiths
           status: 1
           date: 2010-09-28
-          account: 0
+          account: 1
           items:
             -
               name: food
               amount: 23.92
               type: 1
-              category: 0
+              category: 2
             -
               name: rocks
               amount: 3.92
               type: 1
-              category: 0
+              category: 3
 
               
         -
           name: smiths
           status: 2
           date: 2010-09-18
-          account: 0
+          account: 1
           items:
             -
               name: sandwiches
               amount: 2.10
               type: 1
-              category: 0
+              category: 2
             -
               name: pebbles
               amount: 33.92
               type: 1
-              category: 0
+              category: 3
         -
           name: albertsons
           status: 1
           date: 2010-08-18
-          account: 0
+          account: 1
           items:
             -
               name: cookies
               amount: 22.10
               type: 1
-              category: 0
+              category: 2
             -
               name: sand
               amount: 10.92
               type: 1
-              category: 0
+              category: 3
       expense:
         -
           name: groceries
@@ -142,16 +142,16 @@ class MainInterface(Interface):
       saving:
       """
       data = yaml.safe_load(d)
+      try:
+        all = urllib2.urlopen('http://%(host)s/%(database)s' % authenticate)
+        print all.read()
+      except urllib2.HTTPError, inst:
+        print inst
+
       for account in data['account']:
         encoded_data = urllib.urlencode({'data_string':yaml.safe_dump(account)})
         try:
           response = urllib2.urlopen('http://%(host)s/%(database)s/account/' % authenticate, encoded_data)
-        except urllib2.HTTPError, inst:
-          print inst
-      for financial_transaction in data['financial_transaction']:
-        encoded_data = urllib.urlencode({'data_string':yaml.safe_dump(financial_transaction)})
-        try:
-          response = urllib2.urlopen('http://%(host)s/%(database)s/financial-transaction-item/' % authenticate, encoded_data)
         except urllib2.HTTPError, inst:
           print inst
       for expense in data['expense']:
@@ -174,6 +174,12 @@ class MainInterface(Interface):
             response = urllib2.urlopen('http://%(host)s/%(database)s/saving/' % authenticate, encoded_data)
           except urllib2.HTTPError, inst:
             print inst
+      for financial_transaction in data['financial_transaction']:
+        encoded_data = urllib.urlencode({'data_string':yaml.safe_dump(financial_transaction)})
+        try:
+          response = urllib2.urlopen('http://%(host)s/%(database)s/financial-transaction-item/' % authenticate, encoded_data)
+        except urllib2.HTTPError, inst:
+          print inst
 
        
           
@@ -207,7 +213,7 @@ class MainInterface(Interface):
         print inst
 
     elif res in self.opt_account_list():
-      data = urllib2.urlopen('http://%(host)s/%(database)s/account-list/' % authenticate) 
+      data = urllib2.urlopen('http://%(host)s/%(database)s/account-list-active/' % authenticate) 
       print data.read()
 
     elif res in self.opt_expense_category_list():
