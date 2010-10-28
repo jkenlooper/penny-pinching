@@ -130,13 +130,15 @@ class MainInterface(Interface):
           name: groceries
           balance: 300
           active: true
-          cap: 600.23
+          minimum: 100.23
+          maximum: 600.23
           allotment: 50
         -
           name: other
           balance: 100
           active: true
-          cap: 200.23
+          maximum: 20.23
+          minimum: 200.23
           allotment: 20
       bill:
       saving:

@@ -61,4 +61,5 @@ class CategoriesPage(object):
   def GET(self, db_name, _user=None):
     web.header('Content-type', "text/html; charset=utf-8")
     template = Template(open('www/categories.html', 'r').read())
-    return template.safe_substitute()
+    return template.safe_substitute(db_name=db_name,
+        currency="$")

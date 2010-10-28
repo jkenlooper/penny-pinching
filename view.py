@@ -56,20 +56,23 @@ def initialize_database_tables(db_name):
         name unique not null,
         balance default 0,
         active default 1,
-        cap default 0,
+        minimum default 0,
+        maximum default 0,
         allotment not null);""")
     db_cnx.execute("""create table BillCategory(id integer primary key,
         name unique not null,
         balance default 0,
         active default 1,
-        cap default 0,
+        minimum default 0,
+        maximum default 0,
         allotment not null,
         due);""")
     db_cnx.execute("""create table SavingCategory(id integer primary key,
         name unique not null,
         balance default 0,
         active default 1,
-        cap default 0,
+        minimum default 0,
+        maximum default 0,
         allotment not null);""")
     db_cnx.execute("""insert into ExpenseCategory (name, allotment) values ("buffer", 0);""")
     db_cnx.execute("""insert into BillCategory (name, allotment) values ("buffer", 0);""")
@@ -137,8 +140,7 @@ def load_formatted_data(data_format, data_string):
   if data_format == 'yaml':
     return yaml.safe_load(data_string)
   elif data_format == 'json':
-    print data_string
-    return json.read(data_string)
+    return json.read(str(data_string))
 
 class ListView(object):
   query = "select * from ExpenseCategory;"
@@ -151,7 +153,7 @@ class ListView(object):
 
 class Add(object):
   query = "insert into TableName (column1, column2) values (:column1, :column2);"
-  valid_data_format = {'name':str, 'balance':Decimal, 'active':bool, 'cap':Decimal, 'allotment':int}
+  valid_data_format = {'name':str, 'balance':Decimal, 'active':bool, 'minimum':Decimal, 'maximum':Decimal, 'allotment':int}
   @write_permission
   def POST(self, db_name, _user=None):
     user_input = web.input(data_string=None)
@@ -340,8 +342,8 @@ class ExpenseCategoryListActiveView(ListView):
   query = "select * from ExpenseCategory where active = 1;"
 
 class ExpenseCategoryAdd(Add):
-  query = "insert into ExpenseCategory (name, balance, active, cap, allotment) values (:name, :balance, :active, :cap, :allotment)"
-  valid_data_format = {'name':str, 'balance':Decimal, 'active':bool, 'cap':Decimal, 'allotment':int}
+  query = "insert into ExpenseCategory (name, balance, minimum, maximum, allotment) values (:name, :balance, :minimum, :maximum, :allotment)"
+  valid_data_format = {'name':str, 'balance':Decimal, 'minimum':Decimal, 'maximum':Decimal, 'allotment':int}
 
 class BillCategoryListView(ListView):
   query = "select * from BillCategory;"
@@ -366,6 +368,33 @@ class AllCategoryListActiveView(object):
     data = {}
     for (t, q) in self.query.items():
       data[t] = normalize(cur.execute(q).fetchall(), cur.description)
+    return dump_data_formatted(_user["data_format"], data)
+
+class TotalBalanceView(object):
+  query_expense = "select total(balance) as total from ExpenseCategory where active = 1;"
+  query_bill = "select total(balance) as total from BillCategory where active = 1;"
+  query_saving = "select total(balance) as total from SavingCategory where active = 1;"
+  query_transaction = """select total(transaction_total) as total from Account left outer join (
+        select account as id, total(total) as transaction_total from (
+          select account, total from FinancialTransaction join (
+            select total(amount) as total, financial_transaction as id from TransactionItem group by id
+          ) using (id)
+        ) group by id
+      ) using (id) where active = 1;"""
+  @read_permission
+  def GET(self, db_name, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    cur = db_cnx.cursor()
+    expense_data = normalize(cur.execute(self.query_expense).fetchall(), cur.description)[0]
+    bill_data = normalize(cur.execute(self.query_bill).fetchall(), cur.description)[0]
+    saving_data = normalize(cur.execute(self.query_saving).fetchall(), cur.description)[0]
+    transaction_data = normalize(cur.execute(self.query_transaction).fetchall(), cur.description)[0]
+    category_total = sum((float(expense_data['total']), float(bill_data['total']), float(saving_data['total'])))
+    data = {'expense':expense_data['total'],
+        'bill':bill_data['total'],
+        'saving':saving_data['total'],
+        'transaction':transaction_data['total']}
+    data['available'] = str(Decimal(str(float(transaction_data['total']) - category_total)))
     return dump_data_formatted(_user["data_format"], data)
 
 

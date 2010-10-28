@@ -60,6 +60,8 @@ urls = (
 
     '/([a-z]+)/all-category-list-active/?', 'AllCategoryListActiveView', # GET
 
+    '/([a-z]+)/total-balance/?', 'TotalBalanceView',
+
     '/([a-z]+)/period/(%s)/financial-transaction-list/?' % (period), 'PeriodFinancialTransactionListView', # GET
     '/([a-z]+)/period/(%s)/financial-transaction-item-list/?' % (period), 'PeriodFinancialTransactionItemListView', # GET
     '/([a-z]+)/period/(%s)/financial-transaction-list/account/([0-9]+)/?' % (period), 'PeriodFinancialTransactionAccountListView', # GET
