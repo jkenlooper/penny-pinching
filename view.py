@@ -259,10 +259,10 @@ class FinancialTransactionItemAdd(object):
     user_input = web.input(data_string=None)
     user_data = load_formatted_data(_user["data_format"], str(user_input.data_string))
     t = validate(user_data, {'name':str, 'status':int, 'date':year_month_day, 'account':int, 'items':list})
-    db_cnx = get_db_cnx(db_name)
-    self.cur = db_cnx.cursor()
+    self.db_cnx = get_db_cnx(db_name)
+    self.cur = self.db_cnx.cursor()
     self.cur.execute("insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);", t)
-    db_cnx.commit()
+    self.db_cnx.commit()
     inserted_transaction_id = self.cur.execute("select last_insert_rowid() as id;").next()[0]
     validated_items = []
     v_i = {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int}
@@ -272,12 +272,61 @@ class FinancialTransactionItemAdd(object):
       if item['type'] != 0:
         self._update_category_balance(item)
         item['amount'] = "-%s" % (item['amount'])
+      else:
+        self._distribute_to_categories(item)
 
       validated_items.append(item)
 
-    db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", validated_items)
-    db_cnx.commit()
+    self.db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", validated_items)
+    self.db_cnx.commit()
     return dump_data_formatted(_user["data_format"], t)
+
+  def _distribute_to_categories(self, item):
+    "Distribute the income item between categories based on allotments"
+    #bill_categories = normalize(self.cur.execute("select * from BillCategory where active=1;"), self.cur.description)
+    expense_categories = normalize(self.cur.execute("select * from ExpenseCategory where active=1 order by allotment desc;"), self.cur.description)
+    #saving_categories = normalize(self.cur.execute("select * from SavingCategory where active=1;"), self.cur.description)
+    expense_allotment_total = int(normalize(self.cur.execute("select total(allotment) as total_allotment from ExpenseCategory where active=1;"), self.cur.description)[0]['total_allotment']) #TODO: combine with bill and saving
+    total_balance_data = get_total_balance_data(self.cur)
+    available = float(item['amount'])
+    for cat in expense_categories: #update minimums first
+      if float(cat['balance']) < float(cat['minimum']):
+        diff = float(cat['minimum']) - float(cat['balance'])
+        cat['balance'] = str(Decimal(str(float(cat['balance'])+min(diff, available))))
+        if diff < available:
+          available = available - diff
+        else:
+          available = 0
+        self.cur.execute("update ExpenseCategory set balance = :balance where id = :id;", cat)
+
+    for cat in expense_categories:
+      share = (float(cat['allotment'])/float(expense_allotment_total)) * available
+      diff = float(cat['maximum']) - float(cat['balance'])
+      change = min(share, diff)
+      available = available - change
+      cat['balance'] = str(Decimal(str(float(cat['balance'])+change)))
+      self.cur.execute("update ExpenseCategory set balance = :balance where id = :id;", cat)
+      self.db_cnx.commit()
+      print "share = %s, diff = %s, change = %s, available = %s" % (share, diff, change, available)
+
+    if available > 0:
+      extra_allotment_total = 0
+      for cat in expense_categories:
+        if float(cat['balance']) < float(cat['maximum']):
+          extra_allotment_total += int(cat['allotment'])
+      for cat in expense_categories:
+        if float(cat['balance']) < float(cat['maximum']):
+          share = (float(cat['allotment'])/float(extra_allotment_total)) * available
+          diff = float(cat['maximum']) - float(cat['balance'])
+          change = min(share, diff)
+          available = available - change
+          cat['balance'] = str(Decimal(str(float(cat['balance'])+change)))
+          self.cur.execute("update ExpenseCategory set balance = :balance where id = :id;", cat)
+    if available > 0:
+      buff = float(normalize(self.cur.execute("select balance from ExpenseCategory where id = 1;"), self.cur.description)[0]['balance'])
+      self.cur.execute("update ExpenseCategory set balance = :available where id = 1;", {'available':str(Decimal(str(buff+available)))})
+    self.cur.execute("update ExpenseCategory set maximum = :max where id = 1;", {'max':total_balance_data['transaction']})
+
 
   def _update_category_balance(self, item):
     "Update the category balance from the item amount"
@@ -370,7 +419,7 @@ class AllCategoryListActiveView(object):
       data[t] = normalize(cur.execute(q).fetchall(), cur.description)
     return dump_data_formatted(_user["data_format"], data)
 
-class TotalBalanceView(object):
+def get_total_balance_data(cur):
   query_expense = "select total(balance) as total from ExpenseCategory where active = 1;"
   query_bill = "select total(balance) as total from BillCategory where active = 1;"
   query_saving = "select total(balance) as total from SavingCategory where active = 1;"
@@ -381,21 +430,26 @@ class TotalBalanceView(object):
           ) using (id)
         ) group by id
       ) using (id) where active = 1;"""
+  expense_data = normalize(cur.execute(query_expense).fetchall(), cur.description)[0]
+  bill_data = normalize(cur.execute(query_bill).fetchall(), cur.description)[0]
+  saving_data = normalize(cur.execute(query_saving).fetchall(), cur.description)[0]
+  transaction_data = normalize(cur.execute(query_transaction).fetchall(), cur.description)[0]
+  category_total = sum((float(expense_data['total']), float(bill_data['total']), float(saving_data['total'])))
+  data = {'expense':expense_data['total'],
+      'bill':bill_data['total'],
+      'saving':saving_data['total'],
+      'transaction':transaction_data['total'],
+      'category_total':category_total}
+  data['available'] = str(Decimal(str(float(transaction_data['total']) - category_total)))
+  return data
+
+class TotalBalanceView(object):
   @read_permission
   def GET(self, db_name, _user=None):
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
-    expense_data = normalize(cur.execute(self.query_expense).fetchall(), cur.description)[0]
-    bill_data = normalize(cur.execute(self.query_bill).fetchall(), cur.description)[0]
-    saving_data = normalize(cur.execute(self.query_saving).fetchall(), cur.description)[0]
-    transaction_data = normalize(cur.execute(self.query_transaction).fetchall(), cur.description)[0]
-    category_total = sum((float(expense_data['total']), float(bill_data['total']), float(saving_data['total'])))
-    data = {'expense':expense_data['total'],
-        'bill':bill_data['total'],
-        'saving':saving_data['total'],
-        'transaction':transaction_data['total'],
-        'category_total':category_total}
-    data['available'] = str(Decimal(str(float(transaction_data['total']) - category_total)))
+    data = get_total_balance_data(cur)
+
     return dump_data_formatted(_user["data_format"], data)
 
 
