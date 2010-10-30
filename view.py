@@ -393,7 +393,8 @@ class TotalBalanceView(object):
     data = {'expense':expense_data['total'],
         'bill':bill_data['total'],
         'saving':saving_data['total'],
-        'transaction':transaction_data['total']}
+        'transaction':transaction_data['total'],
+        'category_total':category_total}
     data['available'] = str(Decimal(str(float(transaction_data['total']) - category_total)))
     return dump_data_formatted(_user["data_format"], data)
 

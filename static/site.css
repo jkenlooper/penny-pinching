@@ -35,3 +35,22 @@ div#item_group_list {
     border: 1px solid black;
     padding: 5px;
   }
+
+div.minimum_graph {
+  z-index: 1;
+  background-color: black;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+div.minimum_graph.below {
+  background-color: red;
+}
+div.available_graph {
+  z-index: 1;
+  background-color: green;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}

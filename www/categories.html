@@ -31,7 +31,7 @@
   {{#category}}
     <div class="expense_category" id="expense_id-{{id}}">
       <span class="name">{{name}}</span> <span class="balance">{{balance}}</span>
-      <div class="balance-slider"></div>
+      <div class="balance-slider"><div class="minimum_graph"></div><div class="available_graph"></div></div>
       <span class="minimum">{{minimum}}</span> to <span class="maximum">{{maximum}}</span>
       [<span class="allotment">{{allotment}}</span>]
     </div>
@@ -64,6 +64,7 @@
   <label>Expense: </label> $currency {{expense}}
   <label>Bill: </label> $currency {{bill}}
   <label>Saving: </label> $currency {{saving}}
+  <label>Category Total: </label> $currency <span id="category_total">{{category_total}}</span>
   <label>Available: </label> $currency <span id="available-balance">{{available}}</span>
 </script>
 
@@ -87,7 +88,7 @@
             <label>Allotment:</label><input type="text" name="allotment">
           </div>
 
-          <div id="expense_category_list"></div>
+          <div class="category_list" id="expense_category_list"></div>
         </div> <!-- #expense -->
         <div id="bill">
           <button id="add_bill_category">Add Bill Category</button>
@@ -99,7 +100,7 @@
             <label>Allotment:</label><input type="text" name="allotment">
           </div>
 
-          <div id="bill_category_list"></div>
+          <div class="category_list" id="bill_category_list"></div>
         </div> <!-- #bill -->
         <div id="saving">
           <button id="add_saving_category">Add Saving Category</button>
@@ -111,7 +112,7 @@
             <label>Allotment:</label><input type="text" name="allotment">
           </div>
 
-          <div id="saving_category_list"></div>
+          <div class="category_list" id="saving_category_list"></div>
         </div> <!-- #saving -->
       </div> <!-- #categories -->
     </div> <!-- #content -->
