@@ -49,8 +49,14 @@ div.minimum_graph.below {
 }
 div.available_graph {
   z-index: 1;
-  background-color: green;
+  background-color: rgba(0, 205, 0, 0.5);
   position: absolute;
   top: 0;
   bottom: 0;
+}
+span.slider-balance-value {
+  position: absolute;
+  top: -1em;
+  left: 0;
+  z-index: 3;
 }

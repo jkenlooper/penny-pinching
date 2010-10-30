@@ -31,7 +31,11 @@
   {{#category}}
     <div class="expense_category" id="expense_id-{{id}}">
       <span class="name">{{name}}</span> <span class="balance">{{balance}}</span>
-      <div class="balance-slider"><div class="minimum_graph"></div><div class="available_graph"></div></div>
+      <div class="balance-slider">
+        <div class="minimum_graph"></div>
+        <div class="available_graph"></div>
+        <span class="slider-balance-value">{{balance}}</span>
+      </div>
       <span class="minimum">{{minimum}}</span> to <span class="maximum">{{maximum}}</span>
       [<span class="allotment">{{allotment}}</span>]
     </div>

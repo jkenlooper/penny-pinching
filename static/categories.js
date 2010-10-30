@@ -31,7 +31,7 @@ jQuery(document).ready(function($) {
         max: 0,
         value: 0,
         slide: function(event, ui) {
-          //$(this).siblings("span.balance").text(ui.value);
+          $(this).find("span.slider-balance-value").text(ui.value);
         },
         stop: function(event, ui) {
           //TODO: prevent from going over available balance
@@ -41,24 +41,13 @@ jQuery(document).ready(function($) {
           //console.log("start = "+start_balance+" new = "+new_balance+" change = "+change_balance);
           if (change_balance > available_balance) {
             //$(this).slider('option', 'value', available_balance);
-            ui.value = available_balance;
+            ui.value = start_balance+available_balance;
             available_balance = 0;
           } else {
             available_balance = available_balance - change_balance;
           }
 
-          $(this).addClass('current_slider');
-          $("div.off div.balance-slider").not(".current_slider").each(function(e){
-            var m = $(this).slider('option', 'max');
-            var v = $(this).slider('option', 'value');
-            var new_max = m-change_balance;
-            //console.log('change = '+change_balance+' max = '+m+' new max = '+new_max);
-            $(this).slider('option', 'max', new_max);
-            $(this).slider('option', 'value', v);
-          });
-          $(this).removeClass('current_slider');
-
-          console.log(ui.value);
+          //console.log(ui.value);
           $(this).siblings("span.balance").text(parseFloat(ui.value).toFixed(2));
           slider_values();
         }
@@ -85,9 +74,15 @@ jQuery(document).ready(function($) {
 
       var available_graph = $(this).find(".available_graph");
       var bal_pos = (b/max) * 100;
-      var available_width = (available_balance/max) * 100;
+      var this_bal_available = Math.min(max - b, available_balance);
+      var available_width = 0;
+      if (this_bal_available > 0) {
+        available_width = (this_bal_available/max) * 100;
+      }
       available_graph.css({'left': bal_pos+"%", 'width':available_width+"%"});
 
+      //$(this).find("span.slider-balance-value").css({'left': bal_pos+"%"});
+      $(this).find("span.slider-balance-value").css({'left': bal_pos+"%"}).text(parseFloat(b).toFixed(2));
     });
   }
   category_list();
