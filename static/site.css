@@ -36,16 +36,68 @@ div#item_group_list {
     padding: 5px;
   }
 
+
+/** categories **/
+
+div#categories {
+  overflow: hidden;
+}
+div.category_type {
+  width: 33.33%;
+  float: left;
+}
+div#expense { width: 43%; }
+div#bill { width: 28%; }
+div#saving { width: 29%; }
+div.category_type form {
+  margin: 5px;
+}
+div.category_type div.category_list {
+  margin: 5px 4em;
+  padding-top: 2.0em;
+}
+
+div.expense_category {
+  margin-bottom: 5px;
+}
+div.expense_category:nth-child(2n+1) {
+  background-color: gray;
+}
+div.expense_category h2 {
+  margin: 0.5em 0 2.0em;
+  padding: 0;
+  text-indent: -2.0em;
+  font-size: 1.2em;
+  font-weight: normal;
+}
 div.minimum_graph {
   z-index: 1;
+  font-size: 0.7em;
+  line-height: 1.0em;
   background-color: black;
+  color: white;
+  text-align: right;
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
 }
+div.minimum_graph span.minimum {
+  padding: 0 0.5em;
+  background-color: black;
+  color: white;
+}
 div.minimum_graph.below {
   background-color: red;
+}
+div.balance-slider span.maximum {
+  position: absolute;
+  right: 1.0em;
+  font-size: 0.7em;
+  line-height: 1.0em;
+  top:0;
+  display: block;
+  height: 1.0em;
 }
 div.available_graph {
   z-index: 1;
@@ -56,7 +108,9 @@ div.available_graph {
 }
 span.slider-balance-value {
   position: absolute;
-  top: -1em;
+  top: -1.4em;
+  font-size: 0.9em;
+  line-height: 1.0em;
   left: 0;
   z-index: 3;
 }

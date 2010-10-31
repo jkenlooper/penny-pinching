@@ -35,10 +35,10 @@ jQuery(document).ready(function($) {
         },
         stop: function(event, ui) {
           //TODO: prevent from going over available balance
-          var start_balance = new Number(parseFloat($(this).siblings("span.balance").text()));
+          var start_balance = new Number(parseFloat($(this).siblings("h2").find("span.balance").text()));
           var new_balance = new Number(ui.value);
           var change_balance = new_balance - start_balance;
-          //console.log("start = "+start_balance+" new = "+new_balance+" change = "+change_balance);
+          //console.log("start = "+start_balance+" new = "+new_balance+" change = "+change_balance+" available = "+available_balance);
           if (change_balance > available_balance) {
             //$(this).slider('option', 'value', available_balance);
             ui.value = start_balance+available_balance;
@@ -48,7 +48,7 @@ jQuery(document).ready(function($) {
           }
 
           //console.log(ui.value);
-          $(this).siblings("span.balance").text(parseFloat(ui.value).toFixed(2));
+          $(this).siblings("h2").find("span.balance").text(parseFloat(ui.value).toFixed(2));
           slider_values();
         }
       });
@@ -62,9 +62,9 @@ jQuery(document).ready(function($) {
   };
   function slider_values() {
     $(".category_list div.balance-slider").each(function(){
-      var b = new Number(parseFloat($(this).siblings("span.balance").text()));
-      var max = new Number(parseFloat($(this).siblings("span.maximum").text()));
-      var min = new Number(parseFloat($(this).siblings("span.minimum").text()));
+      var b = new Number(parseFloat($(this).siblings("h2").find("span.balance").text()));
+      var max = new Number(parseFloat($(this).find("span.maximum").text()));
+      var min = new Number(parseFloat($(this).find("span.minimum").text()));
       $(this).slider('option', 'max', max);
       $(this).slider('option', 'value', b);
 

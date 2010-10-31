@@ -30,26 +30,28 @@
 <script id="expense_category_list" type="text/html">
   {{#category}}
     <div class="expense_category" id="expense_id-{{id}}">
-      <span class="name">{{name}}</span> <span class="balance">{{balance}}</span>
       <div class="balance-slider">
-        <div class="minimum_graph"></div>
+        <div class="minimum_graph"><span class="minimum">{{minimum}}</span></div>
         <div class="available_graph"></div>
         <span class="slider-balance-value">{{balance}}</span>
+        <span class="maximum">{{maximum}}</span>
       </div>
-      <span class="minimum">{{minimum}}</span> to <span class="maximum">{{maximum}}</span>
-      [<span class="allotment">{{allotment}}</span>]
+      <h2>
+        <span class="name">{{name}}</span> <span class="balance">{{balance}}</span>
+        [<span class="allotment">{{allotment}}</span>]
+      </h2>
     </div>
   {{/category}}
 </script>
 <script id="bill_category_list" type="text/html">
   {{#category}}
     <div class="bill_category">
-      {{name}}
-      {{balance}}
-      {{maximum}}
-      {{allotment_date}}
-      {{repeat_due_date}}
-      {{due}}
+      <span class="name">{{name}}</span>
+      <span class="balance">{{balance}}</span>
+      <span class="maximum">{{maximum}}</span>
+      <span class="allotment_date">{{allotment_date}}</span>
+      <span class="repeat_due_date">{{repeat_due_date}}</span>
+      <span class="due">{{due}}</span>
     </div>
   {{/category}}
 </script>
@@ -83,40 +85,46 @@
     <div id="content">
       <div id="total_balance"> </div>
       <div id="categories">
-        <div id="expense">
-          <button id="add_expense_category">Add Expense Category</button>
-          <div id="new_expense_category">
-            <label>Name:</label><input type="text" name="name"><br>
-            <label>Balance:</label><input type="text" name="balance"><br>
-            <label>Minimum:</label><input type="text" name="minimum"><br>
-            <label>Maximum:</label><input type="text" name="maximum"><br>
-            <label>Allotment:</label><input type="text" name="allotment">
-          </div>
+        <div class="category_type" id="expense">
+          <form>
+            <button id="add_expense_category">Add Expense Category</button>
+            <div id="new_expense_category">
+              <label>Name:</label><input type="text" name="name"><br>
+              <label>Balance:</label><input type="text" name="balance"><br>
+              <label>Minimum:</label><input type="text" name="minimum"><br>
+              <label>Maximum:</label><input type="text" name="maximum"><br>
+              <label>Allotment:</label><input type="text" name="allotment">
+            </div>
+          </form>
 
           <div class="category_list" id="expense_category_list"></div>
         </div> <!-- #expense -->
-        <div id="bill">
-          <button id="add_bill_category">Add Bill Category</button>
-          <div id="new_bill_category">
-            <label>Name:</label><input type="text" name="name"><br>
-            <label>Balance:</label><input type="text" name="balance"><br>
-            <label>Maximum:</label><input type="text" name="maximum"><br>
-            <label>Allotment Date:</label><input type="text" name="allotment_date"><br>
-            <label>Repeat:</label><input type="text" name="repeat_due_date">
-            <label>Due:</label><input type="text" name="due">
-          </div>
+        <div class="category_type" id="bill">
+          <form>
+            <button id="add_bill_category">Add Bill Category</button>
+            <div id="new_bill_category">
+              <label>Name:</label><input type="text" name="name"><br>
+              <label>Balance:</label><input type="text" name="balance"><br>
+              <label>Maximum:</label><input type="text" name="maximum"><br>
+              <label>Allotment Date:</label><input type="text" name="allotment_date"><br>
+              <label>Repeat:</label><input type="text" name="repeat_due_date">
+              <label>Due:</label><input type="text" name="due">
+            </div>
+          </form>
 
           <div class="category_list" id="bill_category_list"></div>
         </div> <!-- #bill -->
-        <div id="saving">
-          <button id="add_saving_category">Add Saving Category</button>
-          <div id="new_saving_category">
-            <label>Name:</label><input type="text" name="name"><br>
-            <label>Balance:</label><input type="text" name="balance"><br>
-            <label>Minimum:</label><input type="text" name="minimum"><br>
-            <label>Maximum:</label><input type="text" name="maximum"><br>
-            <label>Allotment:</label><input type="text" name="allotment">
-          </div>
+        <div class="category_type" id="saving">
+          <form>
+            <button id="add_saving_category">Add Saving Category</button>
+            <div id="new_saving_category">
+              <label>Name:</label><input type="text" name="name"><br>
+              <label>Balance:</label><input type="text" name="balance"><br>
+              <label>Minimum:</label><input type="text" name="minimum"><br>
+              <label>Maximum:</label><input type="text" name="maximum"><br>
+              <label>Allotment:</label><input type="text" name="allotment">
+            </div>
+          </form>
 
           <div class="category_list" id="saving_category_list"></div>
         </div> <!-- #saving -->

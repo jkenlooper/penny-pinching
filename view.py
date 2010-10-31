@@ -66,7 +66,7 @@ def initialize_database_tables(db_name):
         maximum default 0,
         allotment_date,
         repeat_due_date default 0,
-        due);""")
+        due);""") #TODO: add allotment_amount for bigger bills that will need to save up for
     db_cnx.execute("""create table SavingCategory(id integer primary key,
         name unique not null,
         balance default 0,
@@ -391,7 +391,6 @@ class FinancialTransactionItemAdd(object):
           dates = normalize(self.cur.execute("select date(:allotment_date, :repeat_due_date) as allotment_date, date(:due, :repeat_due_date) as due", category), self.cur.description)[0]
           if len(dates):
             self.cur.execute("update BillCategory set allotment_date = :allotment_date, due = :due, balance = :balance where id = :id", {'allotment_date':dates['allotment_date'], 'due':dates['due'], 'balance':str(balance), 'id':category['id']})
-          print "next dates for bill: %s" % dates
         else:
           print "removing paid bill"
           self.cur.execute("delete from BillCategory where id = :id", {'id':item['category']})
@@ -429,7 +428,7 @@ class BillCategoryListView(ListView):
   query = "select * from BillCategory;"
 
 class BillCategoryListActiveView(ListView):
-  query = "select * from BillCategory where active = 1;"
+  query = "select * from BillCategory where active = 1 order by due;"
 
 class BillCategoryAdd(Add):
   query = "insert into BillCategory (name, balance, maximum, allotment_date, repeat_due_date, due) values (:name, :balance, :maximum, :allotment_date, :repeat_due_date, :due);"
