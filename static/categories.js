@@ -54,6 +54,11 @@ jQuery(document).ready(function($) {
       });
       slider_values();
     });
+    $.getJSON("/"+db_name+"/bill-list-active", function(data){
+      hash = {category:data};
+      html = ich.bill_category_list(hash);
+      $('#bill_category_list').html(html);
+    });
   };
   function slider_values() {
     $(".category_list div.balance-slider").each(function(){
@@ -81,22 +86,50 @@ jQuery(document).ready(function($) {
       }
       available_graph.css({'left': bal_pos+"%", 'width':available_width+"%"});
 
-      //$(this).find("span.slider-balance-value").css({'left': bal_pos+"%"});
       $(this).find("span.slider-balance-value").css({'left': bal_pos+"%"}).text(parseFloat(b).toFixed(2));
     });
   }
   category_list();
   $("#add_expense_category").bind('click', function(e){
-    data_string = {'name':$("input[name='name']").val(),
-      'balance':$("input[name='balance']").val(),
-      'minimum':$("input[name='minimum']").val(),
-      'maximum':$("input[name='maximum']").val(),
-      'allotment':$("input[name='allotment']").val()
+    data_string = {'name':$("#expense input[name='name']").val(),
+      'balance':$("#expense input[name='balance']").val(),
+      'minimum':$("#expense input[name='minimum']").val(),
+      'maximum':$("#expense input[name='maximum']").val(),
+      'allotment':$("#expense input[name='allotment']").val()
       };
 
     d = {'data_string':JSON.stringify(data_string)};
     //console.log(d.data_string);
     $.post("/"+db_name+"/expense", d, function(data){
+      total_balance();
+      category_list();
+    });
+  });
+  
+  // bill category
+  $("#bill input[name='allotment_date']").datepicker({
+      dateFormat:'yy-mm-dd',
+      onSelect:function(dateText, inst){
+        $("#bill input[name='due']").datepicker("option", "minDate", dateText);
+      }
+  });
+  $("#bill input[name='due']").datepicker({
+      dateFormat:'yy-mm-dd',
+      onSelect:function(dateText, inst){
+        $("#bill input[name='allotment_date']").datepicker("option", "maxDate", dateText);
+      }
+  });
+  $("#add_bill_category").bind('click', function(e){
+    data_string = {'name':$("#bill input[name='name']").val(),
+      'balance':$("#bill input[name='balance']").val(),
+      'maximum':$("#bill input[name='maximum']").val(),
+      'allotment_date':$("#bill input[name='allotment_date']").val(),
+      'repeat_due_date':$("#bill input[name='repeat_due_date']").val(),
+      'due':$("#bill input[name='due']").val()
+      };
+
+    d = {'data_string':JSON.stringify(data_string)};
+    $.post("/"+db_name+"/bill", d, function(data){
       total_balance();
       category_list();
     });

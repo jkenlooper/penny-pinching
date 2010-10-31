@@ -46,9 +46,10 @@
     <div class="bill_category">
       {{name}}
       {{balance}}
-      {{minimum}}
       {{maximum}}
-      {{allotment}}
+      {{allotment_date}}
+      {{repeat_due_date}}
+      {{due}}
     </div>
   {{/category}}
 </script>
@@ -99,9 +100,10 @@
           <div id="new_bill_category">
             <label>Name:</label><input type="text" name="name"><br>
             <label>Balance:</label><input type="text" name="balance"><br>
-            <label>Minimum:</label><input type="text" name="minimum"><br>
             <label>Maximum:</label><input type="text" name="maximum"><br>
-            <label>Allotment:</label><input type="text" name="allotment">
+            <label>Allotment Date:</label><input type="text" name="allotment_date"><br>
+            <label>Repeat:</label><input type="text" name="repeat_due_date">
+            <label>Due:</label><input type="text" name="due">
           </div>
 
           <div class="category_list" id="bill_category_list"></div>
