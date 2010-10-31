@@ -46,12 +46,18 @@
 <script id="bill_category_list" type="text/html">
   {{#category}}
     <div class="bill_category">
-      <span class="name">{{name}}</span>
-      <span class="balance">{{balance}}</span>
-      <span class="maximum">{{maximum}}</span>
-      <span class="allotment_date">{{allotment_date}}</span>
-      <span class="repeat_due_date">{{repeat_due_date}}</span>
-      <span class="due">{{due}}</span>
+      <h2>
+        <span class="name">{{name}}</span>
+        <span class="amount_info">
+          <span class="balance">{{balance}}</span> of
+          <span class="maximum">{{maximum}}</span>
+        </span>
+      </h2>
+      <div class="due-block">
+        <label>Due: </label><span class="due">{{due}}</span>
+      </div>
+      <label>Allotment Date: </label> <span class="allotment_date">{{allotment_date}}</span>
+      <label>Repeat: </label><span class="repeat_due_date">{{repeat_due_date}}</span>
     </div>
   {{/category}}
 </script>
