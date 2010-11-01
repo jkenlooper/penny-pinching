@@ -49,7 +49,7 @@ div.category_type {
 div#expense { width: 43%; }
 div#bill { width: 28%; }
 div#saving { width: 29%; }
-div.category_type form {
+div.category_type div.form {
   margin: 5px;
 }
 div.category_type div.category_list {

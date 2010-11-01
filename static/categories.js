@@ -8,17 +8,18 @@ jQuery(document).ready(function($) {
   });
 
   var category_total = 0;
+  var available_balance = 0;
   function total_balance() {
     $.getJSON("/"+db_name+"/total-balance", function(data){
       //hash = {total:data};
       html = ich.total_balance_data(data);
       $('#total_balance').html(html);
       category_total = new Number(parseFloat($("#category_total").text()));
+      available_balance = new Number(parseFloat($("#available-balance").text()));
     });
   }
   total_balance();
 
-  var available_balance = 0;
   function category_list() {
     $.getJSON("/"+db_name+"/expense-list-active", function(data){
       hash = {category:data};
@@ -34,22 +35,27 @@ jQuery(document).ready(function($) {
           $(this).find("span.slider-balance-value").text(ui.value);
         },
         stop: function(event, ui) {
-          //TODO: prevent from going over available balance
           var start_balance = new Number(parseFloat($(this).siblings("h2").find("span.balance").text()));
           var new_balance = new Number(ui.value);
           var change_balance = new_balance - start_balance;
-          //console.log("start = "+start_balance+" new = "+new_balance+" change = "+change_balance+" available = "+available_balance);
           if (change_balance > available_balance) {
-            //$(this).slider('option', 'value', available_balance);
             ui.value = start_balance+available_balance;
             available_balance = 0;
           } else {
             available_balance = available_balance - change_balance;
           }
 
-          //console.log(ui.value);
           $(this).siblings("h2").find("span.balance").text(parseFloat(ui.value).toFixed(2));
-          slider_values();
+          data_string = { 'balance':parseFloat(ui.value).toFixed(2) };
+
+          d = {'data_string':JSON.stringify(data_string)};
+          //console.log(d.data_string);
+          var cat_id = $(this).parents("div.expense_category").attr("db_id");
+          $.post("/"+db_name+"/expense-balance/"+cat_id, d, function(data){
+            total_balance();
+            slider_values();
+          });
+
         }
       });
       slider_values();

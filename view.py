@@ -152,37 +152,43 @@ class ListView(object):
 class Add(object):
   query = "insert into TableName (column1, column2) values (:column1, :column2);"
   valid_data_format = {'name':str, 'balance':Decimal, 'active':bool, 'minimum':Decimal, 'maximum':Decimal, 'allotment':int}
+  def check_data(self, data):
+    """ Allow subclasses to check data before inserting """
+    return data
   @write_permission
   def POST(self, db_name, _user=None):
     user_input = web.input(data_string=None)
     user_data = load_formatted_data(_user["data_format"], user_input.data_string)
     c = validate(user_data, self.valid_data_format)
     db_cnx = get_db_cnx(db_name)
-    cur = db_cnx.cursor()
-    cur.execute(self.query, c)
+    self.cur = db_cnx.cursor()
+    c = self.check_data(c)
+    self.cur.execute(self.query, c)
     db_cnx.commit()
     return web.created()
 
 class Update(object):
   query = "update Account (name, active, balance, balance_date) values (:name, :active, :balance, :balance_date) where id = :id;"
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':str}
+  def check_data(self, data):
+    """ Allow subclasses to check data before inserting """
+    return data
   @write_permission
   def POST(self, db_name, id, _user=None):
     user_input = web.input(data_string=None)
     user_data = {'id':id}
-    if _user['data_format'] == 'yaml':
-      d = load_formatted_data(_user["data_format"], user_input.data_string)
-      user_data.update(d)
-    try:
-      d = validate(user_data, self.valid_data_format)
-    except ValueError:
-      return web.badrequest()
+    d = load_formatted_data(_user["data_format"], user_input.data_string)
+    user_data.update(d)
+    d = validate(user_data, self.valid_data_format)
 
-    try:
-      db_cnx = get_db_cnx(db_name)
-      db_cnx.execute(self.query, d)
-    except:
-      return web.internalerror()
+    #try:
+    db_cnx = get_db_cnx(db_name)
+    self.cur = db_cnx.cursor()
+    d = self.check_data(d)
+    self.cur.execute(self.query, d)
+    db_cnx.commit()
+    #except:
+      #return web.internalerror()
     return web.created()
 
 class UserView(object):
@@ -414,15 +420,39 @@ class FinancialTransactionItemListView(object):
 class TransactionItemListView(ListView):
   query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction)";
 
+class CategoryAdd(Add):
+ def check_data(self, data):
+   t = get_total_balance_data(self.cur)
+   available = float(t['available'])
+   if available < float(data['balance']):
+     print "insufficient funds..."
+     #TODO: alert user
+   return data
+
+class CategoryUpdate(Update):
+ def check_data(self, data):
+   t = get_total_balance_data(self.cur)
+   available = float(t['available'])
+   balance = float(str(data['balance']))
+   if available < balance:
+     print "insufficient funds..."
+     #TODO: alert user
+   return data
+
+
 class ExpenseCategoryListView(ListView):
   query = "select * from ExpenseCategory;"
 
 class ExpenseCategoryListActiveView(ListView):
   query = "select * from ExpenseCategory where active = 1;"
 
-class ExpenseCategoryAdd(Add):
+class ExpenseCategoryAdd(CategoryAdd):
   query = "insert into ExpenseCategory (name, balance, minimum, maximum, allotment) values (:name, :balance, :minimum, :maximum, :allotment)"
   valid_data_format = {'name':str, 'balance':Decimal, 'minimum':Decimal, 'maximum':Decimal, 'allotment':int}
+
+class ExpenseCategoryUpdateBalance(CategoryUpdate):
+  query = "update ExpenseCategory set balance = :balance where id = :id"
+  valid_data_format = {'balance':Decimal, 'id':int}
 
 class BillCategoryListView(ListView):
   query = "select * from BillCategory;"
@@ -430,9 +460,11 @@ class BillCategoryListView(ListView):
 class BillCategoryListActiveView(ListView):
   query = "select * from BillCategory where active = 1 order by due;"
 
-class BillCategoryAdd(Add):
+class BillCategoryAdd(CategoryAdd):
   query = "insert into BillCategory (name, balance, maximum, allotment_date, repeat_due_date, due) values (:name, :balance, :maximum, :allotment_date, :repeat_due_date, :due);"
   valid_data_format = {'name':str, 'balance':Decimal, 'maximum':Decimal, 'allotment_date':year_month_day, 'repeat_due_date':str, 'due':year_month_day}
+
+    
 
 class SavingCategoryListView(ListView):
   query = "select * from SavingCategory;"
@@ -468,13 +500,13 @@ def get_total_balance_data(cur):
   bill_data = normalize(cur.execute(query_bill).fetchall(), cur.description)[0]
   saving_data = normalize(cur.execute(query_saving).fetchall(), cur.description)[0]
   transaction_data = normalize(cur.execute(query_transaction).fetchall(), cur.description)[0]
-  category_total = sum((float(expense_data['total']), float(bill_data['total']), float(saving_data['total'])))
-  data = {'expense':expense_data['total'],
-      'bill':bill_data['total'],
-      'saving':saving_data['total'],
-      'transaction':transaction_data['total'],
-      'category_total':category_total}
-  data['available'] = str(Decimal(str(float(transaction_data['total']) - category_total)))
+  category_total = Decimal(str(sum((float(expense_data['total']), float(bill_data['total']), float(saving_data['total'])))))
+  data = {'expense':str(Decimal(str(expense_data['total']))),
+      'bill':str(Decimal(str(bill_data['total']))),
+      'saving':str(Decimal(str(saving_data['total']))),
+      'transaction':str(Decimal(str(transaction_data['total']))),
+      'category_total':str(category_total)}
+  data['available'] = str(float(data['transaction']) - float(category_total))
   return data
 
 class TotalBalanceView(object):

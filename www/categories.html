@@ -29,7 +29,7 @@
 
 <script id="expense_category_list" type="text/html">
   {{#category}}
-    <div class="expense_category" id="expense_id-{{id}}">
+    <div class="expense_category" db_id="{{id}}" id="expense_id-{{id}}">
       <div class="balance-slider">
         <div class="minimum_graph"><span class="minimum">{{minimum}}</span></div>
         <div class="available_graph"></div>
@@ -92,7 +92,7 @@
       <div id="total_balance"> </div>
       <div id="categories">
         <div class="category_type" id="expense">
-          <form>
+          <div class="form">
             <button id="add_expense_category">Add Expense Category</button>
             <div id="new_expense_category">
               <label>Name:</label><input type="text" name="name"><br>
@@ -101,12 +101,12 @@
               <label>Maximum:</label><input type="text" name="maximum"><br>
               <label>Allotment:</label><input type="text" name="allotment">
             </div>
-          </form>
+          </div>
 
           <div class="category_list" id="expense_category_list"></div>
         </div> <!-- #expense -->
         <div class="category_type" id="bill">
-          <form>
+          <div class="form">
             <button id="add_bill_category">Add Bill Category</button>
             <div id="new_bill_category">
               <label>Name:</label><input type="text" name="name"><br>
@@ -116,12 +116,12 @@
               <label>Repeat:</label><input type="text" name="repeat_due_date">
               <label>Due:</label><input type="text" name="due">
             </div>
-          </form>
+          </div>
 
           <div class="category_list" id="bill_category_list"></div>
         </div> <!-- #bill -->
         <div class="category_type" id="saving">
-          <form>
+          <div class="form">
             <button id="add_saving_category">Add Saving Category</button>
             <div id="new_saving_category">
               <label>Name:</label><input type="text" name="name"><br>
@@ -130,7 +130,7 @@
               <label>Maximum:</label><input type="text" name="maximum"><br>
               <label>Allotment:</label><input type="text" name="allotment">
             </div>
-          </form>
+          </div>
 
           <div class="category_list" id="saving_category_list"></div>
         </div> <!-- #saving -->
