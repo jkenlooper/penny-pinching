@@ -51,9 +51,17 @@
     <label>Minimum:</label><input type="text" name="minimum" value="{{minimum}}">
     <label>Maximum:</label><input type="text" name="maximum" value="{{maximum}}">
     <label>Allotment:</label><input type="text" name="allotment" value="{{allotment}}">
-    <label>Active:</label><input type="checkbox" name="active" value="{{active}}">
+    <label>Active:</label><input type="checkbox" name="active" {{checked}} value="1">
     <input type="button" name="delete" value="Delete">
   </div>
+</script>
+
+<script id="inactive_category_list" type="text/html">
+  {{#category}}
+  <div class="inactive_category" id="inactive_category-{{id}}">
+    <a href="" db_id="{{id}}">{{name}} {{balance}}</a>
+  </div>
+  {{/category}}
 </script>
 
 <script id="bill_category_list" type="text/html">
@@ -117,6 +125,7 @@
           </div>
 
           <div class="category_list" id="expense_category_list"></div>
+          <div class="inactive_category_list" id="expense_category_inactive_list"></div>
         </div> <!-- #expense -->
         <div class="category_type" id="bill">
           <div class="form">
@@ -132,6 +141,7 @@
           </div>
 
           <div class="category_list" id="bill_category_list"></div>
+          <div class="inactive_category_list" id="bill_category_inactive_list"></div>
         </div> <!-- #bill -->
         <div class="category_type" id="saving">
           <div class="form">
@@ -146,6 +156,7 @@
           </div>
 
           <div class="category_list" id="saving_category_list"></div>
+          <div class="inactive_category_list" id="saving_category_inactive_list"></div>
         </div> <!-- #saving -->
       </div> <!-- #categories -->
     </div> <!-- #content -->

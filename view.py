@@ -441,12 +441,13 @@ class CategoryAdd(Add):
 
 class CategoryUpdate(Update):
  def check_data(self, data):
-   t = get_total_balance_data(self.cur)
-   available = float(t['available'])
-   balance = float(str(data['balance']))
-   if available < balance:
-     print "insufficient funds..."
-     #TODO: alert user
+   if 'balance' in data:
+     t = get_total_balance_data(self.cur)
+     available = float(t['available'])
+     balance = float(str(data['balance']))
+     if available < balance:
+       print "insufficient funds..."
+       #TODO: alert user
    return data
 
 
@@ -458,6 +459,9 @@ class ExpenseCategoryListView(ListView):
 
 class ExpenseCategoryListActiveView(ListView):
   query = "select * from ExpenseCategory where active = 1;"
+
+class ExpenseCategoryListInActiveView(ListView):
+  query = "select * from ExpenseCategory where active = 0;"
 
 class ExpenseCategoryAdd(CategoryAdd):
   query = "insert into ExpenseCategory (name, balance, minimum, maximum, allotment) values (:name, :balance, :minimum, :maximum, :allotment)"
@@ -471,11 +475,18 @@ class ExpenseCategoryUpdateBalance(CategoryUpdate):
   query = "update ExpenseCategory set balance = :balance where id = :id"
   valid_data_format = {'balance':Decimal, 'id':int}
 
+class ExpenseCategoryUpdateActive(CategoryUpdate):
+  query = "update ExpenseCategory set active = :active where id = :id"
+  valid_data_format = {'active':int, 'id':int}
+
 class BillCategoryListView(ListView):
   query = "select * from BillCategory;"
 
 class BillCategoryListActiveView(ListView):
   query = "select * from BillCategory where active = 1 order by due;"
+
+class BillCategoryListInActiveView(ListView):
+  query = "select * from BillCategory where active = 0 order by due;"
 
 class BillCategoryAdd(CategoryAdd):
   query = "insert into BillCategory (name, balance, maximum, allotment_date, repeat_due_date, due) values (:name, :balance, :maximum, :allotment_date, :repeat_due_date, :due);"
@@ -488,6 +499,9 @@ class SavingCategoryListView(ListView):
 
 class SavingCategoryListActiveView(ListView):
   query = "select * from SavingCategory where active = 1;"
+
+class SavingCategoryListInActiveView(ListView):
+  query = "select * from SavingCategory where active = 0;"
 
 class AllCategoryListActiveView(object):
   query = {'expense':"select * from ExpenseCategory where active = 1;",

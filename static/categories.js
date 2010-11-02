@@ -66,6 +66,23 @@ jQuery(document).ready(function($) {
       $('#bill_category_list').html(html);
     });
   };
+  function inactive_list() {
+    $.getJSON("/"+db_name+"/expense-list-inactive", function(data){
+        hash = {category:data};
+        html = ich.inactive_category_list(hash);
+        $('#expense_category_inactive_list').html(html);
+    });
+    $.getJSON("/"+db_name+"/bill-list-inactive", function(data){
+        hash = {category:data};
+        html = ich.inactive_category_list(hash);
+        $('#bill_category_inactive_list').html(html);
+    });
+    $.getJSON("/"+db_name+"/saving-list-inactive", function(data){
+        hash = {category:data};
+        html = ich.inactive_category_list(hash);
+        $('#saving_category_inactive_list').html(html);
+    });
+  }
   function slider_values() {
     $(".category_list div.balance-slider").each(function(){
       var b = new Number(parseFloat($(this).siblings("h2").find("span.balance").text()));
@@ -96,6 +113,7 @@ jQuery(document).ready(function($) {
     });
   }
   category_list();
+  inactive_list();
   $("#add_expense_category").bind('click', function(e){
     data_string = {'name':$("#expense input[name='name']").val(),
       'balance':$("#expense input[name='balance']").val(),
@@ -116,6 +134,12 @@ jQuery(document).ready(function($) {
       var id = category.attr("db_id");
       $.getJSON("/"+db_name+"/expense/"+id, function(data){
         data = data[0];
+        if (data['active'] == 1) {
+          data['checked'] = "checked='checked'";
+        } else {
+          data['checked'] = "";
+        }
+          
         console.log(data);
         html = ich.expense_category_list_edit(data);
         var category = $("#expense_id-"+data['id']);
@@ -126,12 +150,16 @@ jQuery(document).ready(function($) {
           console.log('click');
           // TODO: submit change
           var edit_form = category.find('.edit-form');
+          var active = "0";
+          if (edit_form.find("input[name='active']:checked").val()) {
+            active = "1";
+          }
           data_string = {'name':edit_form.find("input[name='name']").val(),
             'balance':edit_form.find("input[name='balance']").val(),
             'minimum':edit_form.find("input[name='minimum']").val(),
             'maximum':edit_form.find("input[name='maximum']").val(),
             'allotment':edit_form.find("input[name='allotment']").val(),
-            'active':edit_form.find("input[name='active']").val()
+            'active':active
             // TODO: add delete checkbox
             };
 
@@ -140,6 +168,7 @@ jQuery(document).ready(function($) {
           $.post("/"+db_name+"/expense/"+$(this).parents("div.expense_category").attr("db_id")+"/update", d, function(data){
             total_balance();
             category_list();
+            inactive_list();
           });
         });
       });
@@ -173,4 +202,20 @@ jQuery(document).ready(function($) {
       category_list();
     });
   });
+
+  // inactive list
+  $(".inactive_category_list").delegate(".inactive_category_list a", "click", function(e) {
+      data_string = { 'active':1 };
+      var category_type = $(this).parents("div.category_type").attr("id");
+      d = {'data_string':JSON.stringify(data_string)};
+      var cat_id = $(this).attr("db_id");
+      $.post("/"+db_name+"/"+category_type+"-active/"+cat_id, d, function(data){
+        //console.log(data);
+        //$("div#inactive_category-"+data['id']).remove();
+        category_list();
+      });
+      $(this).parents("div.inactive_category").remove();
+      e.preventDefault();
+  });
+
 });
