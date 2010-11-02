@@ -140,6 +140,16 @@ def load_formatted_data(data_format, data_string):
   elif data_format == 'json':
     return json.read(str(data_string))
 
+class IDView(object):
+  query = "select * from ExpenseCategory where id = :id;"
+  @read_permission
+  def GET(self, db_name, id, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    user_data = {'id':id}
+    cur = db_cnx.cursor()
+    data = normalize(cur.execute(self.query, user_data).fetchall(), cur.description)
+    return dump_data_formatted(_user["data_format"], data)
+
 class ListView(object):
   query = "select * from ExpenseCategory;"
   @read_permission
@@ -440,6 +450,9 @@ class CategoryUpdate(Update):
    return data
 
 
+class ExpenseCategoryView(IDView):
+  query = "select * from ExpenseCategory where id = :id;"
+
 class ExpenseCategoryListView(ListView):
   query = "select * from ExpenseCategory;"
 
@@ -449,6 +462,10 @@ class ExpenseCategoryListActiveView(ListView):
 class ExpenseCategoryAdd(CategoryAdd):
   query = "insert into ExpenseCategory (name, balance, minimum, maximum, allotment) values (:name, :balance, :minimum, :maximum, :allotment)"
   valid_data_format = {'name':str, 'balance':Decimal, 'minimum':Decimal, 'maximum':Decimal, 'allotment':int}
+
+class ExpenseCategoryUpdate(CategoryUpdate):
+  query = "update ExpenseCategory set name = :name, balance = :balance, minimum = :minimum, maximum = :maximum, allotment = :allotment, active = :active where id = :id"
+  valid_data_format = {'name':str, 'balance':Decimal, 'minimum':Decimal, 'maximum':Decimal, 'allotment':int, 'id':int, 'active':int}
 
 class ExpenseCategoryUpdateBalance(CategoryUpdate):
   query = "update ExpenseCategory set balance = :balance where id = :id"

@@ -56,9 +56,19 @@ div.category_type div.category_list {
   margin: 5px 4em;
   padding-top: 2.0em;
 }
+input.edit-button {
+  padding: 0px;
+  position: absolute;
+  right: 5px;
+  bottom: -4px;
+  font-size: 0.8em;
+}
 
 div.expense_category {
   margin-bottom: 5px;
+  position: relative;
+}
+div.expense_category input.edit-button {
 }
 div.expense_category:nth-child(2n+1) {
   background-color: gray;

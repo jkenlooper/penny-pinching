@@ -44,7 +44,7 @@ urls = (
     '/([a-z]+)/expense-list-active/?', 'ExpenseCategoryListActiveView', # GET
     '/([a-z]+)/expense/?', 'ExpenseCategoryAdd', # POST
     '/([a-z]+)/expense/([0-9]+)/?', 'ExpenseCategoryView', # GET
-    '/([a-z]+)/expense/([0-9]+)/?', 'ExpenseCategoryUpdate', # POST delete attr
+    '/([a-z]+)/expense/([0-9]+)/update/?', 'ExpenseCategoryUpdate', # POST delete attr
     '/([a-z]+)/expense-balance/([0-9]+)/?', 'ExpenseCategoryUpdateBalance', # POST delete attr
 
     '/([a-z]+)/bill-list/?', 'BillCategoryListView', # GET

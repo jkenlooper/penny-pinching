@@ -111,6 +111,39 @@ jQuery(document).ready(function($) {
       category_list();
     });
   });
+  $("#expense_category_list").delegate("input.edit-button[value='edit']", "click", function(){
+      var category = $(this).parents("div.expense_category");
+      var id = category.attr("db_id");
+      $.getJSON("/"+db_name+"/expense/"+id, function(data){
+        data = data[0];
+        console.log(data);
+        html = ich.expense_category_list_edit(data);
+        var category = $("#expense_id-"+data['id']);
+        category.append(html);
+        edit_button = category.find("input.edit-button");
+        edit_button.val('save');
+        edit_button.bind('click', function(e){
+          console.log('click');
+          // TODO: submit change
+          var edit_form = category.find('.edit-form');
+          data_string = {'name':edit_form.find("input[name='name']").val(),
+            'balance':edit_form.find("input[name='balance']").val(),
+            'minimum':edit_form.find("input[name='minimum']").val(),
+            'maximum':edit_form.find("input[name='maximum']").val(),
+            'allotment':edit_form.find("input[name='allotment']").val(),
+            'active':edit_form.find("input[name='active']").val()
+            // TODO: add delete checkbox
+            };
+
+          d = {'data_string':JSON.stringify(data_string)};
+          console.log(d)
+          $.post("/"+db_name+"/expense/"+$(this).parents("div.expense_category").attr("db_id")+"/update", d, function(data){
+            total_balance();
+            category_list();
+          });
+        });
+      });
+  });
   
   // bill category
   $("#bill input[name='allotment_date']").datepicker({
