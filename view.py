@@ -402,14 +402,14 @@ class FinancialTransactionItemAdd(object):
       balance = Decimal(str(float(category['balance'])-float(item['amount'])))
       if item['type'] != 2:
         self.cur.execute(category_update, {'balance':str(balance), 'id':item['category']})
-      else: #mark the bill as paid by removing it or setting new due date
+      else: #mark the bill as paid by inactivating it or setting new due date
         if category['repeat_due_date'] != 0:
           dates = normalize(self.cur.execute("select date(:allotment_date, :repeat_due_date) as allotment_date, date(:due, :repeat_due_date) as due", category), self.cur.description)[0]
           if len(dates):
             self.cur.execute("update BillCategory set allotment_date = :allotment_date, due = :due, balance = :balance where id = :id", {'allotment_date':dates['allotment_date'], 'due':dates['due'], 'balance':str(balance), 'id':category['id']})
         else:
-          print "removing paid bill"
-          self.cur.execute("delete from BillCategory where id = :id", {'id':item['category']})
+          #print "inactivating paid bill"
+          self.cur.execute("update BillCategory set active = 0, balance = :balance where id = :id", {'id':item['category'], 'balance':str(balance)})
     else:
       print "no category"
 
