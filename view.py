@@ -479,6 +479,9 @@ class ExpenseCategoryUpdateActive(CategoryUpdate):
   query = "update ExpenseCategory set active = :active where id = :id"
   valid_data_format = {'active':int, 'id':int}
 
+class BillCategoryView(IDView):
+  query = "select * from BillCategory where id = :id;"
+
 class BillCategoryListView(ListView):
   query = "select * from BillCategory;"
 
@@ -492,7 +495,13 @@ class BillCategoryAdd(CategoryAdd):
   query = "insert into BillCategory (name, balance, maximum, allotment_date, repeat_due_date, due) values (:name, :balance, :maximum, :allotment_date, :repeat_due_date, :due);"
   valid_data_format = {'name':str, 'balance':Decimal, 'maximum':Decimal, 'allotment_date':year_month_day, 'repeat_due_date':str, 'due':year_month_day}
 
+class BillCategoryUpdate(CategoryUpdate):
+  query = "update BillCategory set name = :name, balance = :balance, maximum = :maximum, allotment_date = :allotment_date, repeat_due_date = :repeat_due_date, due = :due, active = :active where id = :id"
+  valid_data_format = {'name':str, 'balance':Decimal, 'maximum':Decimal, 'allotment_date':year_month_day, 'repeat_due_date':str, 'due':year_month_day, 'active':int, 'id':int}
     
+class BillCategoryUpdateActive(CategoryUpdate):
+  query = "update BillCategory set active = :active where id = :id"
+  valid_data_format = {'active':int, 'id':int}
 
 class SavingCategoryListView(ListView):
   query = "select * from SavingCategory;"

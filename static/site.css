@@ -56,6 +56,9 @@ div.category_type div.category_list {
   margin: 5px 4em;
   padding-top: 2.0em;
 }
+div.edit-form {
+  margin: 0 0 2.0em;
+}
 input.edit-button {
   padding: 0px;
   position: absolute;
@@ -130,6 +133,7 @@ div#bill_category_list {
   margin: 5px 1em 5px 3em;
 }
 div.bill_category {
+  position: relative;
   margin-bottom: 10px;
 }
 div.bill_category h2 {

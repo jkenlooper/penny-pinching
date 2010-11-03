@@ -49,7 +49,6 @@ jQuery(document).ready(function($) {
           data_string = { 'balance':parseFloat(ui.value).toFixed(2) };
 
           d = {'data_string':JSON.stringify(data_string)};
-          //console.log(d.data_string);
           var cat_id = $(this).parents("div.expense_category").attr("db_id");
           $.post("/"+db_name+"/expense-balance/"+cat_id, d, function(data){
             total_balance();
@@ -123,7 +122,6 @@ jQuery(document).ready(function($) {
       };
 
     d = {'data_string':JSON.stringify(data_string)};
-    //console.log(d.data_string);
     $.post("/"+db_name+"/expense", d, function(data){
       total_balance();
       category_list();
@@ -140,15 +138,12 @@ jQuery(document).ready(function($) {
           data['checked'] = "";
         }
           
-        console.log(data);
         html = ich.expense_category_list_edit(data);
         var category = $("#expense_id-"+data['id']);
         category.append(html);
         edit_button = category.find("input.edit-button");
         edit_button.val('save');
         edit_button.bind('click', function(e){
-          console.log('click');
-          // TODO: submit change
           var edit_form = category.find('.edit-form');
           var active = "0";
           if (edit_form.find("input[name='active']:checked").val()) {
@@ -164,7 +159,6 @@ jQuery(document).ready(function($) {
             };
 
           d = {'data_string':JSON.stringify(data_string)};
-          console.log(d)
           $.post("/"+db_name+"/expense/"+$(this).parents("div.expense_category").attr("db_id")+"/update", d, function(data){
             total_balance();
             category_list();
@@ -173,6 +167,48 @@ jQuery(document).ready(function($) {
         });
       });
   });
+  $("div#bill_category_list").delegate("input.edit-button[value='edit']", "click", function(){
+      var category = $(this).parents("div.bill_category");
+      var id = category.attr("db_id");
+      $.getJSON("/"+db_name+"/bill/"+id, function(data){
+        data = data[0];
+        if (data['active'] == 1) {
+          data['checked'] = "checked='checked'";
+        } else {
+          data['checked'] = "";
+        }
+          
+        html = ich.bill_category_list_edit(data);
+        var category = $("#bill_id-"+data['id']);
+        category.append(html);
+        edit_button = category.find("input.edit-button");
+        edit_button.val('save');
+        edit_button.bind('click', function(e){
+          var edit_form = category.find('.edit-form');
+          var active = "0";
+          if (edit_form.find("input[name='active']:checked").val()) {
+            active = "1";
+          }
+          data_string = {'name':edit_form.find("input[name='name']").val(),
+            'balance':edit_form.find("input[name='balance']").val(),
+            'maximum':edit_form.find("input[name='maximum']").val(),
+            'allotment_date':edit_form.find("input[name='allotment_date']").val(),
+            'due':edit_form.find("input[name='due']").val(),
+            'repeat_due_date':edit_form.find("input[name='repeat_due_date']").val(),
+            'active':active
+            // TODO: add delete checkbox
+            };
+
+          d = {'data_string':JSON.stringify(data_string)};
+          $.post("/"+db_name+"/bill/"+$(this).parents("div.bill_category").attr("db_id")+"/update", d, function(data){
+            total_balance();
+            category_list();
+            inactive_list();
+          });
+        });
+      });
+  });
+
   
   // bill category
   $("#bill input[name='allotment_date']").datepicker({
@@ -210,8 +246,8 @@ jQuery(document).ready(function($) {
       d = {'data_string':JSON.stringify(data_string)};
       var cat_id = $(this).attr("db_id");
       $.post("/"+db_name+"/"+category_type+"-active/"+cat_id, d, function(data){
-        //console.log(data);
         //$("div#inactive_category-"+data['id']).remove();
+        total_balance();
         category_list();
       });
       $(this).parents("div.inactive_category").remove();

@@ -54,7 +54,8 @@ urls = (
     '/([a-z]+)/bill-list-inactive/?', 'BillCategoryListInActiveView', # GET
     '/([a-z]+)/bill/?', 'BillCategoryAdd', # POST
     '/([a-z]+)/bill/([0-9]+)/?', 'BillCategoryView', # GET
-    '/([a-z]+)/bill/([0-9]+)/?', 'BillCategoryUpdate', # POST delete attr
+    '/([a-z]+)/bill/([0-9]+)/update/?', 'BillCategoryUpdate',
+    '/([a-z]+)/bill-active/([0-9]+)/?', 'BillCategoryUpdateActive',
 
     '/([a-z]+)/saving-list/?', 'SavingCategoryListView', # GET
     '/([a-z]+)/saving-list-active/?', 'SavingCategoryListActiveView', # GET
