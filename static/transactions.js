@@ -77,6 +77,21 @@ jQuery(document).ready(function($) {
   function load_transaction_list(status_set) { // cleared_suspect || receipt_no_receipt_scheduled
     $.getJSON("/"+db_name+"/financial-transaction-list/"+status_set, function(data){
       var transactions_div = $('#'+status_set+'_transactions');
+      var TRANSACTION_STATUS_ENUM = ['suspect', 'no_receipt', 'receipt', 'scheduled', 'cleared', 'reconciled'];
+      var TRANSACTION_STATUS_SYMBOLS_ENUM = ['?', '&larr;', '&rarr;', '&crarr;', '&harr;', '&radic;'];
+      for (i=0; i<data.length; i++) {
+        var status_list = [];
+        for (j=0; j<TRANSACTION_STATUS_ENUM.length-1; j++) { // except reconciled
+          var status_active = "";
+          if (data[i]['status'] == j) {
+            status_active = 'active';
+          }
+          status_list.push({'status_name': TRANSACTION_STATUS_ENUM[j],
+            'status_symbol': TRANSACTION_STATUS_SYMBOLS_ENUM[j],
+            'status_active': status_active})
+        }
+        data[i]['status_list'] = status_list;
+      }
       hash = split_transactions(data, transactions_div);
       html = ich.transaction_listing(hash);
       transactions_div.html(html);

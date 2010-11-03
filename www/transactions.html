@@ -61,8 +61,15 @@
   {{#column}}
     <div class="column">
       {{#transaction}}
-        <div class="transaction">
-          {{id}} {{name}} {{status}} {{date}} {{account}} {{total}}
+      <div class="transaction status-{{status}}" status="{{status}}" id="transaction-{{id}}">
+          <div class="transaction_status">
+            {{#status_list}}
+              <a href="" title="{{status_name}}" class="{{status_name}} {{status_active}}">
+                <span>{{status_symbol}}</span>
+              </a>
+            {{/status_list}}
+          </div>
+          {{name}} {{date}} {{account}} {{total}}
         </div>
       {{/transaction}}
     </div>

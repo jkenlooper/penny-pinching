@@ -8,6 +8,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from view import TRANSACTION_STATUS_ENUM
 TRANSACTION_STATUS_SYMBOLS_ENUM = ('?', '&larr;', '&rarr;', '&crarr;', '&harr;', '&radic;')
 TRANSACTION_STATUS_SYMBOL_MAPPING = dict(zip(TRANSACTION_STATUS_ENUM, TRANSACTION_STATUS_SYMBOLS_ENUM))
+TRANSACTION_STATUS_MAPPING = dict(zip(TRANSACTION_STATUS_ENUM, range(0,len(TRANSACTION_STATUS_ENUM))))
 
 class IndexPage(object):
   def GET(self):
@@ -41,7 +42,7 @@ class TransactionsPage(object):
   def build_transaction_status_buttons(self):
     transaction_status_buttons = Element('div', {'class':'transaction_status'})
     for status in [ x for x in TRANSACTION_STATUS_ENUM if x not in ('reconciled',) ]:
-      button = SubElement(transaction_status_buttons, 'button', {'class':status})
+      button = SubElement(transaction_status_buttons, 'span', {'class':'button %s' % status, 'status':str(TRANSACTION_STATUS_MAPPING[status])})
       span = SubElement(button, 'span')
       span.text = TRANSACTION_STATUS_SYMBOL_MAPPING[status]
     return tostring(transaction_status_buttons)
