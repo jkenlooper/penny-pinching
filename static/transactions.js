@@ -1,3 +1,10 @@
+/* FireBug console.log wrapper */
+function log() {
+  if (typeof(console) != 'undefined' && typeof(console.log) == 'function') {
+    Array.prototype.unshift.call(arguments, '[transactions]');
+    console.log(Array.prototype.join.call(arguments, ' '));
+  }
+}
 jQuery.noConflict();
 jQuery(document).ready(function($) {
   var CHART_TYPE_MAP = {'0':'income', '1':'expense', '2':'bill', '3':'saving'};
