@@ -75,7 +75,8 @@ jQuery(document).ready(function($) {
     return hash;
   }
   function load_transaction_list(status_set) { // cleared_suspect || receipt_no_receipt_scheduled
-    $.getJSON("/"+db_name+"/financial-transaction-list/"+status_set, function(data){
+    var order_by = $("input[name='sort_by']:checked").val();
+    $.getJSON("/"+db_name+"/financial-transaction-list/"+status_set+"?order_by="+order_by, function(data){
       var transactions_div = $('#'+status_set+'_transactions');
       var TRANSACTION_STATUS_ENUM = ['suspect', 'no_receipt', 'receipt', 'scheduled', 'cleared', 'reconciled'];
       var TRANSACTION_STATUS_SYMBOLS_ENUM = ['?', '&larr;', '&rarr;', '&crarr;', '&harr;', '&radic;'];
@@ -92,6 +93,7 @@ jQuery(document).ready(function($) {
         }
         data[i]['status_list'] = status_list;
       }
+      // TODO: sort transactions
       hash = split_transactions(data, transactions_div);
       html = ich.transaction_listing(hash);
       transactions_div.html(html);
@@ -100,6 +102,12 @@ jQuery(document).ready(function($) {
   }
   load_transaction_list('cleared_suspect');
   load_transaction_list('receipt_no_receipt_scheduled');
+
+  $("input[name='sort_by']").bind('change', function(e){
+    load_transaction_list('cleared_suspect');
+    load_transaction_list('receipt_no_receipt_scheduled');
+  });
+
 
   function group_items(data, group_by) {
     var item_group = [];
@@ -252,6 +260,16 @@ jQuery(document).ready(function($) {
       }
   });
 
+  $("div.transaction_list").delegate("div.transaction_status a", "click", function(e){
+      t_status = $(this).attr('title');
+      id = $(this).parents("div.transaction").attr("db_id");
+      data_string = {'status':t_status};
+      d = {'data_string':JSON.stringify(data_string)};
+      $.post("/"+db_name+"/financial-transaction-status/"+id, d);
+      $(this).siblings("a").removeClass('active');
+      $(this).addClass('active');
+      e.preventDefault();
+  });
 
 
 });

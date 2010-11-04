@@ -7,6 +7,11 @@ body {
   margin: 0;
   padding: 0;
 }
+h2 {
+  font-size: 1.3em;
+  margin: 0.5em 0 0;
+  padding: 0 0 0.2em;
+}
 div#page {
 }
 
@@ -19,13 +24,71 @@ input[type='text'] {
 }
 div.transaction_list {
   overflow: hidden;
+  padding-bottom: 10px;
 }
   div.transaction_list div.column {
     width: 200px;
     float: left;
-    border: 1px solid black;
-    padding: 5px;
+    border: 1px solid #aaa;
+    padding: 0 5px;
   }
+  div.transaction {
+    overflow: hidden;
+    position: relative;
+    margin: 0 -5px;
+    padding: 0.4em 0.6em;
+    border-bottom: 1px solid #eee;
+  }
+  div.transaction:nth-child(2n+2) {
+    background-color: #ddd;
+  }
+    span.transaction-total {
+      float: right;
+      width: 6em;
+      padding: 0 0.2em;
+      text-align: right;
+      display: block;
+    }
+    span.transaction-name {
+      display: block;
+      font-size: 1.1em;
+      margin-right: 9em;
+    }
+
+    div.transaction_status {
+      clear: right;
+      float: right;
+      overflow: hidden;
+      width: 7.4em;
+      height: 1.5em;
+    }
+    div.transaction_status a {
+      outline: none;
+      display: block;
+      width: 1em;
+      height: 1em;
+      margin: 1px;
+      line-height: 1em;
+      font-size: 1.0em;
+      text-decoration: none;
+      color: transparent;
+      float: left;
+      padding: 1px;
+    }
+    div.transaction:hover div.transaction_status a {
+      color: #000;
+    }
+    div.transaction_status a.active {
+      color: #000;
+      background-color: #fff;
+      border: 1px solid #000;
+      -moz-border-radius: 1em;
+      -webkit-border-radius: 1em;
+      border-radius: 1em;
+    }
+    span.transaction-date {
+      padding: 0 0.9em;
+    }
 
 div#item_group_list {
 }

@@ -27,7 +27,8 @@ urls = (
     '/([a-z]+)/financial-transaction-list/receipt_no_receipt_scheduled/?', 'FinancialTransactionReceiptNoReceiptScheduledListView', # GET
     '/([a-z]+)/financial-transaction/?', 'FinancialTransactionAdd', # POST
     '/([a-z]+)/financial-transaction/([0-9]+)/?', 'FinancialTransactionView', # GET
-    '/([a-z]+)/financial-transaction/([0-9]+)/?', 'FinancialTransactionUpdate', # POST delete attr
+    '/([a-z]+)/financial-transaction/([0-9]+)/update/?', 'FinancialTransactionUpdate', # POST delete attr
+    '/([a-z]+)/financial-transaction-status/([0-9]+)/?', 'FinancialTransactionStatusUpdate',
 
     #financial transactions with items
     '/([a-z]+)/financial-transaction-item-list/?', 'FinancialTransactionItemListView', # GET

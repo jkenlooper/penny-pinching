@@ -113,6 +113,13 @@ def validate(user_input, valid):
           v = int(v)
         else:
           raise ValueError("invalid type for chart_type")
+      if t == 'status': # if string then switch to int
+        if v in TRANSACTION_STATUS_ENUM:
+          v = TRANSACTION_STATUS_ENUM.index(v)
+        elif (int(v) < len(TRANSACTION_STATUS_ENUM)) and (int(v) >= 0):
+          v = int(v)
+        else:
+          raise ValueError("invalid type for status")
       else:
         v = t(v)
 
@@ -154,6 +161,23 @@ class ListView(object):
   query = "select * from ExpenseCategory;"
   @read_permission
   def GET(self, db_name, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    cur = db_cnx.cursor()
+    data = normalize(cur.execute(self.query).fetchall(), cur.description)
+    return dump_data_formatted(_user["data_format"], data)
+
+class OrderedListView(ListView):
+  """ Attach the 'order by' to end of query """
+  query = "select * from ExpenseCategory"
+  default_order = 'date'
+  valid_order_by = ['name asc', 'name desc']
+  @read_permission
+  def GET(self, db_name, _user=None):
+    user_input = web.input(order_by=None)
+    if user_input.order_by in self.valid_order_by:
+      self.query = " ".join((self.query, 'order by', user_input.order_by, ';'))
+    else:
+      self.query = " ".join((self.query, 'order by', self.default_order, ';'))
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
     data = normalize(cur.execute(self.query).fetchall(), cur.description)
@@ -245,10 +269,10 @@ class AccountUpdate(Update):
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
 class FinancialTransactionListView(ListView):
-  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id);"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) order by date;"
 
 class FinancialTransactionStatusListView(object):
-  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = :status;"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = :status order by date;"
   @read_permission
   def GET(self, db_name, status, _user=None):
     db_cnx = get_db_cnx(db_name)
@@ -256,15 +280,23 @@ class FinancialTransactionStatusListView(object):
     data = normalize(cur.execute(self.query, {'status':status}).fetchall(), cur.description)
     return dump_data_formatted(_user["data_format"], data)
 
-class FinancialTransactionClearedSuspectListView(ListView):
-  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = 4 or status = 0;"
+class FinancialTransactionClearedSuspectListView(OrderedListView):
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = 4 or status = 0"
+  valid_order_by = ['name asc', 'name desc', 'total asc', 'total desc', 'date asc', 'date desc']
+  default_order = 'date desc'
 
-class FinancialTransactionReceiptNoReceiptScheduledListView(ListView):
-  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = 2 or status = 1 or status = 3;"
+class FinancialTransactionReceiptNoReceiptScheduledListView(OrderedListView):
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = 2 or status = 1 or status = 3"
+  valid_order_by = ['name asc', 'name desc', 'total asc', 'total desc', 'date asc', 'date desc']
+  default_order = 'date desc'
 
 class FinancialTransactionAdd(Add): 
   query = "insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);"
   valid_data_format = {'name':str, 'status':int, 'date':year_month_day, 'account':int}
+
+class FinancialTransactionStatusUpdate(Update):
+  query = "update FinancialTransaction set status = :status where id = :id;"
+  valid_data_format = {'status':'status', 'id':int}
 
 class FinancialTransactionItemAdd(object):
   """ adding a transaction with items """
@@ -416,6 +448,7 @@ class FinancialTransactionItemAdd(object):
 
 class FinancialTransactionItemListView(object):
   query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id);"
+  #TODO: set account_name in query
   subquery = "select * from TransactionItem where financial_transaction = :id;"
   @read_permission
   def GET(self, db_name, _user=None):
