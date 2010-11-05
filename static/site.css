@@ -89,6 +89,26 @@ div.transaction_list {
     span.transaction-date {
       padding: 0 0.9em;
     }
+    span.transaction-edit {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      display: block;
+      width: 2.3em;
+      margin-left: -1.15em;
+      text-align: center;
+      height: 1.2em;
+      line-height: 1.0em;
+      border: 1px solid transparent;
+      color: transparent;
+      cursor: pointer;
+    }
+    div.transaction:hover span.transaction-edit {
+      border: 1px solid black;
+      background-color: white;
+      color: black;
+    }
+
 
 div#item_group_list {
 }
