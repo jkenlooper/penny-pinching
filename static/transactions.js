@@ -43,6 +43,7 @@ jQuery(document).ready(function($) {
   };
 
 
+
   $.getJSON("/"+db_name+"/user", function(data){
       html = ich.user_details(data);
       $('div#user_details').append(html);
@@ -107,6 +108,67 @@ jQuery(document).ready(function($) {
     load_transaction_list('cleared_suspect');
     load_transaction_list('receipt_no_receipt_scheduled');
   });
+
+  function clear_new_transaction_form() {
+    var new_transaction = $("#new_transaction");
+    new_transaction.find("#delete_transaction, #update_transaction").remove();
+    new_transaction.find("#transaction_status option:first-child").attr('selected', 'selected');
+    new_transaction.find("#account_select_list option:first-child").attr('selected', 'selected');
+    var today = new Date();
+    new_transaction.find("#new_transaction_date").datepicker("setDate", today);
+    new_transaction.find("#new_transaction_name").val("");
+    new_transaction.find("#transaction_amount").val(0.00);
+    new_transaction.find("#transaction_amount_remainder").html("");
+    $("div#transaction_items div.transaction_item").remove();
+    add_blank_transaction_item();
+  }
+
+
+  $("div.transaction_list").delegate("span.transaction-edit", "click", function(e) {
+      clear_new_transaction_form();
+      var transaction = $(this).parents("div.transaction");
+      var id = transaction.attr("db_id");
+      $.getJSON("/"+db_name+"/financial-transaction-item/"+id, function(data){
+        data = data[0];
+        var new_transaction = $("#new_transaction");
+        new_transaction.find("#add_transaction").after("<button id='update_transaction' db_id='"+data['id']+"'>Update</button>");
+        new_transaction.find("#add_transaction").after("<button id='delete_transaction' db_id='"+data['id']+"'>Delete</button>");
+
+        new_transaction.find("#transaction_status option[selected='selected']").removeAttr('selected');
+        new_transaction.find("#transaction_status option[value='"+data['status']+"']").attr('selected', 'selected');
+
+        new_transaction.find("#account_select_list option[selected='selected']").removeAttr('selected');
+        new_transaction.find("#account_select_list option[value='"+data['account']+"']").attr('selected', 'selected');
+
+        new_transaction.find("#new_transaction_date").datepicker("setDate", data['date']);
+        new_transaction.find("#new_transaction_name").val(data['name']);
+        new_transaction.find("#transaction_amount").val(Math.abs(data['total']));
+        new_transaction.find("#transaction_amount_remainder").html("");
+
+        var t_i = $("div#transaction_items div.transaction_item:first-child");
+        var t_i_data = data['items'][0];
+
+        function insert_item_data(e, d) {
+          e.find("input[name='transaction_item_name']").val(d['name']);
+          e.find("select.chart_type_select_list option:eq("+d['type']+")").attr('selected', 'selected');
+          chart_type_select_list_changed(e.find("select.chart_type_select_list"));
+          e.find("select.category_select_list option[value='"+d['category']+"']").attr('selected', 'selected');
+          e.find("input[name='item_amount']").val(Math.abs(d['amount']));
+        }
+        insert_item_data(t_i, t_i_data);
+        for (i=1; i<data['items'].length; i++) {
+          var cloned_item = $("div#transaction_items div.transaction_item:last-child").clone();
+          $("div#transaction_items").append(cloned_item);
+          var t_i = $("div#transaction_items div.transaction_item:last-child");
+          insert_item_data(t_i, data['items'][i]);
+        }
+
+
+      });
+  });
+
+
+
 
 
   function group_items(data, group_by) {
@@ -177,6 +239,17 @@ jQuery(document).ready(function($) {
   load_item_group_list();
   add_blank_transaction_item();
 
+  function chart_type_select_list_changed(select_list){
+    var chart_selected = select_list.find("option:selected").val();
+    select_list.siblings('select.category_select_list').empty();
+    if (chart_selected != 'income') {
+      $.getJSON("/"+db_name+"/"+chart_selected+"-list-active", function(data){
+        hash = {category:data};
+        html = ich.category_list(hash);
+        select_list.siblings('select.category_select_list').append(html);
+      });
+    }
+  };
   $("#transaction_items").delegate(".chart_type_select_list", "change", function(){
     var select_list = $(this);
     var chart_selected = select_list.find("option:selected").val();
@@ -221,37 +294,56 @@ jQuery(document).ready(function($) {
       load_item_group_list();
   });
 
+  var add_transaction = function(){
+    items = [];
+    $("#transaction_items .transaction_item").each(function(){
+      item = $(this);
+      items.push({'name':item.find("input[name='transaction_item_name']").val(),
+        'amount':item.find("input[name='item_amount']").val(),
+        'type':item.find(".chart_type_select_list option:selected").val(),
+        'category':item.find(".category_select_list option:selected").val()});
+    });
+    
+    t_date = $("#new_transaction_date").datepicker("getDate");
+    data_string = {'status':$("select#transaction_status option:selected").val(),
+      'name':$("input[name='transaction_name']").val(),
+      'date':formatISO(t_date),
+      'account':$("#account_select_list option:selected").val(),
+      'items':items};
 
-  $("#add_transaction").bind("click", function(){
-      items = [];
-      $("#transaction_items .transaction_item").each(function(){
-        item = $(this);
-        items.push({'name':item.find("input[name='transaction_item_name']").val(),
-          'amount':item.find("input[name='item_amount']").val(),
-          'type':item.find(".chart_type_select_list option:selected").val(),
-          'category':item.find(".category_select_list option:selected").val()});
-      });
-      
-      t_date = $("#new_transaction_date").datepicker("getDate");
-      data_string = {'status':$("select#transaction_status option:selected").val(),
-        'name':$("input[name='transaction_name']").val(),
-        'date':formatISO(t_date),
-        'account':$("#account_select_list option:selected").val(),
-        'items':items};
 
+    d = {'data_string':JSON.stringify(data_string)};
+    $.post("/"+db_name+"/financial-transaction-item", d, function(data){
+      return_data = JSON.parse(data);
+      if (return_data['status'] == 0 || return_data['status'] == 4) {
+        load_transaction_list('cleared_suspect');
+      } else {
+        load_transaction_list('receipt_no_receipt_scheduled');
+      }
+      load_item_group_list();
+      get_all_category_list();
+      clear_new_transaction_form();
+    });
+  };
 
-      d = {'data_string':JSON.stringify(data_string)};
-      $.post("/"+db_name+"/financial-transaction-item", d, function(data){
-        return_data = JSON.parse(data);
-        if (return_data['status'] == 0 || return_data['status'] == 4) {
-          load_transaction_list('cleared_suspect');
-        } else {
-          load_transaction_list('receipt_no_receipt_scheduled');
-        }
-        load_item_group_list();
-        get_all_category_list();
+  $("#add_transaction").bind("click", add_transaction);
+
+  $("#new_transaction").delegate("#update_transaction", 'click', function(e) {
+      var id = $(this).attr("db_id");
+      $.post("/"+db_name+"/financial-transaction-item/"+id+"/delete", {}, function(d){
+        add_transaction();
       });
   });
+  $("#new_transaction").delegate("#delete_transaction", 'click', function(e) {
+      var id = $(this).attr("db_id");
+      $.post("/"+db_name+"/financial-transaction-item/"+id+"/delete", {}, function(d){
+        load_transaction_list('cleared_suspect');
+        load_transaction_list('receipt_no_receipt_scheduled');
+        load_item_group_list();
+        clear_new_transaction_form();
+      });
+  });
+
 
   $("input[name='group_by']").bind("change", function(){
       if ($(this).attr('checked')) {

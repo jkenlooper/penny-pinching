@@ -37,8 +37,8 @@
     <button class="remove_item"><span>-</span></button>
     <input name="transaction_item_name" type="text">
     <select class="chart_type_select_list" name="chart_type">
-      <option selected="selected" value="expense">Expense</option>
       <option value="income">Income</option>
+      <option selected="selected" value="expense">Expense</option>
       <option value="bill">Bill</option>
       <option value="saving">Saving</option>
     </select>
@@ -72,6 +72,7 @@
             {{/status_list}}
           </div>
           <span class="transaction-date">{{date}}</span> <span class="transaction-account">{{account}}</span>
+          <span class="transaction-edit">edit</span>
         </div>
       {{/transaction}}
     </div>
@@ -103,12 +104,12 @@
     <div id="user_details"></div>
 
     <div id="content">
-      <button id="add_transaction">Add Transaction</button>
       <div id="new_transaction">
+        <button id="add_transaction">Add</button>
         $transaction_status_select
         <select id="account_select_list" name="account"></select>
         <div id="new_transaction_date"> </div>
-        <input type="text" name="transaction_name">
+        <input id="new_transaction_name" type="text" name="transaction_name">
         $currency <input type="text" id="transaction_amount"> <span id="transaction_amount_remainder"></span>
         <br>
         

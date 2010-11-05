@@ -34,7 +34,8 @@ urls = (
     '/([a-z]+)/financial-transaction-item-list/?', 'FinancialTransactionItemListView', # GET
     '/([a-z]+)/financial-transaction-item/?', 'FinancialTransactionItemAdd', # POST
     '/([a-z]+)/financial-transaction-item/([0-9]+)/?', 'FinancialTransactionItemView', # GET
-    '/([a-z]+)/financial-transaction-item/([0-9]+)/?', 'FinancialTransactionItemUpdate', # POST delete attr
+    '/([a-z]+)/financial-transaction-item/([0-9]+)/update/?', 'FinancialTransactionItemUpdate',
+    '/([a-z]+)/financial-transaction-item/([0-9]+)/delete/?', 'FinancialTransactionItemDelete',
 
     '/([a-z]+)/transaction-item-list/?', 'TransactionItemListView', # GET
     '/([a-z]+)/transaction-item/?', 'TransactionItemAdd', # POST

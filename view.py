@@ -113,7 +113,7 @@ def validate(user_input, valid):
           v = int(v)
         else:
           raise ValueError("invalid type for chart_type")
-      if t == 'status': # if string then switch to int
+      elif t == 'status': # if string then switch to int
         if v in TRANSACTION_STATUS_ENUM:
           v = TRANSACTION_STATUS_ENUM.index(v)
         elif (int(v) < len(TRANSACTION_STATUS_ENUM)) and (int(v) >= 0):
@@ -309,12 +309,12 @@ class FinancialTransactionItemAdd(object):
     self.cur = self.db_cnx.cursor()
     self.cur.execute("insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);", t)
     self.db_cnx.commit()
-    inserted_transaction_id = self.cur.execute("select last_insert_rowid() as id;").next()[0]
-    validated_items = []
-    v_i = {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int}
+    self.inserted_transaction_id = self.cur.execute("select last_insert_rowid() as id;").next()[0]
+    self.validated_items = []
+    self.v_i = {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int, 'financial_transaction':int}
     for item in t['items']:
-      item = validate(item, v_i)
-      item['financial_transaction'] = inserted_transaction_id
+      item = validate(item, self.v_i)
+      item['financial_transaction'] = self.inserted_transaction_id
       if item['type'] != 0:
         self._update_category_balance(item)
         item['amount'] = "-%s" % (item['amount'])
@@ -325,9 +325,9 @@ class FinancialTransactionItemAdd(object):
 
         self._distribute_to_buffer(available)
 
-      validated_items.append(item)
+      self.validated_items.append(item)
 
-    self.db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", validated_items)
+    self.db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", self.validated_items)
     self.db_cnx.commit()
     return dump_data_formatted(_user["data_format"], t)
 
@@ -422,11 +422,11 @@ class FinancialTransactionItemAdd(object):
             print "item amount over exceds buffer balance"
           else:
             print "splitting item amount with buffer balance"
-            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0}
-            buffer_item = validate(b, v_i) 
+            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0, 'financial_transaction':self.inserted_transaction_id}
+            buffer_item = validate(b, self.v_i) 
             buffer_balance = Decimal(str(float(buffer_category['balance'])-float(item_amount_over)))
             self.cur.execute("update ExpenseCategory set balance = :balance where id = 1", {'balance':str(buffer_balance)})
-            validated_items.append(buffer_item)
+            self.validated_items.append(buffer_item)
             item['amount'] = category['balance']
         else:
           print "no buffer found"
@@ -458,6 +458,35 @@ class FinancialTransactionItemListView(object):
     for transaction in data:
       items = normalize(cur.execute(self.subquery, {'id':transaction['id']}), cur.description)
       transaction['items'] = items
+    return dump_data_formatted(_user["data_format"], data)
+
+class FinancialTransactionItemDelete(object):
+  query = "delete from FinancialTransaction where id = :id;"
+  subquery = "delete from TransactionItem where financial_transaction = :id;"
+  @read_permission
+  def POST(self, db_name, id, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    user_data = {'id':id}
+    cur = db_cnx.cursor()
+    cur.execute(self.query, user_data)
+    cur.execute(self.subquery, user_data)
+    db_cnx.commit()
+    return web.accepted()
+
+
+class FinancialTransactionItemView(object):
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where id = :id;"
+  subquery = "select * from TransactionItem where financial_transaction = :id;"
+  @read_permission
+  def GET(self, db_name, id, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    user_data = {'id':id}
+    cur = db_cnx.cursor()
+    data = normalize(cur.execute(self.query, user_data).fetchall(), cur.description)
+    for transaction in data:
+      items = normalize(cur.execute(self.subquery, {'id':transaction['id']}), cur.description)
+      transaction['items'] = items
+    print data
     return dump_data_formatted(_user["data_format"], data)
 
 class TransactionItemListView(ListView):
