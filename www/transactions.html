@@ -36,25 +36,18 @@
   <div class="transaction_item">
     <button class="remove_item"><span>-</span></button>
     <input name="transaction_item_name" type="text">
-    <select class="chart_type_select_list" name="chart_type">
+    <select class="chart_category_select_list" name="chart_type">
       <option value="income">Income</option>
-      <option selected="selected" value="expense">Expense</option>
-      <option value="bill">Bill</option>
-      <option value="saving">Saving</option>
-    </select>
-    <select class="category_select_list" name="category">
-      {{#category}}
-      <option value="{{id}}">{{name}} $currency {{balance}}</option>
-      {{/category}}
+      {{#chart}}
+        <optgroup label="{{chart_name}}">
+          {{#category}}
+            <option value="{{id}}">{{name}} $currency {{balance}}</option>
+          {{/category}}
+        </optgroup>
+      {{/chart}}
     </select>
     <input type="text" name="item_amount" value="0.00">
   </div>
-</script>
-
-<script id="category_list" type="text/html">
-  {{#category}}
-  <option value="{{id}}">{{name}} $currency {{balance}}</option>
-  {{/category}}
 </script>
 
 <script id="transaction_listing" type="text/html">

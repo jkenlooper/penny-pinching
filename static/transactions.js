@@ -10,6 +10,7 @@ jQuery(document).ready(function($) {
   var CHART_TYPE_MAP = {'0':'income', '1':'expense', '2':'bill', '3':'saving'};
   var all_category_list = {};
   var all_category_hash = {'expense':{}, 'bill':{}, 'saving':{}};
+  var chart_category_hash = {'chart':[]};
   $("div#new_transaction_date").datepicker({
       dateFormat:'yy-mm-dd',
   });
@@ -20,28 +21,29 @@ jQuery(document).ready(function($) {
   $("div#period-end").datepicker({
       dateFormat:'yy-mm-dd',
   });
-  function get_all_category_list() {
+  function get_all_category_list(add_blank_item) {
     $.getJSON("/"+db_name+"/all-category-list-active", function(data){
       all_category_list = data;
       for (chart_type in all_category_list) {
         var c = all_category_list[chart_type];
+
+        var chart_hash = {'chart_name':chart_type, 'category':c};
+        chart_category_hash['chart'].push(chart_hash);
+
         for (i=0; i<c.length; i++) {
           all_category_hash[chart_type][c[i].id] = c[i];
         }
       }
+      if (add_blank_item){ add_blank_transaction_item(); }
     });
   }
-  get_all_category_list();
+  get_all_category_list(true);
 
   function add_blank_transaction_item() {
-    $.getJSON("/"+db_name+"/expense-list-active", function(data){
-      hash = {category:data};
-      html = ich.transaction_item(hash);
-      html.find("input[name='item_amount']").numeric({format:"0.00", precision : { num: 2,onblur:false} });
-      $('#transaction_items').append(html);
-    });
+    html = ich.transaction_item(chart_category_hash);
+    html.find("input[name='item_amount']").numeric({format:"0.00", precision : { num: 2,onblur:false} });
+    $('#transaction_items').append(html);
   };
-
 
 
   $.getJSON("/"+db_name+"/user", function(data){
@@ -94,7 +96,6 @@ jQuery(document).ready(function($) {
         }
         data[i]['status_list'] = status_list;
       }
-      // TODO: sort transactions
       hash = split_transactions(data, transactions_div);
       html = ich.transaction_listing(hash);
       transactions_div.html(html);
@@ -150,9 +151,9 @@ jQuery(document).ready(function($) {
 
         function insert_item_data(e, d) {
           e.find("input[name='transaction_item_name']").val(d['name']);
-          e.find("select.chart_type_select_list option:eq("+d['type']+")").attr('selected', 'selected');
-          chart_type_select_list_changed(e.find("select.chart_type_select_list"));
-          e.find("select.category_select_list option[value='"+d['category']+"']").attr('selected', 'selected');
+          console.log(d['type']);
+          var type = CHART_TYPE_MAP[d['type']];
+          e.find("select.chart_category_select_list optgroup[label='"+type+"'] option[value='"+d['category']+"']").attr('selected', 'selected');
           e.find("input[name='item_amount']").val(Math.abs(d['amount']));
         }
         insert_item_data(t_i, t_i_data);
@@ -237,31 +238,6 @@ jQuery(document).ready(function($) {
   }
 
   load_item_group_list();
-  add_blank_transaction_item();
-
-  function chart_type_select_list_changed(select_list){
-    var chart_selected = select_list.find("option:selected").val();
-    select_list.siblings('select.category_select_list').empty();
-    if (chart_selected != 'income') {
-      $.getJSON("/"+db_name+"/"+chart_selected+"-list-active", function(data){
-        hash = {category:data};
-        html = ich.category_list(hash);
-        select_list.siblings('select.category_select_list').append(html);
-      });
-    }
-  };
-  $("#transaction_items").delegate(".chart_type_select_list", "change", function(){
-    var select_list = $(this);
-    var chart_selected = select_list.find("option:selected").val();
-    select_list.siblings('select.category_select_list').empty();
-    if (chart_selected != 'income') {
-      $.getJSON("/"+db_name+"/"+chart_selected+"-list-active", function(data){
-        hash = {category:data};
-        html = ich.category_list(hash);
-        select_list.siblings('select.category_select_list').append(html);
-      });
-    }
-  });
 
   $("#new_transaction").delegate("button.add_item", "click", add_blank_transaction_item);
   $("#transaction_items").delegate("button.remove_item", "click", function(){
@@ -300,8 +276,8 @@ jQuery(document).ready(function($) {
       item = $(this);
       items.push({'name':item.find("input[name='transaction_item_name']").val(),
         'amount':item.find("input[name='item_amount']").val(),
-        'type':item.find(".chart_type_select_list option:selected").val(),
-        'category':item.find(".category_select_list option:selected").val()});
+        'type':item.find(".chart_category_select_list option:selected").parents("optgroup").attr('label'),
+        'category':item.find(".chart_category_select_list option:selected").val()});
     });
     
     t_date = $("#new_transaction_date").datepicker("getDate");
@@ -313,6 +289,7 @@ jQuery(document).ready(function($) {
 
 
     d = {'data_string':JSON.stringify(data_string)};
+    log(d['data_string']);
     $.post("/"+db_name+"/financial-transaction-item", d, function(data){
       return_data = JSON.parse(data);
       if (return_data['status'] == 0 || return_data['status'] == 4) {
@@ -321,7 +298,7 @@ jQuery(document).ready(function($) {
         load_transaction_list('receipt_no_receipt_scheduled');
       }
       load_item_group_list();
-      get_all_category_list();
+      get_all_category_list(false);
       clear_new_transaction_form();
     });
   };
