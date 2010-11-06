@@ -14,6 +14,15 @@ jQuery(document).ready(function($) {
       $('div#user_details').append(html);
   });
 
+  $(".toggle_add_form").toggle(function(e){
+      $(this).parents("div.category_type").find("div.form").show();
+      $(this).html("hide add form");
+    },
+    function(e){
+      $(this).parents("div.category_type").find("div.form").hide();
+      $(this).html("show add form");
+    });
+
   var category_total = 0;
   var available_balance = 0;
   function total_balance() {

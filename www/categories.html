@@ -125,47 +125,176 @@
       <div id="total_balance"> </div>
       <div id="categories">
         <div class="category_type" id="expense">
+          <h2>Expense Categories</h2>
           <div class="form">
-            <button id="add_expense_category">Add Expense Category</button>
             <div id="new_expense_category">
-              <label>Name:</label><input type="text" name="name"><br>
-              <label>Balance:</label><input type="text" name="balance"><br>
-              <label>Minimum:</label><input type="text" name="minimum"><br>
-              <label>Maximum:</label><input type="text" name="maximum"><br>
-              <label>Allotment:</label><input type="text" name="allotment">
+              <div class="label_value">
+                <label>Name:</label>
+                <div class="value">
+                  <input type="text" name="name">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Balance:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="balance">
+                </div>
+                <div class="info">
+                  This is the amount that has been set aside for this
+                  expense.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Minimum:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="minimum">
+                </div>
+                <div class="info">
+                  When an income transaction occurs; this is the minimum
+                  amount that will be met before distributing to other
+                  expenses.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Maximum:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="maximum">
+                </div>
+                <div class="info">
+                  The maximum amount that can be put in this expense.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Allotment:</label>
+                <div class="value">
+                  <input class="allotment" type="text" name="allotment">
+                </div>
+                <div class="info">
+                  This is the allotment that this expense gets in relation
+                  to the other expenses.
+                </div>
+              </div>
             </div>
-          </div>
+            <button id="add_expense_category">Add Expense Category</button>
+          </div> <!-- .form -->
+          <button class="toggle_add_form">show add form</button>
 
           <div class="category_list" id="expense_category_list"></div>
           <div class="inactive_category_list" id="expense_category_inactive_list"></div>
         </div> <!-- #expense -->
         <div class="category_type" id="bill">
+          <h2>Bill Categories</h2>
           <div class="form">
-            <button id="add_bill_category">Add Bill Category</button>
             <div id="new_bill_category">
-              <label>Name:</label><input type="text" name="name"><br>
-              <label>Balance:</label><input type="text" name="balance"><br>
-              <label>Maximum:</label><input type="text" name="maximum"><br>
-              <label>Allotment Date:</label><input type="text" name="allotment_date"><br>
-              <label>Repeat:</label><input type="text" name="repeat_due_date">
-              <label>Due:</label><input type="text" name="due">
+              <div class="label_value">
+                <label>Name:</label>
+                <div class="value">
+                  <input type="text" name="name">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Balance:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="balance">
+                </div>
+                <div class="info">
+                  This is the amount that has been set aside for this
+                  bill.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Maximum:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="maximum">
+                </div>
+                <div class="info">
+                  The maximum amount of the bill.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Allotment Date:</label>
+                <div class="value">
+                  <input type="text" name="allotment_date">
+                </div>
+                <div class="info">
+                  After this date any income will be distributed to this bill
+                  until it reaches it's maximum.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Due:</label>
+                <div class="value">
+                  <input type="text" name="due">
+                </div>
+                <div class="info">
+                  The date the bill is due.  After this date, income will no
+                  longer be distributed to the bill.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Repeat:</label>
+                <div class="value">
+                  <input type="text" name="repeat_due_date" value="+1 months">
+                </div>
+                <div class="info">
+                  How often the bill repeats. Examples:
+                    <span class="repeat_due_date-example">+1 months</span>,
+                    <span class="repeat_due_date-example">+2 weeks</span>,
+                    <span class="repeat_due_date-example">+12 days</span>,
+                    <span class="repeat_due_date-example">+1 years</span>,
+                    no repeat: <span class="repeat_due_date-example">0</span>.
+                  The bill due and allotment dates will be adjusted according
+                  to this.  Setting this to 
+                    <span class="repeat_due_date-example">0</span>
+                  will inactivate the bill as soon as it is paid.
+                </div>
+              </div>
             </div>
-          </div>
+            <button id="add_bill_category">Add Bill Category</button>
+          </div> <!-- .form -->
+          <button class="toggle_add_form">show add form</button>
 
           <div class="category_list" id="bill_category_list"></div>
           <div class="inactive_category_list" id="bill_category_inactive_list"></div>
         </div> <!-- #bill -->
         <div class="category_type" id="saving">
+          <h2>Saving Categories</h2>
           <div class="form">
-            <button id="add_saving_category">Add Saving Category</button>
             <div id="new_saving_category">
-              <label>Name:</label><input type="text" name="name"><br>
-              <label>Balance:</label><input type="text" name="balance"><br>
-              <label>Minimum:</label><input type="text" name="minimum"><br>
-              <label>Maximum:</label><input type="text" name="maximum"><br>
-              <label>Allotment:</label><input type="text" name="allotment">
+              <div class="label_value">
+                <label>Name:</label>
+                <div class="value">
+                  <input type="text" name="name">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Balance:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="balance">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Minimum:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="minimum">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Maximum:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="maximum">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Allotment:</label>
+                <div class="value">
+                  <input class="allotment" type="text" name="allotment">
+                </div>
+              </div>
             </div>
-          </div>
+            <button id="add_saving_category">Add Saving Category</button>
+          </div> <!-- .form -->
+          <button class="toggle_add_form">show add form</button>
 
           <div class="category_list" id="saving_category_list"></div>
           <div class="inactive_category_list" id="saving_category_inactive_list"></div>

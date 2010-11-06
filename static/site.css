@@ -1,3 +1,4 @@
+/** general **/
 body {
   background-color: white;
   color: #1f1605; /* drk_brwn */
@@ -19,6 +20,9 @@ input[type='text'] {
   font-size: 1.0em;
   line-height: 1.5em;
 }
+input.currency {
+  width: 6em;
+}
 select {
   font-size: 1.0em;
   line-height: 1.2em;
@@ -27,6 +31,25 @@ button {
   font-size: 1.0em;
   line-height: 1.2em;
 }
+/** common **/
+div.label_value {
+  margin-top: 5px;
+  overflow: hidden;
+}
+div.label_value label {
+  float: left;
+  width: 5em;
+  text-align: right;
+  line-height: 1.5em;
+}
+div.label_value div.value {
+  margin: 0 0.5em 0 5.5em;
+}
+div.label_value div.info {
+  margin-left: 6em;
+  color: #777;
+}
+/** layout **/
 div#page {
   margin: 8px 2%;
 }
@@ -52,19 +75,6 @@ div#new_transaction {
     float: left;
     width: 20em;
   }
-    div.label_value {
-      margin-top: 5px;
-      overflow: hidden;
-    }
-    div.label_value label {
-      float: left;
-      width: 5em;
-      text-align: right;
-      line-height: 1.5em;
-    }
-    div.label_value div.value {
-      margin: 0 0.5em 0 5.5em;
-    }
     div#account-block {
     }
     div#name-block input {
@@ -261,36 +271,64 @@ div#transaction_items_list-block {
 div#categories {
   overflow: hidden;
 }
-div.category_type {
-  width: 33.33%;
-  float: left;
-}
-div#expense { width: 43%; }
-div#bill { width: 28%; }
-div#saving { width: 29%; }
-div.category_type div.form {
-  margin: 5px;
-}
-div.category_type div.category_list {
-  margin: 5px 4em;
-  padding-top: 2.0em;
-}
-div.edit-form {
-  margin: 0 0 2.0em;
-}
-input.edit-button {
-  padding: 0px;
-  position: absolute;
-  right: 5px;
-  bottom: -4px;
-  font-size: 0.8em;
-}
+  div.category_type {
+    width: 33.33%;
+    float: left;
+  }
+  div#expense { width: 43%; }
+  div#bill { width: 28%; }
+  div#saving { width: 29%; }
+  div.category_type div.form {
+    margin: 5px;
+  }
+    
 
+    div.category_type div.form {
+      display: none;
+      border: 1px solid #5d4322;
+      padding: 4px;
+      -moz-border-radius: 3px;
+      -webkit-border-radius: 3px;
+      border-radius: 3px;
+    }
+      div.category_type div.label_value {
+        padding-bottom: 4px;
+        border-bottom: 1px solid #999;
+      }
+        input.allotment {
+          width: 6em;
+        }
+    button.toggle_add_form {
+      float: right;
+      margin: 0 2em 0 0;
+    }
+    div.category_list {
+      clear: both;
+      margin: 5px 4em;
+      padding-top: 2.0em;
+    }
+      div.edit-form {
+        margin: 0 0 2.0em;
+      }
+      input.edit-button {
+        padding: 0px;
+        position: absolute;
+        right: 5px;
+        bottom: -4px;
+        font-size: 0.8em;
+      }
+
+      /** *expense **/
+      /** *bill **/
+      /** *saving **/
+    div.inactive_category_list {
+    }
+
+
+/** expense **/
 div.expense_category {
   margin-bottom: 5px;
   position: relative;
-}
-div.expense_category input.edit-button {
 }
 div.expense_category:nth-child(2n+1) {
   background-color: gray;
@@ -302,50 +340,50 @@ div.expense_category h2 {
   font-size: 1.2em;
   font-weight: normal;
 }
-div.minimum_graph {
-  z-index: 1;
-  font-size: 0.7em;
-  line-height: 1.0em;
-  background-color: black;
-  color: white;
-  text-align: right;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-}
-div.minimum_graph span.minimum {
-  padding: 0 0.5em;
-  background-color: black;
-  color: white;
-}
-div.minimum_graph.below {
-  background-color: red;
-}
-div.balance-slider span.maximum {
-  position: absolute;
-  right: 1.0em;
-  font-size: 0.7em;
-  line-height: 1.0em;
-  top:0;
-  display: block;
-  height: 1.0em;
-}
-div.available_graph {
-  z-index: 1;
-  background-color: rgba(0, 205, 0, 0.5);
-  position: absolute;
-  top: 0;
-  bottom: 0;
-}
-span.slider-balance-value {
-  position: absolute;
-  top: -1.4em;
-  font-size: 0.9em;
-  line-height: 1.0em;
-  left: 0;
-  z-index: 3;
-}
+  div.minimum_graph {
+    z-index: 1;
+    font-size: 0.7em;
+    line-height: 1.0em;
+    background-color: black;
+    color: white;
+    text-align: right;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+  }
+  div.minimum_graph span.minimum {
+    padding: 0 0.5em;
+    background-color: black;
+    color: white;
+  }
+  div.minimum_graph.below {
+    background-color: red;
+  }
+  div.balance-slider span.maximum {
+    position: absolute;
+    right: 1.0em;
+    font-size: 0.7em;
+    line-height: 1.0em;
+    top:0;
+    display: block;
+    height: 1.0em;
+  }
+  div.available_graph {
+    z-index: 1;
+    background-color: rgba(0, 205, 0, 0.5);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+  span.slider-balance-value {
+    position: absolute;
+    top: -1.4em;
+    font-size: 0.9em;
+    line-height: 1.0em;
+    left: 0;
+    z-index: 3;
+  }
 
 /** bill **/
 div#bill_category_list {
@@ -355,30 +393,30 @@ div.bill_category {
   position: relative;
   margin-bottom: 10px;
 }
-div.bill_category h2 {
-  font-size: 1.2em;
-  font-weight: normal;
-  position: relative;
-  text-indent: -1em;
-  margin: 0 0 0.3em;
-  padding: 0 7.5em 0 0;
-}
-div.bill_category h2 span.amount_info {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: block;
-  text-align: right;
-  width: 7.0em;
-}
-div.bill_category h2 span.amount_info {
-  font-size: 0.8em;
-}
-div.due-block {
-  text-align: right;
-}
-div.bill_category span.due {
-  font-weight: bold;
-}
+  div.bill_category h2 {
+    font-size: 1.2em;
+    font-weight: normal;
+    position: relative;
+    text-indent: -1em;
+    margin: 0 0 0.3em;
+    padding: 0 7.5em 0 0;
+  }
+  div.bill_category h2 span.amount_info {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: block;
+    text-align: right;
+    width: 7.0em;
+  }
+  div.bill_category h2 span.amount_info {
+    font-size: 0.8em;
+  }
+  div.due-block {
+    text-align: right;
+  }
+  div.bill_category span.due {
+    font-weight: bold;
+  }
 
 
