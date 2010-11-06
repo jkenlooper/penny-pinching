@@ -267,7 +267,12 @@ div#transaction_items_list-block {
 
 
 /** categories **/
-
+span.repeat_date-example {
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1.1em;
+  color: green;
+}
 div#categories {
   overflow: hidden;
 }

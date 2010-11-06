@@ -101,11 +101,15 @@
 <script id="saving_category_list" type="text/html">
   {{#category}}
     <div class="saving_category">
-      {{name}}
-      {{balance}}
-      {{minimum}}
-      {{maximum}}
-      {{allotment}}
+      name: {{name}}
+      balance: {{balance}}<br>
+      minimum: {{minimum}}<br>
+      maximum: {{maximum}}<br>
+      allotment_amount: {{allotment_amount}}<br>
+      allotment_date: {{allotment_date}}<br>
+      repeat_date: {{repeat_date}}<br>
+      allotment: {{allotment}}<br>
+      <br>
     </div>
   {{/category}}
 </script>
@@ -238,18 +242,18 @@
               <div class="label_value">
                 <label>Repeat:</label>
                 <div class="value">
-                  <input type="text" name="repeat_due_date" value="+1 months">
+                  <input type="text" class="repeat_date" name="repeat_due_date" value="+1 months">
                 </div>
                 <div class="info">
                   How often the bill repeats. Examples:
-                    <span class="repeat_due_date-example">+1 months</span>,
-                    <span class="repeat_due_date-example">+2 weeks</span>,
-                    <span class="repeat_due_date-example">+12 days</span>,
-                    <span class="repeat_due_date-example">+1 years</span>,
-                    no repeat: <span class="repeat_due_date-example">0</span>.
+                    <span class="repeat_date-example">+1 months</span>,
+                    <span class="repeat_date-example">+2 weeks</span>,
+                    <span class="repeat_date-example">+12 days</span>,
+                    <span class="repeat_date-example">+1 years</span>,
+                    no repeat: <span class="repeat_date-example">0</span>.
                   The bill due and allotment dates will be adjusted according
                   to this.  Setting this to 
-                    <span class="repeat_due_date-example">0</span>
+                    <span class="repeat_date-example">0</span>
                   will inactivate the bill as soon as it is paid.
                 </div>
               </div>
@@ -276,11 +280,18 @@
                 <div class="value">
                   <input class="currency" type="text" name="balance">
                 </div>
+                <div class="info">
+                  This is the amount that has been saved.
+                </div>
               </div>
               <div class="label_value">
                 <label>Minimum:</label>
                 <div class="value">
                   <input class="currency" type="text" name="minimum">
+                </div>
+                <div class="info">
+                  The amount that will be saved for each repeat date. Anything
+                  over this will be put in other categories.
                 </div>
               </div>
               <div class="label_value">
@@ -288,11 +299,59 @@
                 <div class="value">
                   <input class="currency" type="text" name="maximum">
                 </div>
+                <div class="info">
+                  Once the balance equals this value then the saving category
+                  no longer receives income.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Allotment Amount:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="allotment_amount">
+                </div>
+                <div class="info">
+                  The current amount allotted so far for this repeat date. This
+                  amount is part of the balance. Once this amount equals the
+                  Minimum then it resets to zero and changes the allotment
+                  date.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Allotment Date:</label>
+                <div class="value">
+                  <input type="text" name="allotment_date">
+                </div>
+                <div class="info">
+                  Any income added that is after this date will be split with
+                  this saving category.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Repeat:</label>
+                <div class="value">
+                  <input type="text" class="repeat_date" name="repeat_date" value="+1 months">
+                </div>
+                <div class="info">
+                  How often the allotment cycle repeats. Examples:
+                    <span class="repeat_date-example">+1 months</span>,
+                    <span class="repeat_date-example">+2 weeks</span>,
+                    <span class="repeat_date-example">+12 days</span>,
+                    <span class="repeat_date-example">+1 years</span>,
+                    no repeat: <span class="repeat_date-example">0</span>.
+                    Setting this to 
+                    <span class="repeat_date-example">0</span>
+                  will always split the income with this category up to the
+                  minimum.
+                </div>
               </div>
               <div class="label_value">
                 <label>Allotment:</label>
                 <div class="value">
                   <input class="allotment" type="text" name="allotment">
+                </div>
+                <div class="info">
+                  This is the allotment that this saving category gets in
+                  relation to the other saving categories.
                 </div>
               </div>
             </div>

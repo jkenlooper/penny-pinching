@@ -80,6 +80,11 @@ jQuery(document).ready(function($) {
       html = ich.bill_category_list(hash);
       $('#bill_category_list').html(html);
     });
+    $.getJSON("/"+db_name+"/saving-list-active", function(data){
+      hash = {category:data};
+      html = ich.saving_category_list(hash);
+      $('#saving_category_list').html(html);
+    });
   };
   function inactive_list() {
     $.getJSON("/"+db_name+"/expense-list-inactive", function(data){
@@ -252,6 +257,33 @@ jQuery(document).ready(function($) {
       total_balance();
       category_list();
     });
+  });
+
+  // saving category
+  $("#saving input[name='allotment_date']").datepicker({
+      dateFormat:'yy-mm-dd'
+  });
+  $("#add_saving_category").bind('click', function(e){
+      data_string = {'name':$("#saving input[name='name']").val(),
+        'balance':$("#saving input[name='balance']").val(),
+        'minimum':$("#saving input[name='minimum']").val(),
+        'maximum':$("#saving input[name='maximum']").val(),
+        'allotment_amount':$("#saving input[name='allotment_amount']").val(),
+        'allotment_date':$("#saving input[name='allotment_date']").val(),
+        'repeat_date':$("#saving input[name='repeat_date']").val(),
+        'allotment':$("#saving input[name='allotment']").val()
+        };
+    d = {'data_string':JSON.stringify(data_string)};
+    $.post("/"+db_name+"/saving", d, function(data){
+      total_balance();
+      category_list();
+    });
+  });
+
+  // repeat_date clicks
+  $(".repeat_date-example").bind('click', function(e){
+      var r = $(this).text()
+      $(this).parents(".label_value").find("input.repeat_date").val(r);
   });
 
   // inactive list

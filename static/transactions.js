@@ -274,10 +274,17 @@ jQuery(document).ready(function($) {
     items = [];
     $("#transaction_items .transaction_item").each(function(){
       item = $(this);
+      type = 'income';
+      category = 0;
+      opt_group_type_label = item.find(".chart_category_select_list option:selected").parents("optgroup").attr('label');
+      if (opt_group_type_label != undefined) {
+        type = opt_group_type_label;
+        category = item.find(".chart_category_select_list option:selected").val();
+      }
       items.push({'name':item.find("input[name='transaction_item_name']").val(),
         'amount':item.find("input[name='item_amount']").val(),
-        'type':item.find(".chart_category_select_list option:selected").parents("optgroup").attr('label'),
-        'category':item.find(".chart_category_select_list option:selected").val()});
+        'type':type,
+        'category':category});
     });
     
     t_date = $("#new_transaction_date").datepicker("getDate");
