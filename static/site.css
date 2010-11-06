@@ -310,12 +310,18 @@ div#categories {
       div.edit-form {
         margin: 0 0 2.0em;
       }
-      input.edit-button {
+      span.edit-button {
         padding: 0px;
-        position: absolute;
-        right: 5px;
-        bottom: -4px;
+        display: block;
         font-size: 0.8em;
+        border: 1px solid black;
+        background-color: white;
+        color: black;
+        cursor: pointer;
+        width: 2.3em;
+        text-align: center;
+        height: 1.2em;
+        line-height: 1.0em;
       }
 
       /** *expense **/
@@ -327,11 +333,11 @@ div#categories {
 
 /** expense **/
 div.expense_category {
-  margin-bottom: 5px;
+  padding-bottom: 5px;
   position: relative;
+  border-bottom: 1px solid #ccc;
 }
-div.expense_category:nth-child(2n+1) {
-  background-color: gray;
+div.expense_category:nth-child(2n+2) {
 }
 div.expense_category h2 {
   margin: 0.5em 0 2.0em;
@@ -384,6 +390,11 @@ div.expense_category h2 {
     left: 0;
     z-index: 3;
   }
+  div.expense_category span.edit-button {
+    position: absolute;
+    bottom: 3.5em;
+    right: 1em;
+  }
 
 /** bill **/
 div#bill_category_list {
@@ -392,6 +403,9 @@ div#bill_category_list {
 div.bill_category {
   position: relative;
   margin-bottom: 10px;
+}
+div.bill_category:nth-child(2n+2) {
+  background-color: #ddd;
 }
   div.bill_category h2 {
     font-size: 1.2em;
@@ -417,6 +431,11 @@ div.bill_category {
   }
   div.bill_category span.due {
     font-weight: bold;
+  }
+  div.bill_category span.edit-button {
+    position: absolute;
+    right: 5px;
+    bottom: 0px;
   }
 
 

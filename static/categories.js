@@ -143,7 +143,7 @@ jQuery(document).ready(function($) {
       category_list();
     });
   });
-  $("#expense_category_list").delegate("input.edit-button[value='edit']", "click", function(){
+  $("#expense_category_list").delegate(".edit-button[value='edit']", "click", function(){
       var category = $(this).parents("div.expense_category");
       var id = category.attr("db_id");
       $.getJSON("/"+db_name+"/expense/"+id, function(data){
@@ -157,8 +157,8 @@ jQuery(document).ready(function($) {
         html = ich.expense_category_list_edit(data);
         var category = $("#expense_id-"+data['id']);
         category.append(html);
-        edit_button = category.find("input.edit-button");
-        edit_button.val('save');
+        edit_button = category.find(".edit-button");
+        edit_button.val('save').text('save');
         edit_button.bind('click', function(e){
           var edit_form = category.find('.edit-form');
           var active = "0";
@@ -171,7 +171,6 @@ jQuery(document).ready(function($) {
             'maximum':edit_form.find("input[name='maximum']").val(),
             'allotment':edit_form.find("input[name='allotment']").val(),
             'active':active
-            // TODO: add delete checkbox
             };
 
           d = {'data_string':JSON.stringify(data_string)};
