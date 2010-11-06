@@ -14,6 +14,7 @@ urls = (
     '/([a-z]+)/user/?', 'UserView', 
 
     '/([a-z]+)/?', 'DatabaseView', # GET
+    '/([a-z]+)/init/?', 'DatabaseInitialize', # GET
 
     '/([a-z]+)/account-list/?', 'AccountListView', # GET
     '/([a-z]+)/account-list-active/?', 'AccountListActiveView', # GET

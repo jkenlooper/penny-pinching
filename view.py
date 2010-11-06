@@ -232,11 +232,19 @@ class UserView(object):
     data = {'db_name':db_name, 'user':[_user,]}
     return dump_data_formatted(_user["data_format"], data)
 
+class DatabaseInitialize(object):
+  @admin_permission
+  def GET(self, db_name, _user=None):
+    """ create the database """
+    web.header('Content-type', "text/html; charset=utf-8")
+    initialize_database_tables(db_name)
+    return web.created();
+
 class DatabaseView(object):
   @read_permission
   def GET(self, db_name, _user=None):
     """ all data from all tables """
-    initialize_database_tables(db_name)
+    #initialize_database_tables(db_name)
     db_cnx = get_db_cnx(db_name)
     data = {}
     tables = ("Account", "FinancialTransaction", "TransactionItem", "ExpenseCategory", "BillCategory", "SavingCategory")
