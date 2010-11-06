@@ -77,10 +77,12 @@
     <div class="column">
       {{#group}}
         <div class="item_group group_by-{{group_by}}">
-          <h2>{{name}}</h2>
+          <h3>{{name}}</h3>
           {{#item}}
             <div class="item-box">
-              {{name}} {{amount}} {{type}} {{category}} {{financial_transaction}}
+              <span class="item_amount">{{amount}}</span>
+              <span class="item_name">{{name}}</span>
+              <!-- {{type}} {{category}} {{financial_transaction}} -->
             </div>
           {{/item}}
         </div>
@@ -160,15 +162,21 @@
       </div> <!-- #transaction_list-block -->
 
       <div id="transaction_items_list-block">
-        <h2>Transaction Items</h2>
-        <label for="group_by">Transaction Name</label><input type="radio" name="group_by" value="financial_transaction" checked="checked">
-        <label for="group_by">Category</label><input type="radio" name="group_by" value="category">
-        <label for="group_by">Date</label><input type="radio" name="group_by" value="date">
-        <h2>Start</h2>
-        <div id="period-start"></div>
-        <h2>End</h2>
-        <div id="period-end"></div>
-        <button id="period-button">Show items within period</button>
+        <div id="buttons-block">
+          <h2>Transaction Items</h2>
+          <input type="radio" name="group_by" value="financial_transaction" checked="checked"> <label for="group_by">Transaction Name</label><br>
+          <input type="radio" name="group_by" value="category"> <label for="group_by">Category</label><br>
+          <input type="radio" name="group_by" value="date"> <label for="group_by">Date</label>
+          <button id="period-button">Show items within period</button>
+        </div>
+        <div id="period_start-block">
+          <label>Start</label>
+          <div id="period-start"></div>
+        </div>
+        <div id="period_end-block">
+          <label>End</label>
+          <div id="period-end"></div>
+        </div>
         <div id="item_group_list"></div>
       </div> <!-- #transaction_items_list-block -->
     </div> <!-- #content -->

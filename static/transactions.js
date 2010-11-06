@@ -151,7 +151,7 @@ jQuery(document).ready(function($) {
 
         function insert_item_data(e, d) {
           e.find("input[name='transaction_item_name']").val(d['name']);
-          console.log(d['type']);
+          log(d['type']);
           var type = CHART_TYPE_MAP[d['type']];
           e.find("select.chart_category_select_list optgroup[label='"+type+"'] option[value='"+d['category']+"']").attr('selected', 'selected');
           e.find("input[name='item_amount']").val(Math.abs(d['amount']));
@@ -202,7 +202,7 @@ jQuery(document).ready(function($) {
     }
     
     var target_width = $("#item_group_list").innerWidth()-25;
-    var column_width = 212;
+    var column_width = 142;
     var number_of_columns = Math.floor(target_width / column_width);
     var margin = Math.floor((target_width % column_width) / number_of_columns);
     hash = {'column':[], 'margin':margin};

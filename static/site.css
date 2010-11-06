@@ -30,6 +30,8 @@ button {
 div#page {
   margin: 8px 2%;
 }
+
+/** transactions **/
 div#new_transaction {
   width: 40em;
   float: left;
@@ -193,14 +195,65 @@ div.transaction_list {
     }
 
 
-div#item_group_list {
+div#transaction_items_list-block {
+  overflow: hidden;
+  border: 1px solid #5d4322;
+  padding: 4px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }
-  div#item_group_list div.column {
-    width: 200px;
+  div#buttons-block {
     float: left;
-    border: 1px solid black;
-    padding: 5px;
+    width: 18em;
+    margin: 0 0 0 2em;
   }
+  div#period_start-block,
+  div#period_end-block {
+    float: left;
+    width: 20em;
+  }
+  button#period-button {
+    margin: 2em 0 0;
+  }
+
+  div#item_group_list {
+    padding: 5px 0;
+    clear: both;
+  }
+    div#item_group_list div.column {
+      width: 130px;
+      float: left;
+      padding: 0 5px;
+    }
+      div.item_group {
+        border: 1px solid #aaa;
+        margin: 6px 0 0;
+        padding: 4px;
+      }
+      div.item_group h3 {
+        font-size: 1.1em;
+        margin: 0 0 0.2em;
+        padding: 0;
+      }
+        div.item-box {
+          margin: 0 -4px;
+          padding: 0.3em 0.2em;
+          border-bottom: 1px solid #eee;
+        }
+        div.item-box:nth-child(2n+2) {
+          background-color: #ddd;
+        }
+          span.item_amount {
+            float: right;
+            display: block;
+            white-space: nowrap;
+            width: 4em;
+            padding-left: 0.2em;
+            text-align: right;
+          }
+          span.item_name {
+          }
 
 
 /** categories **/
