@@ -12,16 +12,99 @@ h2 {
   margin: 0.5em 0 0;
   padding: 0 0 0.2em;
 }
-div#page {
-}
-
 input[type='text'] {
   border: 1px dotted #aaa;
-  background-color: transparent;
-  color: inherit;
-  font-size: inherit;
-  line-height: inherit;
+  background-color: white;
+  color: black;
+  font-size: 1.0em;
+  line-height: 1.5em;
 }
+select {
+  font-size: 1.0em;
+  line-height: 1.2em;
+}
+button {
+  font-size: 1.0em;
+  line-height: 1.2em;
+}
+div#page {
+  margin: 8px 2%;
+}
+div#new_transaction {
+  width: 40em;
+  float: left;
+  border: 1px solid #5d4322;
+  padding: 4px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+  h2#new_transaction-header {
+    float: left;
+  }
+  div#transaction_date-block {
+    float: right;
+    width: 20em;
+  }
+  div#financial_transaction-block {
+    float: left;
+    width: 20em;
+  }
+    div.label_value {
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    div.label_value label {
+      float: left;
+      width: 5em;
+      text-align: right;
+      line-height: 1.5em;
+    }
+    div.label_value div.value {
+      margin: 0 0.5em 0 5.5em;
+    }
+    div#account-block {
+    }
+    div#name-block input {
+      width: 100%;
+    }
+    div#status-block {
+    }
+    div#amount-block input {
+      width: 6em;
+    }
+    div#action-buttons {
+    }
+  div#transaction_items-block {
+    clear: both;
+  }
+    div.transaction_item {
+      padding: 0.4em 0.6em;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+    div.transaction_item:nth-child(2n+2) {
+      background-color: #ddd;
+    }
+      button.remove_item {
+      }
+      input.transaction_item_name {
+        width: 13em;
+      }
+      input.item_amount {
+        width: 6em;
+      }
+
+
+div#item_list-box {
+  float: right;
+  background-color: #eee;
+}
+
+div#transaction_list-block {
+  clear: both;
+}
+
 div.transaction_list {
   overflow: hidden;
   padding-bottom: 10px;

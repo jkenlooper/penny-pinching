@@ -47,7 +47,7 @@ class TransactionsPage(object):
       span.text = TRANSACTION_STATUS_SYMBOL_MAPPING[status]
     return tostring(transaction_status_buttons)
   def build_transaction_status_select(self):
-    transaction_status_select = Element('select', {'id':'transaction_status'})
+    transaction_status_select = Element('select', {'id':'transaction_status', 'name':'transaction_status'})
     default_status = TRANSACTION_STATUS_ENUM[2]
     for status in [ x for x in TRANSACTION_STATUS_ENUM if x not in ('reconciled',) ]:
       option = SubElement(transaction_status_select, 'option', {'value':str(TRANSACTION_STATUS_ENUM.index(status))})

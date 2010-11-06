@@ -29,13 +29,13 @@
 
 <script id="account_select_list" type="text/html">
   {{#accounts}}
-  <option value="{{id}}">{{name}}</option>
+  <option value="{{id}}">{{name}} {{balance}}</option>
   {{/accounts}}
 </script>
 <script id="transaction_item" type="text/html">
   <div class="transaction_item">
-    <button class="remove_item"><span>-</span></button>
-    <input name="transaction_item_name" type="text">
+    <button class="remove_item">-</button>
+    <input class="transaction_item_name" name="transaction_item_name" type="text">
     <select class="chart_category_select_list" name="chart_type">
       <option value="income">Income</option>
       {{#chart}}
@@ -46,7 +46,7 @@
         </optgroup>
       {{/chart}}
     </select>
-    <input type="text" name="item_amount" value="0.00">
+    <input type="text" class="item_amount" name="item_amount" value="0.00">
   </div>
 </script>
 
@@ -98,43 +98,79 @@
 
     <div id="content">
       <div id="new_transaction">
-        <button id="add_transaction">Add</button>
-        $transaction_status_select
-        <select id="account_select_list" name="account"></select>
-        <div id="new_transaction_date"> </div>
-        <input id="new_transaction_name" type="text" name="transaction_name">
-        $currency <input type="text" id="transaction_amount"> <span id="transaction_amount_remainder"></span>
-        <br>
+        <h2 id="new_transaction-header">Financial Transaction</h2>
+        <div id="transaction_date-block">
+          <label for="new_transaction_date">Date of Transaction</label>
+          <div id="new_transaction_date" name="new_transaction_date"> </div>
+        </div>
+        <div id="financial_transaction-block">
+          <div id="account-block" class="label_value">
+            <label for="account">Account:</label>
+            <div class="value">
+              <select id="account_select_list" name="account"></select>
+            </div>
+          </div>
+          <div id="name-block" class="label_value">
+            <label for="transaction_name">Name:</label>
+            <div class="value">
+              <input id="new_transaction_name" type="text" name="transaction_name">
+            </div>
+          </div>
+
+          <div id="status-block" class="label_value">
+            <label for="transaction_status">Status:</label>
+            <div class="value">
+              $transaction_status_select
+            </div>
+          </div>
+          <div id="amount-block" class="label_value">
+            <label for="transaction_amount">Amount:</label>
+            <div class="value">
+              <input type="text" id="transaction_amount" name="transaction_amount">
+              <span id="transaction_amount_remainder"></span>
+            </div>
+          </div>
+          <div id="action-buttons">
+            <button id="add_transaction">Add</button>
+          </div>
+        </div>
         
-        <button class="add_item"><span>+</span></button>
-        <div id="transaction_items"> </div> 
+        <div id="transaction_items-block">
+          <div id="transaction_items"> </div> 
+          <button class="add_item">+</button>
+        </div>
 
       </div> <!-- #new_transaction -->
+      <div id="item_list-box"> [[ quick list of items ]] </div>
 
-      <label for="sort_by">Date desc</label><input type="radio" name="sort_by" value="date desc" checked="checked">
-      <label for="sort_by">Date asc</label><input type="radio" name="sort_by" value="date asc">
+      <div id="transaction_list-block">
+        <label for="sort_by">Date desc</label><input type="radio" name="sort_by" value="date desc" checked="checked">
+        <label for="sort_by">Date asc</label><input type="radio" name="sort_by" value="date asc">
 
-      <label for="sort_by">Name asc</label><input type="radio" name="sort_by" value="name asc">
-      <label for="sort_by">Name desc</label><input type="radio" name="sort_by" value="name desc">
+        <label for="sort_by">Name asc</label><input type="radio" name="sort_by" value="name asc">
+        <label for="sort_by">Name desc</label><input type="radio" name="sort_by" value="name desc">
 
-      <label for="sort_by">Amount asc</label><input type="radio" name="sort_by" value="total asc">
-      <label for="sort_by">Amount desc</label><input type="radio" name="sort_by" value="total desc">
+        <label for="sort_by">Amount asc</label><input type="radio" name="sort_by" value="total asc">
+        <label for="sort_by">Amount desc</label><input type="radio" name="sort_by" value="total desc">
 
-      <h2>Cleared and Suspect Transactions</h2>
-      <div class="transaction_list" id="cleared_suspect_transactions"></div>
-      <h2>Receipt, No Receipt, Scheduled Transactions</h2>
-      <div class="transaction_list" id="receipt_no_receipt_scheduled_transactions"></div>
+        <h2>Cleared and Suspect Transactions</h2>
+        <div class="transaction_list" id="cleared_suspect_transactions"></div>
+        <h2>Receipt, No Receipt, Scheduled Transactions</h2>
+        <div class="transaction_list" id="receipt_no_receipt_scheduled_transactions"></div>
+      </div> <!-- #transaction_list-block -->
 
-      <h2>Transaction Items</h2>
-      <label for="group_by">Transaction Name</label><input type="radio" name="group_by" value="financial_transaction" checked="checked">
-      <label for="group_by">Category</label><input type="radio" name="group_by" value="category">
-      <label for="group_by">Date</label><input type="radio" name="group_by" value="date">
-      <h2>Start</h2>
-      <div id="period-start"></div>
-      <h2>End</h2>
-      <div id="period-end"></div>
-      <button id="period-button">Show items within period</button>
-      <div id="item_group_list"></div>
+      <div id="transaction_items_list-block">
+        <h2>Transaction Items</h2>
+        <label for="group_by">Transaction Name</label><input type="radio" name="group_by" value="financial_transaction" checked="checked">
+        <label for="group_by">Category</label><input type="radio" name="group_by" value="category">
+        <label for="group_by">Date</label><input type="radio" name="group_by" value="date">
+        <h2>Start</h2>
+        <div id="period-start"></div>
+        <h2>End</h2>
+        <div id="period-end"></div>
+        <button id="period-button">Show items within period</button>
+        <div id="item_group_list"></div>
+      </div> <!-- #transaction_items_list-block -->
     </div> <!-- #content -->
 
   </div> <!-- #page -->
