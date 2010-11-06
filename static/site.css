@@ -402,10 +402,9 @@ div#bill_category_list {
 }
 div.bill_category {
   position: relative;
-  margin-bottom: 10px;
-}
-div.bill_category:nth-child(2n+2) {
-  background-color: #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #999;
 }
   div.bill_category h2 {
     font-size: 1.2em;
@@ -427,15 +426,20 @@ div.bill_category:nth-child(2n+2) {
     font-size: 0.8em;
   }
   div.due-block {
-    text-align: right;
+    text-align: center;
+    width: 15em;
+    float: right;
   }
-  div.bill_category span.due {
-    font-weight: bold;
+    div.bill_category span.due {
+      font-weight: bold;
+    }
+  div.repeat_due_date-block {
+    clear: both;
   }
   div.bill_category span.edit-button {
     position: absolute;
     right: 5px;
-    bottom: 0px;
+    bottom: 3px;
   }
 
 

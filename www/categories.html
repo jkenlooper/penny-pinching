@@ -74,11 +74,15 @@
         </span>
       </h2>
       <div class="due-block">
-        <label>Allotment Date: </label><span class="allotment_date">{{allotment_date}}</span>
-        <label>Due: </label><span class="due">{{due}}</span>
+        <span class="allotment_date">{{allotment_date}}</span>
+        -
+        <span class="due">{{due}}</span>
+      </div>
+      <div class="repeat_due_date-block">
+        <label>Repeat: </label>
+        <span class="repeat_due_date">{{repeat_due_date}}</span>
       </div>
       <span class="edit-button" value="edit">edit</span>
-      <label>Repeat: </label><span class="repeat_due_date">{{repeat_due_date}}</span>
     </div>
   {{/category}}
 </script>
