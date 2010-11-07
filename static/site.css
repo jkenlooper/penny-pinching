@@ -447,4 +447,92 @@ div.bill_category {
     bottom: 3px;
   }
 
+/** saving **/
+div#saving_category_list {
+}
+  div.saving_category {
+  }
+    div.saving_category h2 {
+      margin: 1.8em 0 1.0em;
+    }
+    div.bar {
+      height: 1em;
+      background-color: white;
+      border: 1px solid black;
+      position: relative;
+    }
+      div.bar span.bar_value {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: block;
+      }
+        span.bar_value span {
+          padding: 0 0.5em;
+          font-size: 0.8em;
+        }
+      div.bar span.balance {
+        left: 0;
+      width: 45%;
+        text-align: right;
+        background-color: black;
+        color: white;
+      }
+      div.bar span.balance span {
+        position: absolute;
+        top: -1.5em;
+        left: -5px;
+        display: block;
+        text-align: right;
+        width: 100%;
+        padding: 0 4px 1.5em 0;
+        border-right: 1px solid black;
+        background-color: transparent;
+        color: black;
+      }
+      div.bar span.maximum {
+        left: 0;
+        right: 0;
+        color: black;
+        text-align: right;
+      }
+      div.bar span.allotment_amount {
+      left: 30%;
+      width: 15%;
+        background-color: gray;
+        color: white;
+      }
+      div.bar span.allotment_amount span {
+        position: absolute;
+        display: block;
+        left: -6.5em;
+        width: 6em;
+        padding: 0;
+        text-align: right;
+        color: gray;
+      }
+      div.bar span.minimum {
+      left: 65%;
+        border-right: 1px solid black;
+        background-color: white;
+        width: 2px;
+      }
+      div.bar span.minimum span {
+        position: absolute;
+        top: -1.5em;
+        margin-left: 2px;
+        border-left: 1px solid black;
+        padding-bottom: 0.5em;
+      }
+
+
+      div.bar span.allotment_date {
+        position: absolute;
+      left: 65%;
+        width: 6em;
+        margin-left: -3em;
+        bottom: -1.5em;
+        text-align: right;
+      }
+
 

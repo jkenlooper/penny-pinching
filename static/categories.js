@@ -84,6 +84,23 @@ jQuery(document).ready(function($) {
       hash = {category:data};
       html = ich.saving_category_list(hash);
       $('#saving_category_list').html(html);
+      $("#saving_category_list div.saving_category").each(function(e){
+        var bar = $(this).find("div.bar");
+        var max = new Number(parseFloat(bar.find("span.maximum").text()));
+        var balance = new Number(parseFloat(bar.find("span.balance").text()));
+        if (max > 0) {
+          var balance_width = (balance/max) * 100;
+          bar.find("span.balance").css({'width': balance_width+"%"});
+          var allotment_amount = new Number(parseFloat(bar.find("span.allotment_amount").text()));
+          var allotment_amount_width = (allotment_amount/max) * 100;
+          a_a_left = balance_width - allotment_amount_width;
+          bar.find("span.allotment_amount").css({'left':a_a_left+"%", 'width':allotment_amount_width+"%"});
+          var minimum = new Number(parseFloat(bar.find("span.minimum").text()));
+          min_width = (minimum/max) * 100;
+          m = a_a_left + min_width;
+          bar.find("span.minimum, span.allotment_date").css({'left': m+"%"});
+        }
+      });
     });
   };
   function inactive_list() {

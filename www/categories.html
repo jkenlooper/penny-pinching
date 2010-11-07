@@ -100,18 +100,35 @@
 </script>
 <script id="saving_category_list" type="text/html">
   {{#category}}
-    <div class="saving_category">
-      name: {{name}}
-      balance: {{balance}}<br>
-      minimum: {{minimum}}<br>
-      maximum: {{maximum}}<br>
-      allotment_amount: {{allotment_amount}}<br>
-      allotment_date: {{allotment_date}}<br>
-      repeat_date: {{repeat_date}}<br>
-      allotment: {{allotment}}<br>
-      <br>
+    <div class="saving_category" db_id="{{id}}" id="saving_id-{{id}}">
+      <h2>
+        <span class="name">{{name}}</span>
+        {{repeat_date}}
+        [ {{allotment}} ]
+      </h2>
+      <div class="bar">
+        <span class="bar_value balance"><span>{{balance}}</span></span>
+        <span class="bar_value maximum"><span>{{maximum}}</span></span>
+
+        <span class="bar_value allotment_amount"><span>{{allotment_amount}}</span></span>
+        <span class="bar_value minimum"><span>{{minimum}}</span></span>
+        <span class="allotment_date">{{allotment_date}}</span>
+      </div>
     </div>
   {{/category}}
+</script>
+<script id="saving_category_list_edit" type="text/html">
+  <div class="edit-form">
+    <label>Name:</label><input type="text" name="name" value="{{name}}">
+    <label>Balance:</label><input type="text" name="balance" value="{{balance}}">
+    <label>Minimum:</label><input type="text" name="minimum" value="{{minimum}}">
+    <label>Maximum:</label><input type="text" name="maximum" value="{{maximum}}">
+    <label>Allotment_amount:</label><input type="text" name="allotment_amount" value="{{allotment_amount}}">
+    <label>Allotment_date:</label><input type="text" name="allotment_date" value="{{allotment_date}}">
+    <label>Repeat_date:</label><input type="text" name="repeat_date" value="{{repeat_date}}">
+    <label>Allotment:</label><input type="text" name="allotment" value="{{allotment}}">
+    <label>Active:</label><input type="checkbox" name="active" {{checked}} value="1">
+  </div>
 </script>
 <script id="total_balance_data" type="text/html">
   <label>Available: </label> $currency <span id="available-balance">{{available}}</span>
