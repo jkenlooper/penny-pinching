@@ -296,7 +296,7 @@ div#categories {
       -webkit-border-radius: 3px;
       border-radius: 3px;
     }
-      div.category_type div.label_value {
+      div.category_type div.form div.label_value {
         padding-bottom: 4px;
         border-bottom: 1px solid #999;
       }
@@ -315,19 +315,21 @@ div#categories {
       div.edit-form {
         margin: 0 0 2.0em;
       }
-      span.edit-button {
-        padding: 0px;
-        display: block;
-        font-size: 0.8em;
-        border: 1px solid black;
-        background-color: white;
-        color: black;
-        cursor: pointer;
-        width: 2.3em;
-        text-align: center;
-        height: 1.2em;
-        line-height: 1.0em;
-      }
+        div.edit-form div.label_value {
+        }
+        span.edit-button {
+          padding: 0px;
+          display: block;
+          font-size: 0.8em;
+          border: 1px solid black;
+          background-color: white;
+          color: black;
+          cursor: pointer;
+          width: 2.3em;
+          text-align: center;
+          height: 1.2em;
+          line-height: 1.0em;
+        }
 
       /** *expense **/
       /** *bill **/
@@ -449,8 +451,10 @@ div.bill_category {
 
 /** saving **/
 div#saving_category_list {
+  padding-bottom: 2.0em;
 }
   div.saving_category {
+    position: relative;
   }
     div.saving_category h2 {
       margin: 1.8em 0 1.0em;
@@ -534,5 +538,12 @@ div#saving_category_list {
         bottom: -1.5em;
         text-align: right;
       }
-
+  div.saving_category div.edit-form {
+    padding-top: 1.0em;
+  }
+  div.saving_category span.edit-button {
+    position: absolute;
+    right: -3.0em;
+    bottom: 0;
+  }
 

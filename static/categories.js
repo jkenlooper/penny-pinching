@@ -204,7 +204,7 @@ jQuery(document).ready(function($) {
         });
       });
   });
-  $("div#bill_category_list").delegate("input.edit-button[value='edit']", "click", function(){
+  $("div#bill_category_list").delegate(".edit-button[value='edit']", "click", function(){
       var category = $(this).parents("div.bill_category");
       var id = category.attr("db_id");
       $.getJSON("/"+db_name+"/bill/"+id, function(data){
@@ -218,7 +218,7 @@ jQuery(document).ready(function($) {
         html = ich.bill_category_list_edit(data);
         var category = $("#bill_id-"+data['id']);
         category.append(html);
-        edit_button = category.find("input.edit-button");
+        edit_button = category.find(".edit-button");
         edit_button.val('save');
         edit_button.bind('click', function(e){
           var edit_form = category.find('.edit-form');
@@ -238,6 +238,48 @@ jQuery(document).ready(function($) {
 
           d = {'data_string':JSON.stringify(data_string)};
           $.post("/"+db_name+"/bill/"+$(this).parents("div.bill_category").attr("db_id")+"/update", d, function(data){
+            total_balance();
+            category_list();
+            inactive_list();
+          });
+        });
+      });
+  });
+  $("div#saving_category_list").delegate(".edit-button[value='edit']", "click", function(){
+      var category = $(this).parents("div.saving_category");
+      var id = category.attr("db_id");
+      $.getJSON("/"+db_name+"/saving/"+id, function(data){
+        data = data[0];
+        if (data['active'] == 1) {
+          data['checked'] = "checked='checked'";
+        } else {
+          data['checked'] = "";
+        }
+          
+        html = ich.saving_category_list_edit(data);
+        var category = $("#saving_id-"+data['id']);
+        category.append(html);
+        edit_button = category.find(".edit-button");
+        edit_button.text('save');
+        edit_button.bind('click', function(e){
+          var edit_form = category.find('.edit-form');
+          var active = "0";
+          if (edit_form.find("input[name='active']:checked").val()) {
+            active = "1";
+          }
+          data_string = {'name':edit_form.find("input[name='name']").val(),
+            'balance':edit_form.find("input[name='balance']").val(),
+            'minimum':edit_form.find("input[name='minimum']").val(),
+            'maximum':edit_form.find("input[name='maximum']").val(),
+            'allotment_amount':edit_form.find("input[name='allotment_amount']").val(),
+            'allotment_date':edit_form.find("input[name='allotment_date']").val(),
+            'repeat_date':edit_form.find("input[name='repeat_date']").val(),
+            'allotment':edit_form.find("input[name='allotment']").val(),
+            'active':active
+            };
+
+          d = {'data_string':JSON.stringify(data_string)};
+          $.post("/"+db_name+"/saving/"+$(this).parents("div.saving_category").attr("db_id")+"/update", d, function(data){
             total_balance();
             category_list();
             inactive_list();

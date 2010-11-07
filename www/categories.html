@@ -46,12 +46,42 @@
 </script>
 <script id="expense_category_list_edit" type="text/html">
   <div class="edit-form">
-    <label>Name:</label><input type="text" name="name" value="{{name}}">
-    <label>Balance:</label><input type="text" name="balance" value="{{balance}}">
-    <label>Minimum:</label><input type="text" name="minimum" value="{{minimum}}">
-    <label>Maximum:</label><input type="text" name="maximum" value="{{maximum}}">
-    <label>Allotment:</label><input type="text" name="allotment" value="{{allotment}}">
-    <label>Active:</label><input type="checkbox" name="active" {{checked}} value="1">
+    <div class="label_value">
+      <label>Name:</label>
+      <div class="value">
+        <input type="text" name="name" value="{{name}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Balance:</label>
+      <div class="value">
+        <input type="text" class="currency" name="balance" value="{{balance}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Minimum:</label>
+      <div class="value">
+        <input type="text" class="currency" name="minimum" value="{{minimum}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Maximum:</label>
+      <div class="value">
+        <input type="text" class="currency" name="maximum" value="{{maximum}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Allotment:</label>
+      <div class="value">
+        <input type="text" name="allotment" value="{{allotment}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Active:</label>
+      <div class="value">
+        <input type="checkbox" name="active" {{checked}} value="1">
+      </div>
+    </div>
   </div>
 </script>
 
@@ -88,14 +118,48 @@
 </script>
 <script id="bill_category_list_edit" type="text/html">
   <div class="edit-form">
-    <label>Name:</label><input type="text" name="name" value="{{name}}">
-    <label>Balance:</label><input type="text" name="balance" value="{{balance}}">
-    <label>Maximum:</label><input type="text" name="maximum" value="{{maximum}}">
-    <label>Allotment Date:</label><input type="text" name="allotment_date" value="{{allotment_date}}">
-
-    <label>Due:</label><input type="text" name="due" value="{{due}}">
-    <label>Repeat:</label><input type="text" name="repeat_due_date" value="{{repeat_due_date}}">
-    <label>Active:</label><input type="checkbox" name="active" {{checked}} value="1">
+    <div class="label_value">
+      <label>Name:</label>
+      <div class="value">
+        <input type="text" name="name" value="{{name}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Balance:</label>
+      <div class="value">
+        <input type="text" class="currency" name="balance" value="{{balance}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Maximum:</label>
+      <div class="value">
+        <input type="text" class="currency" name="maximum" value="{{maximum}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Allotment Date:</label>
+      <div class="value">
+        <input type="text" name="allotment_date" value="{{allotment_date}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Due:</label>
+      <div class="value">
+        <input type="text" name="due" value="{{due}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Repeat:</label>
+      <div class="value">
+        <input type="text" name="repeat_due_date" value="{{repeat_due_date}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Active:</label>
+      <div class="value">
+        <input type="checkbox" name="active" {{checked}} value="1">
+      </div>
+    </div>
   </div>
 </script>
 <script id="saving_category_list" type="text/html">
@@ -114,20 +178,66 @@
         <span class="bar_value minimum"><span>{{minimum}}</span></span>
         <span class="allotment_date">{{allotment_date}}</span>
       </div>
+      <span class="edit-button" value="edit">edit</span>
     </div>
   {{/category}}
 </script>
 <script id="saving_category_list_edit" type="text/html">
   <div class="edit-form">
-    <label>Name:</label><input type="text" name="name" value="{{name}}">
-    <label>Balance:</label><input type="text" name="balance" value="{{balance}}">
-    <label>Minimum:</label><input type="text" name="minimum" value="{{minimum}}">
-    <label>Maximum:</label><input type="text" name="maximum" value="{{maximum}}">
-    <label>Allotment_amount:</label><input type="text" name="allotment_amount" value="{{allotment_amount}}">
-    <label>Allotment_date:</label><input type="text" name="allotment_date" value="{{allotment_date}}">
-    <label>Repeat_date:</label><input type="text" name="repeat_date" value="{{repeat_date}}">
-    <label>Allotment:</label><input type="text" name="allotment" value="{{allotment}}">
-    <label>Active:</label><input type="checkbox" name="active" {{checked}} value="1">
+    <div class="label_value">
+      <label>Name:</label>
+      <div class="value">
+        <input type="text" name="name" value="{{name}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Balance:</label>
+      <div class="value">
+        <input type="text" class="currency" name="balance" value="{{balance}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Minimum:</label>
+      <div class="value">
+        <input type="text" class="currency" name="minimum" value="{{minimum}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Maximum:</label>
+      <div class="value">
+        <input type="text" class="currency" name="maximum" value="{{maximum}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Allotment Amount:</label>
+      <div class="value">
+        <input type="text" class="currency" name="allotment_amount" value="{{allotment_amount}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Allotment Date:</label>
+      <div class="value">
+        <input type="text" name="allotment_date" value="{{allotment_date}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Repeat Date:</label>
+      <div class="value">
+        <input type="text" name="repeat_date" value="{{repeat_date}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Allotment:</label>
+      <div class="value">
+        <input type="text" name="allotment" value="{{allotment}}">
+      </div>
+    </div>
+    <div class="label_value">
+      <label>Active:</label>
+      <div class="value">
+        <input type="checkbox" name="active" {{checked}} value="1">
+      </div>
+    </div>
   </div>
 </script>
 <script id="total_balance_data" type="text/html">

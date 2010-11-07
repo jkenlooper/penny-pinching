@@ -48,9 +48,9 @@ urls = (
     '/([a-z]+)/expense-list-inactive/?', 'ExpenseCategoryListInActiveView', # GET
     '/([a-z]+)/expense/?', 'ExpenseCategoryAdd', # POST
     '/([a-z]+)/expense/([0-9]+)/?', 'ExpenseCategoryView', # GET
-    '/([a-z]+)/expense/([0-9]+)/update/?', 'ExpenseCategoryUpdate', # POST delete attr
-    '/([a-z]+)/expense-balance/([0-9]+)/?', 'ExpenseCategoryUpdateBalance', # POST delete attr
-    '/([a-z]+)/expense-active/([0-9]+)/?', 'ExpenseCategoryUpdateActive', # POST delete attr
+    '/([a-z]+)/expense/([0-9]+)/update/?', 'ExpenseCategoryUpdate',
+    '/([a-z]+)/expense-balance/([0-9]+)/?', 'ExpenseCategoryUpdateBalance',
+    '/([a-z]+)/expense-active/([0-9]+)/?', 'ExpenseCategoryUpdateActive',
 
     '/([a-z]+)/bill-list/?', 'BillCategoryListView', # GET
     '/([a-z]+)/bill-list-active/?', 'BillCategoryListActiveView', # GET
@@ -65,7 +65,7 @@ urls = (
     '/([a-z]+)/saving-list-inactive/?', 'SavingCategoryListInActiveView', # GET
     '/([a-z]+)/saving/?', 'SavingCategoryAdd', # POST
     '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryView', # GET
-    '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryUpdate', # POST delete attr
+    '/([a-z]+)/saving/([0-9]+)/update/?', 'SavingCategoryUpdate',
 
     '/([a-z]+)/all-category-list-active/?', 'AllCategoryListActiveView', # GET
 

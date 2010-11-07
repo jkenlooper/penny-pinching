@@ -605,6 +605,9 @@ class BillCategoryUpdateActive(CategoryUpdate):
   query = "update BillCategory set active = :active where id = :id"
   valid_data_format = {'active':int, 'id':int}
 
+class SavingCategoryView(IDView):
+  query = "select * from SavingCategory where id = :id;"
+
 class SavingCategoryListView(ListView):
   query = "select * from SavingCategory;"
 
@@ -617,6 +620,10 @@ class SavingCategoryListInActiveView(ListView):
 class SavingCategoryAdd(CategoryAdd):
   query = "insert into SavingCategory (name, balance, minimum, maximum, allotment_amount, allotment_date, repeat_date, allotment) values (:name, :balance, :minimum, :maximum, :allotment_amount, :allotment_date, :repeat_date, :allotment);"
   valid_data_format = {'name':str, 'balance':Decimal, 'minimum':Decimal, 'maximum':Decimal, 'allotment_amount':Decimal, 'allotment_date':year_month_day, 'repeat_date':str, 'allotment':int}
+
+class SavingCategoryUpdate(CategoryUpdate):
+  query = "update SavingCategory set name = :name, balance = :balance, minimum = :minimum, maximum = :maximum, allotment_amount = :allotment_amount, allotment_date = :allotment_date, repeat_date = :repeat_date, allotment = :allotment, active = :active where id = :id"
+  valid_data_format = {'name':str, 'balance':Decimal, 'minimum':Decimal, 'maximum':Decimal, 'allotment_amount':Decimal, 'allotment_date':year_month_day, 'repeat_date':str, 'allotment':int, 'active':int, 'id':int}
 
 class AllCategoryListActiveView(object):
   query = {'expense':"select * from ExpenseCategory where active = 1;",
