@@ -55,6 +55,38 @@ div#page {
 }
 
 /** transactions **/
+div#accounts-block {
+  margin: 1.5em 0;
+}
+  div#account_listing {
+  }
+    div.account-block {
+      width: 20em;
+      float: left;
+      border: 1px solid #5d4322;
+      margin: 1.0em;
+      padding: 4px;
+      -moz-border-radius: 3px;
+      -webkit-border-radius: 3px;
+      border-radius: 3px;
+    }
+      div.account-block input[name='update'] {
+        font-size: 1.0em;
+      }
+  div#new_account-button-block {
+    clear: both;
+  }
+  div#new_account-form {
+    display: none;
+    border: 1px solid #5d4322;
+    margin: 1.0em;
+    padding: 4px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    width: 20em;
+  }
+
 div#new_transaction {
   width: 40em;
   float: left;

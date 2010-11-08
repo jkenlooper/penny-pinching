@@ -20,7 +20,7 @@ urls = (
     '/([a-z]+)/account-list-active/?', 'AccountListActiveView', # GET
     '/([a-z]+)/account/?', 'AccountAdd', # POST
     '/([a-z]+)/account/([0-9]+)/?', 'AccountView', # GET
-    '/([a-z]+)/account/([0-9]+)/?', 'AccountUpdate', # POST delete attr
+    '/([a-z]+)/account/([0-9]+)/update/?', 'AccountUpdate', # POST delete attr
 
     '/([a-z]+)/financial-transaction-list/?', 'FinancialTransactionListView', # GET
     '/([a-z]+)/financial-transaction-list/status/(%s)/?' % status_or, 'FinancialTransactionStatusListView', # GET

@@ -205,8 +205,8 @@ class Add(object):
     return web.created()
 
 class Update(object):
-  query = "update Account (name, active, balance, balance_date) values (:name, :active, :balance, :balance_date) where id = :id;"
-  valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':str}
+  query = "update Account set name = :name, active = :active where id = :id;"
+  valid_data_format = {'id':int, 'name':str, 'active':bool}
   def check_data(self, data):
     """ Allow subclasses to check data before inserting """
     return data
@@ -259,7 +259,14 @@ class DatabaseView(object):
     return dump_data_formatted(_user["data_format"], data)
 
 class AccountListView(ListView):
-  query = "select * from Account;"
+  query = """
+    select * from Account left outer join (
+      select account as id, total(total) as transaction_total from (
+        select * from FinancialTransaction join (
+          select total(amount) as total, financial_transaction as id from TransactionItem group by id
+        ) using (id)
+      ) group by id
+    ) using (id);"""
 
 class AccountListActiveView(ListView):
   query = """
@@ -276,7 +283,7 @@ class AccountAdd(Add):
   valid_data_format = {'name':str, 'balance':Decimal}
 
 class AccountUpdate(Update): 
-  query = "update Account (name, active, balance, balance_date) values (:name, :active, :balance, :balance_date) where id = :id;"
+  query = "update Account set name = :name, active = :active, balance = :balance, balance_date = :balance where id = :id;"
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
 class FinancialTransactionListView(ListView):

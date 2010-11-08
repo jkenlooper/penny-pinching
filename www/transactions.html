@@ -27,6 +27,20 @@
   {{/user}}
 </script>
 
+<script id="account_listing" type="text/html">
+  {{#account}}
+    <div class="account-block" db_id="{{id}}" id="account_id-{{id}}">
+      <strong class="account_name">{{name}}</strong>
+      Active: <input type="checkbox" name="active" value="1" {{active_checked}}>
+      <br>
+      Balance: <input type="text" name="balance" class="currency" value="{{balance}}">
+      on {{balance_date}}<br>
+      <input name="update" type="button" value="update">
+      Transaction Total: {{transaction_total}}
+    </div>
+  {{/account}}
+</script>
+
 <script id="account_select_list" type="text/html">
   {{#accounts}}
   <option value="{{id}}">{{name}} {{balance}}</option>
@@ -104,6 +118,29 @@
     </div>
 
     <div id="content">
+      <div id="accounts-block">
+        <h2>Accounts</h2>
+        <div id="account_listing"> </div>
+        <div id="new_account-button-block">
+          <input name="new_account" type="button" value="+">
+        </div>
+        <div id="new_account-form">
+          <div class="label_value">
+            <label for="name">Account Name:</label>
+            <div class="value">
+              <input type="text" name="name" value="">
+            </div>
+          </div>
+          <div class="label_value">
+            <label for="balance">Account Balance:</label>
+            <div class="value">
+              <input type="text" class="currency" name="balance" value="">
+            </div>
+          </div>
+          <input name="create_new_account" type="button" value="Create New Account">
+        </div> <!-- #new_account-form -->
+      </div> <!-- #accounts-block -->
+
       <div id="new_transaction">
         <h2 id="new_transaction-header">Financial Transaction</h2>
         <div id="transaction_date-block">

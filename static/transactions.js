@@ -50,11 +50,28 @@ jQuery(document).ready(function($) {
       html = ich.user_details(data);
       $('div#user_details').append(html);
   });
-  $.getJSON("/"+db_name+"/account-list-active", function(data){
-    hash = {accounts:data}
-    html = ich.account_select_list(hash);
-    $('#account_select_list').append(html);
-  });
+  function load_accounts() {
+    $.getJSON("/"+db_name+"/account-list", function(data){
+
+      active_data = [];
+      for (i=0; i<data.length; i++) {
+        if (data[i]['active'] == 1) {
+          data[i]['active_checked'] = "checked='checked'";
+          active_data.push(data[i]);
+        } else {
+          data[i]['active_checked'] = "";
+        }
+      }
+      hash = {account:data};
+      html = ich.account_listing(hash);
+      $("#account_listing").html(html);
+
+      hash = {accounts:active_data};
+      html = ich.account_select_list(hash);
+      $('#account_select_list').append(html);
+    });
+  }
+  load_accounts();
   function split_transactions(data, target){
     var target_width = target.innerWidth()-25;
     var column_width = 212;
@@ -307,6 +324,7 @@ jQuery(document).ready(function($) {
       load_item_group_list();
       get_all_category_list(false);
       clear_new_transaction_form();
+      load_accounts();
     });
   };
 
@@ -324,6 +342,7 @@ jQuery(document).ready(function($) {
         load_transaction_list('cleared_suspect');
         load_transaction_list('receipt_no_receipt_scheduled');
         load_item_group_list();
+        load_accounts();
         clear_new_transaction_form();
       });
   });
@@ -347,6 +366,39 @@ jQuery(document).ready(function($) {
       e.preventDefault();
   });
 
+  $("div#account_listing").delegate("input[name='update']", "click", function(e){
+      var a = $(this).parents("div.account-block");
+      var id = a.attr("db_id");
+      var d = new Date();
+      var today = formatISO(d);
+      var active = 0;
+      if (a.find("input[name='active']:checked").val()) {
+        active = 1;
+      }
+      data_string = {'name':a.find(".account_name").text(), 'active':active, 'balance':a.find("input[name='balance']").val(), 'balance_date':today};
+      d = {'data_string':JSON.stringify(data_string)};
+      $.post("/"+db_name+"/account/"+id+"/update", d, function(d) {
+        load_accounts();
+      });
+  });
+  $("input[name='new_account']").toggle(function(e){
+      $("#new_account-form").show();
+      $(this).val("-");
+  }, function(e){
+      $("#new_account-form").hide();
+      $(this).val("+");
+  });
+  $("input[name='create_new_account']").bind("click", function(e) {
+      var a = $("#new_account-form");
+      data_string = {'name':a.find("input[name='name']").val(), 'balance':a.find("input[name='balance']").val()};
+      d = {'data_string':JSON.stringify(data_string)};
+      $.post("/"+db_name+"/account", d, function(d) {
+        var a = $("#new_account-form");
+        a.find("input[name='name']").val("")
+        a.find("input[name='balance']").val("")
+        load_accounts();
+      });
+  });
 
 });
 
