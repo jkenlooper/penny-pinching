@@ -11,6 +11,7 @@ jQuery(document).ready(function($) {
   var all_category_list = {};
   var all_category_hash = {'expense':{}, 'bill':{}, 'saving':{}};
   var chart_category_hash = {'chart':[]};
+  var not_cleared_reconciled = {};
   $("div#new_transaction_date").datepicker({
       dateFormat:'yy-mm-dd',
   });
@@ -55,9 +56,17 @@ jQuery(document).ready(function($) {
 
       active_data = [];
       for (i=0; i<data.length; i++) {
+        data[i]['enable_mark_cleared_to_reconciled'] = "disabled='disabled'";
         if (data[i]['active'] == 1) {
           data[i]['active_checked'] = "checked='checked'";
           active_data.push(data[i]);
+          var not_cr = parseFloat(not_cleared_reconciled[data[i]['id']]);
+          var b = parseFloat(data[i]['balance']);
+          var t = parseFloat(data[i]['transaction_total']);
+          var c = t - not_cr;
+          if (c.toFixed(2) == b.toFixed(2)) {
+            data[i]['enable_mark_cleared_to_reconciled'] = "";
+          }
         } else {
           data[i]['active_checked'] = "";
         }
@@ -71,7 +80,6 @@ jQuery(document).ready(function($) {
       $('#account_select_list').append(html);
     });
   }
-  load_accounts();
   function split_transactions(data, target){
     var target_width = target.innerWidth()-25;
     var column_width = 212;
@@ -111,6 +119,14 @@ jQuery(document).ready(function($) {
             'status_symbol': TRANSACTION_STATUS_SYMBOLS_ENUM[j],
             'status_active': status_active})
         }
+        if (data[i]['status'] < 4) {
+          t = not_cleared_reconciled[data[i]['account']];
+          if ( t == undefined ) {
+            t = 0.00;
+          }
+          not_cleared_reconciled[data[i]['account']] = t + parseFloat(data[i]['total']);
+        }
+          
         data[i]['status_list'] = status_list;
       }
       hash = split_transactions(data, transactions_div);
@@ -121,6 +137,7 @@ jQuery(document).ready(function($) {
   }
   load_transaction_list('cleared_suspect');
   load_transaction_list('receipt_no_receipt_scheduled');
+  load_accounts();
 
   $("input[name='sort_by']").bind('change', function(e){
     load_transaction_list('cleared_suspect');
@@ -313,7 +330,6 @@ jQuery(document).ready(function($) {
 
 
     d = {'data_string':JSON.stringify(data_string)};
-    log(d['data_string']);
     $.post("/"+db_name+"/financial-transaction-item", d, function(data){
       return_data = JSON.parse(data);
       if (return_data['status'] == 0 || return_data['status'] == 4) {
@@ -399,6 +415,15 @@ jQuery(document).ready(function($) {
         load_accounts();
       });
   });
+
+  $("div#account_listing").delegate("input[name='reconcile']", "click", function(e){
+      var id = $(this).parents("div.account-block").attr("db_id");
+      $.post("/"+db_name+"/account/"+id+"/cleared-to-reconciled", {}, function(d){
+        load_transaction_list('cleared_suspect');
+      });
+  });
+
+
 
 });
 

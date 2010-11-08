@@ -22,6 +22,8 @@ urls = (
     '/([a-z]+)/account/([0-9]+)/?', 'AccountView', # GET
     '/([a-z]+)/account/([0-9]+)/update/?', 'AccountUpdate', # POST delete attr
 
+    '/([a-z]+)/account/([0-9]+)/cleared-to-reconciled/?', 'ClearedToReconciledUpdate', # POST
+
     '/([a-z]+)/financial-transaction-list/?', 'FinancialTransactionListView', # GET
     '/([a-z]+)/financial-transaction-list/status/(%s)/?' % status_or, 'FinancialTransactionStatusListView', # GET
     '/([a-z]+)/financial-transaction-list/cleared_suspect/?', 'FinancialTransactionClearedSuspectListView', # GET

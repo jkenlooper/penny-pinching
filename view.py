@@ -283,8 +283,31 @@ class AccountAdd(Add):
   valid_data_format = {'name':str, 'balance':Decimal}
 
 class AccountUpdate(Update): 
-  query = "update Account set name = :name, active = :active, balance = :balance, balance_date = :balance where id = :id;"
+  query = "update Account set name = :name, active = :active, balance = :balance, balance_date = :balance_date where id = :id;"
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
+
+class ClearedToReconciledUpdate(object):
+  """ Set the status of cleared transactions to reconciled in an account if the balance and transaction total minus the suspect are equal. """
+  @write_permission
+  def POST(self, db_name, account_id, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    cur = db_cnx.cursor()
+    query = """
+      select * from Account left outer join (
+        select account as id, total(total) as transaction_total from (
+          select * from FinancialTransaction join (
+            select total(amount) as total, financial_transaction as id from TransactionItem group by id
+          ) using (id) where status = 4 or status = 5
+        ) group by id
+      ) using (id) where id = :id;"""
+    data = normalize(cur.execute(query, {'id':account_id}).fetchall(), cur.description)
+    data = data[0]
+    if Decimal(str(data['balance'])) == Decimal(str(data['transaction_total'])):
+      cur.execute("update FinancialTransaction set status = 5 where account = :id and status = 4;", {'id':int(account_id)})
+      db_cnx.commit()
+    else:
+      print "balance %s != transaction total %s" % (data['balance'], data['transaction_total'])
+    return web.accepted()
 
 class FinancialTransactionListView(ListView):
   query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) order by date;"
