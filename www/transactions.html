@@ -36,8 +36,11 @@
       Balance: <input type="text" name="balance" class="currency" value="{{balance}}">
       on {{balance_date}}<br>
       <input name="update" type="button" value="update">
-      <input name="reconcile" type="button" value="set cleared to reconciled" {{enable_mark_cleared_to_reconciled}}>
-      Transaction Total: {{transaction_total}}
+      <input name="reconcile" type="button" value="set cleared to reconciled">
+      <br>
+      Transaction Total: {{transaction_total}}<br>
+      Balance difference: {{balance_difference}}<br>
+      <!-- Suspect total: {{suspect_total}} -->
     </div>
   {{/account}}
 </script>
