@@ -69,7 +69,7 @@ jQuery(document).ready(function($) {
 
       hash = {accounts:active_data};
       html = ich.account_select_list(hash);
-      $('#account_select_list').append(html);
+      $('#account_select_list').html(html);
     });
   }
   function split_transactions(data, target){
