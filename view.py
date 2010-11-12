@@ -258,7 +258,7 @@ class DatabaseView(object):
       data[t] = normalize(result, description)
     return dump_data_formatted(_user["data_format"], data)
 
-class AccountListView(ListView):
+class AccountListView(object):
   query = """
     select * from Account left outer join (
       select account as id, total(total) as transaction_total from (
@@ -266,7 +266,28 @@ class AccountListView(ListView):
           select total(amount) as total, financial_transaction as id from TransactionItem group by id
         ) using (id)
       ) group by id
-    ) using (id);"""
+    ) using (id) order by id;"""
+  status_query = """
+    select id, status_total from Account left outer join (
+      select account as id, total(total) as status_total from (
+        select * from FinancialTransaction join (
+          select total(amount) as total, financial_transaction as id from TransactionItem group by id
+        ) using (id) where status = :status 
+      ) group by id
+    ) using (id) order by id;"""
+
+  @read_permission
+  def GET(self, db_name, _user=None):
+    db_cnx = get_db_cnx(db_name)
+    cur = db_cnx.cursor()
+    data = normalize(cur.execute(self.query).fetchall(), cur.description)
+    for status in range(0, len(TRANSACTION_STATUS_ENUM)):
+      status_name = TRANSACTION_STATUS_ENUM[status]
+      status_total = normalize(cur.execute(self.status_query, {'status':status}).fetchall(), cur.description)
+      for item in data:
+        item['%s_total' % status_name] = status_total[int(item['id'])-1]['status_total']
+
+    return dump_data_formatted(_user["data_format"], data)
 
 class AccountListActiveView(ListView):
   query = """
