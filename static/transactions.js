@@ -61,7 +61,11 @@ jQuery(document).ready(function($) {
         } else {
           data[i]['active_checked'] = "";
         }
-        data[i]['balance_difference'] = (parseFloat(data[i]['transaction_total']) - parseFloat(data[i]['balance'])).toFixed(2);
+        data[i]['transaction_difference'] = (parseFloat(data[i]['transaction_total']) - parseFloat(data[i]['balance'])).toFixed(2);
+        data[i]['disable_reconcile'] = "disabled='disabled'";
+        if (parseFloat(data[i]['balance_difference']).toFixed(2) == '0.00' && parseFloat(data[i]['cleared_total']).toFixed(2) != '0.00' ) {
+          data[i]['disable_reconcile'] = "";
+        }
       }
       hash = {account:data};
       html = ich.account_listing(hash);

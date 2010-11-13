@@ -285,7 +285,27 @@ class AccountListView(object):
       status_name = TRANSACTION_STATUS_ENUM[status]
       status_total = normalize(cur.execute(self.status_query, {'status':status}).fetchall(), cur.description)
       for item in data:
-        item['%s_total' % status_name] = status_total[int(item['id'])-1]['status_total']
+        t = status_total[int(item['id'])-1]['status_total']
+        if t == None:
+          t = 0.00
+        item['%s_total' % status_name] = str(Decimal(str(t)))
+
+    for item in data:
+      t = item['transaction_total']
+      if t == None:
+        t = 0.00
+      balance = Decimal(item['balance'])
+      transaction_total = Decimal(str(t))
+      reconciled = Decimal(item['reconciled_total'])
+      cleared = Decimal(item['cleared_total'])
+      suspect = Decimal(item['suspect_total'])
+      receipt = Decimal(item['receipt_total'])
+      no_receipt = Decimal(item['no_receipt_total'])
+      scheduled = Decimal(item['scheduled_total'])
+
+      #difference = (balance - (reconciled + (cleared + suspect))) - (receipt + no_receipt + scheduled)
+      difference = (transaction_total - (receipt + no_receipt + scheduled)) - balance
+      item['balance_difference'] = str(difference)
 
     return dump_data_formatted(_user["data_format"], data)
 
@@ -308,7 +328,7 @@ class AccountUpdate(Update):
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
 class ClearedToReconciledUpdate(object):
-  """ Set the status of cleared transactions to reconciled in an account if the balance and transaction total minus the suspect are equal. """
+  """ Set the status of cleared transactions to reconciled in an account if the balance and transaction total of reconciled, cleared, and suspect are equal. """
   @write_permission
   def POST(self, db_name, account_id, _user=None):
     db_cnx = get_db_cnx(db_name)
@@ -318,7 +338,7 @@ class ClearedToReconciledUpdate(object):
         select account as id, total(total) as transaction_total from (
           select * from FinancialTransaction join (
             select total(amount) as total, financial_transaction as id from TransactionItem group by id
-          ) using (id) where status = 4 or status = 5
+          ) using (id) where status = 4 or status = 5 or status = 0
         ) group by id
       ) using (id) where id = :id;"""
     data = normalize(cur.execute(query, {'id':account_id}).fetchall(), cur.description)
