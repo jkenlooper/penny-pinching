@@ -547,10 +547,11 @@ class FinancialTransactionItemAdd(object):
           if item_amount_over > float(buffer_category['balance']):
             print "item amount over exceds buffer balance"
           else:
-            print "splitting item amount with buffer balance"
+            item_amount_over = float("-%s" % (item_amount_over))
+            print "splitting item amount with buffer balance %s" % item_amount_over
             b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0, 'financial_transaction':self.inserted_transaction_id}
             buffer_item = validate(b, self.v_i) 
-            buffer_balance = Decimal(str(float(buffer_category['balance'])-float(item_amount_over)))
+            buffer_balance = Decimal(str(float(buffer_category['balance'])+float(item_amount_over)))
             self.cur.execute("update ExpenseCategory set balance = :balance where id = 1", {'balance':str(buffer_balance)})
             self.validated_items.append(buffer_item)
             item['amount'] = category['balance']
@@ -568,6 +569,8 @@ class FinancialTransactionItemAdd(object):
           if len(dates):
             self.cur.execute("update BillCategory set allotment_date = :allotment_date, due = :due, balance = :balance where id = :id", {'allotment_date':dates['allotment_date'], 'due':dates['due'], 'balance':str(balance), 'id':category['id']})
             self.db_cnx.commit()
+          else:
+            print 'invalid date?'
         else:
           #print "inactivating paid bill"
           self.cur.execute("update BillCategory set active = 0, balance = :balance where id = :id", {'id':item['category'], 'balance':str(balance)})
