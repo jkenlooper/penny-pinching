@@ -66,6 +66,7 @@ class MainInterface(Interface):
       except urllib2.HTTPError, inst:
         print inst
     elif res in self.opt_init_data():
+      s = self.get_input("yaml file: ")
       d = """
       account:
         -
@@ -143,7 +144,7 @@ class MainInterface(Interface):
       bill:
       saving:
       """
-      data = yaml.safe_load(d)
+      data = yaml.safe_load(open(s, 'r').read())
       try:
         all = urllib2.urlopen('http://%(host)s/%(database)s' % authenticate)
         print all.read()

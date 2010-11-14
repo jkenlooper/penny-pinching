@@ -9,7 +9,7 @@ import os.path
 from decimal import Decimal
 from datetime import date
 import ConfigParser
-from auth import read_permission, write_permission, admin_permission
+from auth import read_permission, write_permission, admin_permission, users
 import logging
 logging.basicConfig()
 
@@ -58,7 +58,7 @@ def initialize_database_tables(db_name):
         active default 1,
         minimum default 0,
         maximum default 0,
-        allotment not null);""")
+        allotment default 1);""")
     db_cnx.execute("""create table BillCategory(id integer primary key,
         name unique not null,
         balance default 0,
@@ -76,10 +76,12 @@ def initialize_database_tables(db_name):
         allotment_amount default 0,
         allotment_date,
         repeat_date default 0,
-        allotment not null);""")
+        allotment default 1);""")
     db_cnx.execute("""insert into ExpenseCategory (name, allotment) values ("buffer", 0);""")
     db_cnx.commit()
-  
+
+for db_name in set([users[name]['database'] for name in users]):
+  initialize_database_tables(db_name)
 
 def normalize(l, description):
   d = []
@@ -397,7 +399,7 @@ class FinancialTransactionItemAdd(object):
     for item in t['items']:
       item = validate(item, self.v_i)
       item['financial_transaction'] = self.inserted_transaction_id
-      if item['type'] != 0:
+      if int(item['type']) != 0:
         self._update_category_balance(item)
         item['amount'] = "-%s" % (item['amount'])
       else:
@@ -508,16 +510,16 @@ class FinancialTransactionItemAdd(object):
 
   def _update_category_balance(self, item):
     "Update the category balance from the item amount"
-    if item['type'] == 1:
+    if int(item['type']) == 1:
       table = "ExpenseCategory"
-    elif item['type'] == 2:
+    elif int(item['type']) == 2:
       table = "BillCategory"
-    elif item['type'] == 3:
+    elif int(item['type']) == 3:
       table = "SavingCategory"
     category_select = "select * from %s where id = :id;" % (table)
     category_update = "update %s set balance = :balance where id = :id;" % (table)
 
-    print item
+    #print item
      
     category = normalize(self.cur.execute(category_select, {'id':item['category']}), self.cur.description)
     if len(category):
@@ -543,16 +545,20 @@ class FinancialTransactionItemAdd(object):
           print "no buffer found"
 
       balance = Decimal(str(float(category['balance'])-float(item['amount'])))
-      if item['type'] != 2:
+      if int(item['type']) != 2:
         self.cur.execute(category_update, {'balance':str(balance), 'id':item['category']})
+        self.db_cnx.commit()
+
       else: #mark the bill as paid by inactivating it or setting new due date
-        if category['repeat_due_date'] != 0:
+        if str(category['repeat_due_date']) != '0':
           dates = normalize(self.cur.execute("select date(:allotment_date, :repeat_due_date) as allotment_date, date(:due, :repeat_due_date) as due", category), self.cur.description)[0]
           if len(dates):
             self.cur.execute("update BillCategory set allotment_date = :allotment_date, due = :due, balance = :balance where id = :id", {'allotment_date':dates['allotment_date'], 'due':dates['due'], 'balance':str(balance), 'id':category['id']})
+            self.db_cnx.commit()
         else:
           #print "inactivating paid bill"
           self.cur.execute("update BillCategory set active = 0, balance = :balance where id = :id", {'id':item['category'], 'balance':str(balance)})
+          self.db_cnx.commit()
     else:
       print "no category"
 
