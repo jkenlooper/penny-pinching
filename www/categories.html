@@ -259,6 +259,10 @@
     <div id="content">
       <div id="total_balance"> </div>
       <div id="categories">
+
+        <h2>Expense to Saving Allotment</h2>
+        <div id="expense_saving_allotment"></div>
+
         <div class="category_type" id="expense">
           <h2>Expense Categories</h2>
           <div class="form">
@@ -317,81 +321,7 @@
           <div class="category_list" id="expense_category_list"></div>
           <div class="inactive_category_list" id="expense_category_inactive_list"></div>
         </div> <!-- #expense -->
-        <div class="category_type" id="bill">
-          <h2>Bill Categories</h2>
-          <div class="form">
-            <div id="new_bill_category">
-              <div class="label_value">
-                <label>Name:</label>
-                <div class="value">
-                  <input type="text" name="name">
-                </div>
-              </div>
-              <div class="label_value">
-                <label>Balance:</label>
-                <div class="value">
-                  <input class="currency" type="text" name="balance">
-                </div>
-                <div class="info">
-                  This is the amount that has been set aside for this
-                  bill.
-                </div>
-              </div>
-              <div class="label_value">
-                <label>Maximum:</label>
-                <div class="value">
-                  <input class="currency" type="text" name="maximum">
-                </div>
-                <div class="info">
-                  The maximum amount of the bill.
-                </div>
-              </div>
-              <div class="label_value">
-                <label>Allotment Date:</label>
-                <div class="value">
-                  <input type="text" name="allotment_date">
-                </div>
-                <div class="info">
-                  After this date any income will be distributed to this bill
-                  until it reaches it's maximum.
-                </div>
-              </div>
-              <div class="label_value">
-                <label>Due:</label>
-                <div class="value">
-                  <input type="text" name="due">
-                </div>
-                <div class="info">
-                  The date the bill is due.  After this date, income will no
-                  longer be distributed to the bill.
-                </div>
-              </div>
-              <div class="label_value">
-                <label>Repeat:</label>
-                <div class="value">
-                  <input type="text" class="repeat_date" name="repeat_due_date" value="+1 months">
-                </div>
-                <div class="info">
-                  How often the bill repeats. Examples:
-                    <span class="repeat_date-example">+1 months</span>,
-                    <span class="repeat_date-example">+2 weeks</span>,
-                    <span class="repeat_date-example">+12 days</span>,
-                    <span class="repeat_date-example">+1 years</span>,
-                    no repeat: <span class="repeat_date-example">0</span>.
-                  The bill due and allotment dates will be adjusted according
-                  to this.  Setting this to 
-                    <span class="repeat_date-example">0</span>
-                  will inactivate the bill as soon as it is paid.
-                </div>
-              </div>
-            </div>
-            <button id="add_bill_category">Add Bill Category</button>
-          </div> <!-- .form -->
-          <button class="toggle_add_form">show add form</button>
 
-          <div class="category_list" id="bill_category_list"></div>
-          <div class="inactive_category_list" id="bill_category_inactive_list"></div>
-        </div> <!-- #bill -->
         <div class="category_type" id="saving">
           <h2>Saving Categories</h2>
           <div class="form">
@@ -489,6 +419,83 @@
           <div class="category_list" id="saving_category_list"></div>
           <div class="inactive_category_list" id="saving_category_inactive_list"></div>
         </div> <!-- #saving -->
+
+        <div class="category_type" id="bill">
+          <h2>Bill Categories</h2>
+          <div class="form">
+            <div id="new_bill_category">
+              <div class="label_value">
+                <label>Name:</label>
+                <div class="value">
+                  <input type="text" name="name">
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Balance:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="balance">
+                </div>
+                <div class="info">
+                  This is the amount that has been set aside for this
+                  bill.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Maximum:</label>
+                <div class="value">
+                  <input class="currency" type="text" name="maximum">
+                </div>
+                <div class="info">
+                  The maximum amount of the bill.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Allotment Date:</label>
+                <div class="value">
+                  <input type="text" name="allotment_date">
+                </div>
+                <div class="info">
+                  After this date any income will be distributed to this bill
+                  until it reaches it's maximum.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Due:</label>
+                <div class="value">
+                  <input type="text" name="due">
+                </div>
+                <div class="info">
+                  The date the bill is due.  After this date, income will no
+                  longer be distributed to the bill.
+                </div>
+              </div>
+              <div class="label_value">
+                <label>Repeat:</label>
+                <div class="value">
+                  <input type="text" class="repeat_date" name="repeat_due_date" value="+1 months">
+                </div>
+                <div class="info">
+                  How often the bill repeats. Examples:
+                    <span class="repeat_date-example">+1 months</span>,
+                    <span class="repeat_date-example">+2 weeks</span>,
+                    <span class="repeat_date-example">+12 days</span>,
+                    <span class="repeat_date-example">+1 years</span>,
+                    no repeat: <span class="repeat_date-example">0</span>.
+                  The bill due and allotment dates will be adjusted according
+                  to this.  Setting this to 
+                    <span class="repeat_date-example">0</span>
+                  will inactivate the bill as soon as it is paid.
+                </div>
+              </div>
+            </div>
+            <button id="add_bill_category">Add Bill Category</button>
+          </div> <!-- .form -->
+          <button class="toggle_add_form">show add form</button>
+
+          <div class="category_list" id="bill_category_list"></div>
+          <div class="inactive_category_list" id="bill_category_inactive_list"></div>
+        </div> <!-- #bill -->
+
       </div> <!-- #categories -->
     </div> <!-- #content -->
   </div> <!-- #page -->

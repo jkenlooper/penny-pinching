@@ -45,6 +45,9 @@ urls = (
     '/([a-z]+)/transaction-item/([0-9]+)/?', 'TransactionItemView', # GET
     '/([a-z]+)/transaction-item/([0-9]+)/?', 'TransactionItemUpdate', # POST delete attr
 
+    '/([a-z]+)/setting/([a-z_]+)/?', 'SettingView',
+    '/([a-z]+)/setting/([a-z_]+)/update/?', 'SettingUpdate',
+
     '/([a-z]+)/expense-list/?', 'ExpenseCategoryListView', # GET
     '/([a-z]+)/expense-list-active/?', 'ExpenseCategoryListActiveView', # GET
     '/([a-z]+)/expense-list-inactive/?', 'ExpenseCategoryListInActiveView', # GET

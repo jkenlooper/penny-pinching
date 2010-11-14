@@ -309,6 +309,10 @@ span.repeat_date-example {
 div#categories {
   overflow: hidden;
 }
+  div#expense_saving_allotment {
+    width: 72%;
+    margin: 10px 0px;
+  }
   div.category_type {
     width: 33.33%;
     float: left;

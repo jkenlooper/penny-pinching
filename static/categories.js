@@ -36,6 +36,23 @@ jQuery(document).ready(function($) {
   }
   total_balance();
 
+  $.getJSON("/"+db_name+"/setting/expense_allotment/", function(data){
+      var v = data[0]['setting'];
+      $("#expense_saving_allotment").slider({
+        step: 1,
+        min: 0, 
+        max: 100,
+        value: v,
+        stop: function(event, ui) {
+          var allotment = new Number(ui.value);
+          data_string = {'setting':parseInt(ui.value)};
+          d = {'data_string':JSON.stringify(data_string)};
+          $.post("/"+db_name+"/setting/expense_allotment/update", d, function(data){});
+          }
+      });
+  });
+
+
   function category_list() {
     $.getJSON("/"+db_name+"/expense-list-active", function(data){
       hash = {category:data};

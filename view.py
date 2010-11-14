@@ -19,6 +19,8 @@ TRANSACTION_STATUS_ENUM = ['suspect', 'no_receipt', 'receipt', 'scheduled', 'cle
 
 CHART_TYPE_ENUM = ['income', 'expense', 'bill', 'saving']
 
+SETTING = ['expense_allotment',]
+
 config = ConfigParser.ConfigParser()
 config.read("app.conf")
 db_config = dict(config.items('database'))
@@ -77,7 +79,11 @@ def initialize_database_tables(db_name):
         allotment_date,
         repeat_date default 0,
         allotment default 1);""")
+    db_cnx.execute("""create table Setting(id integer primary key,
+        name unique not null,
+        setting default 0);""")
     db_cnx.execute("""insert into ExpenseCategory (name, allotment) values ("buffer", 0);""")
+    db_cnx.execute("""insert into Setting (name, setting) values ("expense_allotment", 50);""")
     db_cnx.commit()
 
 for db_name in set([users[name]['database'] for name in users]):
@@ -406,14 +412,23 @@ class FinancialTransactionItemAdd(object):
         available = float(item['amount'])
         available = self._distribute_to_bill_categories(available)
         #TODO: split available between saving and expense
-        available = self._distribute_to_saving_categories(available)
-        available = self._distribute_to_expense_categories(available)
+        if available > 0:
+          setting_query = "select * from Setting where name = 'expense_allotment';"
+          expense_allotment = float(normalize(self.cur.execute(setting_query), self.cur.description)[0]['setting'])
 
-        self._distribute_to_buffer(available)
+          expense_available = available * (expense_allotment/100.0)
+          saving_available = available * ((100.0 - expense_allotment)/100.0)
+          available = self._distribute_to_expense_categories(expense_available)
+          available = self._distribute_to_saving_categories(available+saving_available)
+
+          self._distribute_to_buffer(available)
 
       self.validated_items.append(item)
 
     self.db_cnx.executemany("insert into TransactionItem (name, amount, type, category, financial_transaction) values (:name, :amount, :type, :category, :financial_transaction)", self.validated_items)
+    self.db_cnx.commit()
+    total_balance_data = get_total_balance_data(self.cur)
+    self.cur.execute("update ExpenseCategory set maximum = :max where id = 1;", {'max':total_balance_data['transaction']})
     self.db_cnx.commit()
     return dump_data_formatted(_user["data_format"], t)
 
@@ -504,8 +519,6 @@ class FinancialTransactionItemAdd(object):
     if available > 0:
       buff = float(normalize(self.cur.execute("select balance from ExpenseCategory where id = 1;"), self.cur.description)[0]['balance'])
       self.cur.execute("update ExpenseCategory set balance = :available where id = 1;", {'available':str(Decimal(str(buff+available)))})
-    total_balance_data = get_total_balance_data(self.cur)
-    self.cur.execute("update ExpenseCategory set maximum = :max where id = 1;", {'max':total_balance_data['transaction']})
 
 
   def _update_category_balance(self, item):
@@ -608,6 +621,34 @@ class FinancialTransactionItemView(object):
 
 class TransactionItemListView(ListView):
   query = "select * from TransactionItem join (select date, name as transaction_name, id as financial_transaction from FinancialTransaction group by financial_transaction) using (financial_transaction)";
+
+class SettingView(object):
+  query = "select * from Setting where name = :name;"
+  @read_permission
+  def GET(self, db_name, name, _user=None):
+    if name in SETTING:
+      db_cnx = get_db_cnx(db_name)
+      user_data = {'name':name}
+      cur = db_cnx.cursor()
+      data = normalize(cur.execute(self.query, user_data).fetchall(), cur.description)
+      return dump_data_formatted(_user["data_format"], data)
+
+class SettingUpdate(object):
+  query = "update Setting set setting = :setting where name = :name;"
+  valid_data_format = {'setting':str}
+  @write_permission
+  def POST(self, db_name, name, _user=None):
+    if name in SETTING:
+      user_input = web.input(data_string=None)
+      user_data = {'name':name}
+      d = load_formatted_data(_user["data_format"], user_input.data_string)
+      d = validate(d, self.valid_data_format)
+      user_data.update(d)
+      db_cnx = get_db_cnx(db_name)
+      cur = db_cnx.cursor()
+      cur.execute(self.query, user_data)
+      db_cnx.commit()
+      return web.accepted()
 
 class CategoryAdd(Add):
  def check_data(self, data):
