@@ -9,7 +9,7 @@ jQuery.noConflict();
 jQuery(document).ready(function($) {
   var CHART_TYPE_MAP = {'0':'income', '1':'expense', '2':'bill', '3':'saving'};
   var all_category_list = {};
-  var all_category_hash = {'expense':{}, 'bill':{}, 'saving':{}};
+  var all_category_hash = {'expense':{}, 'bill':{}, 'saving':{}, 'income':{}};
   var chart_category_hash = {'chart':[]};
   $("div#new_transaction_date").datepicker({
       dateFormat:'yy-mm-dd',
@@ -204,7 +204,11 @@ jQuery(document).ready(function($) {
       } else if (group_by == 'category') {
         category_id = item.category;
         type_name = CHART_TYPE_MAP[item.type];
-        group_id = all_category_hash[type_name][category_id].name;
+        if (type_name != 'income') {
+          group_id = all_category_hash[type_name][category_id].name;
+        } else {
+          group_id = 'income';
+        }
       } else if (group_by == 'date') {
         group_id = item['date'];
       }

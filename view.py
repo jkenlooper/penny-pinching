@@ -549,7 +549,7 @@ class FinancialTransactionItemAdd(object):
           else:
             item_amount_over = float("-%s" % (item_amount_over))
             print "splitting item amount with buffer balance %s" % item_amount_over
-            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':0, 'financial_transaction':self.inserted_transaction_id}
+            b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':1, 'financial_transaction':self.inserted_transaction_id}
             buffer_item = validate(b, self.v_i) 
             buffer_balance = Decimal(str(float(buffer_category['balance'])+float(item_amount_over)))
             self.cur.execute("update ExpenseCategory set balance = :balance where id = 1", {'balance':str(buffer_balance)})
@@ -749,7 +749,8 @@ class SavingCategoryUpdate(CategoryUpdate):
 class AllCategoryListActiveView(object):
   query = {'expense':"select * from ExpenseCategory where active = 1;",
            'bill':"select * from BillCategory where active = 1;",
-           'saving':"select * from SavingCategory where active = 1;"}
+           'saving':"select * from SavingCategory where active = 1;",
+           'income':"select * from TransactionItem where type = 0;"}
   @read_permission
   def GET(self, db_name, _user=None):
     db_cnx = get_db_cnx(db_name)
