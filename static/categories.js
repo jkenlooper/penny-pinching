@@ -108,6 +108,7 @@ jQuery(document).ready(function($) {
         if (max > 0) {
           var balance_width = (balance/max) * 100;
           bar.find("span.balance").css({'width': balance_width+"%"});
+          bar.find("span.allotment_date").css({'left': balance_width+"%"});
           var allotment_amount = new Number(parseFloat(bar.find("span.allotment_amount").text()));
           var allotment_amount_width = (allotment_amount/max) * 100;
           a_a_left = balance_width - allotment_amount_width;
@@ -115,7 +116,7 @@ jQuery(document).ready(function($) {
           var minimum = new Number(parseFloat(bar.find("span.minimum").text()));
           min_width = (minimum/max) * 100;
           m = a_a_left + min_width;
-          bar.find("span.minimum, span.allotment_date").css({'left': m+"%"});
+          bar.find("span.minimum").css({'left': m+"%"});
         }
       });
     });
