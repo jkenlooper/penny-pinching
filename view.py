@@ -419,7 +419,7 @@ class FinancialTransactionItemAdd(object):
           expense_available = available * (expense_allotment/100.0)
           saving_available = available * ((100.0 - expense_allotment)/100.0)
           available = self._distribute_to_expense_categories(expense_available)
-          available = self._distribute_to_saving_categories(available+saving_available)
+          available = self._distribute_to_saving_categories(t['date'], available+saving_available)
 
           self._distribute_to_buffer(available)
 
@@ -445,10 +445,10 @@ class FinancialTransactionItemAdd(object):
       self.cur.execute("update BillCategory set balance = :balance where id = :id;", cat)
     return available
 
-  def _distribute_to_saving_categories(self, available):
+  def _distribute_to_saving_categories(self, t_date, available):
     "Distribute between saving categories that the current date is after the allotment date"
-    saving_categories = normalize(self.cur.execute("select * from SavingCategory join(select date('now') as now) where active = 1 and allotment_date < now and cast(balance as numeric) < cast(maximum as numeric);"), self.cur.description) #and allotment_amount < minimum
-    saving_allotment_total = int(normalize(self.cur.execute("select total(allotment) as total_allotment from SavingCategory join(select date('now') as now) where active = 1 and allotment_date < now and cast(balance as numeric) < cast(maximum as numeric);"), self.cur.description)[0]['total_allotment'])
+    saving_categories = normalize(self.cur.execute("select * from SavingCategory where active = 1 and allotment_date < :t_date and cast(balance as numeric) < cast(maximum as numeric);", {'t_date':t_date}), self.cur.description) #and allotment_amount < minimum
+    saving_allotment_total = int(normalize(self.cur.execute("select total(allotment) as total_allotment from SavingCategory where active = 1 and allotment_date < :t_date and cast(balance as numeric) < cast(maximum as numeric);", {'t_date':t_date}), self.cur.description)[0]['total_allotment'])
     if saving_allotment_total > 0:
       available_remainder = available
       for cat in saving_categories:
