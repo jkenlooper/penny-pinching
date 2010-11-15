@@ -4,9 +4,13 @@ import bpgsql
 import types
 import yaml
 from decimal import Decimal
+import ConfigParser
 
+config = ConfigParser.ConfigParser()
+config.read("app.conf")
+pg_db = dict(config.items('pg_db'))
 
-app_cnx = bpgsql.connect("host=%(host)s dbname=%(dbname)s user=%(user)s password=%(password)s" % db)
+app_cnx = bpgsql.connect("host=%(host)s dbname=%(dbname)s user=%(user)s password=%(password)s" % pg_db)
 
 class PG(object):
   def __init__(self):
