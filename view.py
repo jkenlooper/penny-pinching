@@ -454,7 +454,8 @@ class FinancialTransactionItemAdd(object):
       for cat in saving_categories:
         share = (float(cat['allotment'])/float(saving_allotment_total)) * available
         diff = float(cat['minimum']) - float(cat['allotment_amount'])
-        change = min(share, diff)
+        max_diff = float(cat['maximum']) - float(cat['balance'])
+        change = min(share, diff, max_diff)
         available_remainder = available_remainder - change
         cat['balance'] = str(Decimal(str(float(cat['balance'])+change)))
         cat['allotment_amount'] = str(Decimal(str(float(cat['allotment_amount'])+change)))
