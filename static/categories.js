@@ -38,11 +38,18 @@ jQuery(document).ready(function($) {
 
   $.getJSON("/"+db_name+"/setting/expense_allotment/", function(data){
       var v = data[0]['setting'];
+      $("div#expense > h2 .allotment").text("["+v+"]");
+      $("div#saving > h2 .allotment").text("["+(100-v)+"]");
       $("#expense_saving_allotment").slider({
         step: 1,
         min: 0, 
         max: 100,
         value: v,
+        slide: function(event, ui) {
+          var v = ui.value;
+          $("div#expense > h2 .allotment").text("["+v+"]");
+          $("div#saving > h2 .allotment").text("["+(100-v)+"]");
+        },
         stop: function(event, ui) {
           var allotment = new Number(ui.value);
           data_string = {'setting':parseInt(ui.value)};
@@ -236,8 +243,20 @@ jQuery(document).ready(function($) {
         html = ich.bill_category_list_edit(data);
         var category = $("#bill_id-"+data['id']);
         category.append(html);
+        category.find("input[name='allotment_date']").datepicker({
+            dateFormat:'yy-mm-dd',
+            onSelect:function(dateText, inst){
+              category.find("input[name='due']").datepicker("option", "minDate", dateText);
+            }
+        });
+        category.find("input[name='due']").datepicker({
+            dateFormat:'yy-mm-dd',
+            onSelect:function(dateText, inst){
+              category.find("input[name='allotment_date']").datepicker("option", "maxDate", dateText);
+            }
+        });
         edit_button = category.find(".edit-button");
-        edit_button.val('save');
+        edit_button.val('save').text('save');
         edit_button.bind('click', function(e){
           var edit_form = category.find('.edit-form');
           var active = "0";
@@ -277,8 +296,11 @@ jQuery(document).ready(function($) {
         html = ich.saving_category_list_edit(data);
         var category = $("#saving_id-"+data['id']);
         category.append(html);
+        category.find("input[name='allotment_date']").datepicker({
+            dateFormat:'yy-mm-dd'
+        });
         edit_button = category.find(".edit-button");
-        edit_button.text('save');
+        edit_button.val('save').text('save');
         edit_button.bind('click', function(e){
           var edit_form = category.find('.edit-form');
           var active = "0";
