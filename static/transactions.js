@@ -14,13 +14,17 @@ jQuery(document).ready(function($) {
   $("div#new_transaction_date").datepicker({
       dateFormat:'yy-mm-dd',
   });
-  $("div#period-start").datepicker({
+  var lastmonth = new Date();
+  var today = new Date();
+  $("input#period-start").datepicker({
       dateFormat:'yy-mm-dd',
-      defaultDate:'-1m',
+      defaultDate:'-1m'
   });
-  $("div#period-end").datepicker({
-      dateFormat:'yy-mm-dd',
+  $("input#period-start").datepicker("setDate", '-1m');
+  $("input#period-end").datepicker({
+      dateFormat:'yy-mm-dd'
   });
+  $("input#period-end").datepicker("setDate", today);
   function get_all_category_list(add_blank_item) {
     $.getJSON("/"+db_name+"/all-category-list-active", function(data){
       all_category_list = data;
@@ -251,8 +255,8 @@ jQuery(document).ready(function($) {
   }
 
   function load_item_group_list() {
-    var start = formatISO($("div#period-start").datepicker('getDate'));
-    var end = formatISO($("div#period-end").datepicker('getDate'));
+    var start = formatISO($("input#period-start").datepicker('getDate'));
+    var end = formatISO($("input#period-end").datepicker('getDate'));
     $.getJSON("/"+db_name+"/period/"+start+"."+end+"/transaction-item-list", function(data){
         group_by = $("input[name='group_by']:checked").val();
         hash = group_items(data, group_by);

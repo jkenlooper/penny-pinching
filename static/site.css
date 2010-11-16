@@ -246,18 +246,17 @@ div#transaction_items_list-block {
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
-  div#buttons-block {
-    float: left;
-    width: 18em;
-    margin: 0 0 0 2em;
-  }
   div#period_start-block,
   div#period_end-block {
     float: left;
     width: 20em;
   }
   button#period-button {
-    margin: 2em 0 0;
+    margin: 0.2em 0;
+  }
+
+  div#buttons-block {
+    margin: 0 0 1em 2em;
   }
 
   div#item_group_list {

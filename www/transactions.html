@@ -211,8 +211,23 @@
         <div class="transaction_list" id="cleared_suspect_transactions"></div>
         <h2>Receipt, No Receipt, Scheduled Transactions</h2>
         <div class="transaction_list" id="receipt_no_receipt_scheduled_transactions"></div>
+        <!-- TODO: move scheduled transactions out of receipt_no_receipt...
+        <h2>Scheduled Transactions</h2>
+        <div class="transaction_list" id="scheduled_transactions"></div>
+        -->
       </div> <!-- #transaction_list-block -->
 
+      <div id="period-block">
+        <div id="period_start-block">
+          <label>Start</label>
+          <input type="text" id="period-start">
+        </div>
+        <div id="period_end-block">
+          <label>End</label>
+          <input type="text" id="period-end">
+        </div>
+        <button id="period-button">Show items within period</button>
+      </div> <!-- #period-block -->
       <!-- TODO: 
       <h2>Reconciled Transactions</h2>
       <div class="transaction_list" id="reconciled_transactions"></div>
@@ -220,18 +235,9 @@
       <div id="transaction_items_list-block">
         <div id="buttons-block">
           <h2>Transaction Items</h2>
-          <input type="radio" name="group_by" value="financial_transaction" checked="checked"> <label for="group_by">Transaction Name</label><br>
-          <input type="radio" name="group_by" value="category"> <label for="group_by">Category</label><br>
+          <input type="radio" name="group_by" value="financial_transaction" checked="checked"> <label for="group_by">Transaction Name</label>
+          <input type="radio" name="group_by" value="category"> <label for="group_by">Category</label>
           <input type="radio" name="group_by" value="date"> <label for="group_by">Date</label>
-          <button id="period-button">Show items within period</button>
-        </div>
-        <div id="period_start-block">
-          <label>Start</label>
-          <div id="period-start"></div>
-        </div>
-        <div id="period_end-block">
-          <label>End</label>
-          <div id="period-end"></div>
         </div>
         <div id="item_group_list"></div>
       </div> <!-- #transaction_items_list-block -->
