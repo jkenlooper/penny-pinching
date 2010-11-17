@@ -71,6 +71,7 @@ urls = (
     '/([a-z]+)/saving/?', 'SavingCategoryAdd', # POST
     '/([a-z]+)/saving/([0-9]+)/?', 'SavingCategoryView', # GET
     '/([a-z]+)/saving/([0-9]+)/update/?', 'SavingCategoryUpdate',
+    '/([a-z]+)/saving-active/([0-9]+)/?', 'SavingCategoryUpdateActive',
 
     '/([a-z]+)/all-category-list-active/?', 'AllCategoryListActiveView', # GET
 

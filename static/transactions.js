@@ -29,13 +29,15 @@ jQuery(document).ready(function($) {
     $.getJSON("/"+db_name+"/all-category-list-active", function(data){
       all_category_list = data;
       for (chart_type in all_category_list) {
-        var c = all_category_list[chart_type];
+        if (chart_type != 'income') {
+          var c = all_category_list[chart_type];
 
-        var chart_hash = {'chart_name':chart_type, 'category':c};
-        chart_category_hash['chart'].push(chart_hash);
+          var chart_hash = {'chart_name':chart_type, 'category':c};
+          chart_category_hash['chart'].push(chart_hash);
 
-        for (i=0; i<c.length; i++) {
-          all_category_hash[chart_type][c[i].id] = c[i];
+          for (i=0; i<c.length; i++) {
+            all_category_hash[chart_type][c[i].id] = c[i];
+          }
         }
       }
       if (add_blank_item){ add_blank_transaction_item(); }
