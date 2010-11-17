@@ -2,8 +2,11 @@ alice:
   password: 123
   permission: write
   database: penny
+  data_format: json
+
 bob:
   password: abc
   permission: admin
   database: penny
+  data_format: yaml
 
