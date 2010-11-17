@@ -123,6 +123,7 @@ jQuery(document).ready(function($) {
           var minimum = new Number(parseFloat(bar.find("span.minimum").text()));
           min_width = (minimum/max) * 100;
           m = a_a_left + min_width;
+          if (m > 100) { m = 100; }
           bar.find("span.minimum").css({'left': m+"%"});
         }
       });
