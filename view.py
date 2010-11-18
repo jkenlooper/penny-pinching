@@ -82,6 +82,11 @@ def initialize_database_tables(db_name):
     db_cnx.execute("""create table Setting(id integer primary key,
         name unique not null,
         setting default 0);""")
+    #TODO: setup scheduled transactions so they can repeat and set their status to no_reciept when after their date.
+    #db_cnx.execute("""create table Scheduled(id integer primary key,
+    #    financial_transaction integer not null,
+    #    account not null,
+    #    repeat_date default 0);""")
     db_cnx.execute("""insert into ExpenseCategory (name, allotment) values ("buffer", 0);""")
     db_cnx.execute("""insert into Setting (name, setting) values ("expense_allotment", 50);""")
     db_cnx.commit()
@@ -390,6 +395,8 @@ class FinancialTransactionStatusUpdate(Update):
 
 class FinancialTransactionItemAdd(object):
   """ adding a transaction with items """
+  #TODO: add a way to revert transactions by recording their distribution
+  #      amounts that were put in categories in a separate table.
   @write_permission
   def POST(self, db_name, _user=None):
     user_input = web.input(data_string=None)
