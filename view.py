@@ -318,7 +318,7 @@ class AccountListView(object):
 
       #difference = (balance - (reconciled + (cleared + suspect))) - (receipt + no_receipt + scheduled)
       difference = (transaction_total - (receipt + no_receipt + scheduled)) - balance
-      item['balance_difference'] = str(difference)
+      item['balance_difference'] = str(Decimal(str(difference)))
 
     return dump_data_formatted(_user["data_format"], data)
 
