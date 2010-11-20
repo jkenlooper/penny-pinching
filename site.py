@@ -104,9 +104,9 @@ app.add_processor(web.loadhook(set_yaml_content))
 if __name__ == "__main__":
   if sys.argv[-1] == '--test':
     doctest.testmod()
-  elif sys.argv[-1] == '--fcgi':
-    web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)
+  elif sys.argv[-1] == '--localhost':
     app.run()
   else:
+    web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)
     app.run()
 
