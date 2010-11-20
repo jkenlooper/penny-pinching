@@ -21,6 +21,7 @@ urls = (
     '/([a-z]+)/account/?', 'AccountAdd', # POST
     '/([a-z]+)/account/([0-9]+)/?', 'AccountView', # GET
     '/([a-z]+)/account/([0-9]+)/update/?', 'AccountUpdate', # POST delete attr
+    '/([a-z]+)/account/([0-9]+)/activate/?', 'AccountActivate',
 
     '/([a-z]+)/account/([0-9]+)/cleared-to-reconciled/?', 'ClearedToReconciledUpdate', # POST
 

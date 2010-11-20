@@ -53,7 +53,6 @@ class TransactionsPage(object):
       option = SubElement(transaction_status_select, 'option', {'value':str(TRANSACTION_STATUS_ENUM.index(status))})
       if (default_status == status): option.attrib['selected'] = 'selected'
       option.text = status
-    print tostring(transaction_status_select)
     return tostring(transaction_status_select)
       
 

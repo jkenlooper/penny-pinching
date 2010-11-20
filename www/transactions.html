@@ -50,6 +50,14 @@
     </div>
   {{/account}}
 </script>
+<script id="inactive_account_listing" type="text/html">
+  {{#account}}
+    <div class="account-block" db_id="{{id}}" id="account_id-{{id}}">
+      <strong class="account_name">{{name}}</strong>
+      Active: <input type="checkbox" name="active" value="1" {{active_checked}}>
+    </div>
+  {{/account}}
+</script>
 
 <script id="account_select_list" type="text/html">
   {{#accounts}}
@@ -131,6 +139,7 @@
       <div id="accounts-block">
         <h2>Accounts</h2>
         <div id="account_listing"> </div>
+        <div id="inactive_account_listing"> </div>
         <div id="new_account-button-block">
           <input name="new_account" type="button" value="+">
         </div>

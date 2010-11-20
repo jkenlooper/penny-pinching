@@ -340,6 +340,10 @@ class AccountUpdate(Update):
   query = "update Account set name = :name, active = :active, balance = :balance, balance_date = :balance_date where id = :id;"
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
+class AccountActivate(Update): 
+  query = "update Account set active = :active where id = :id;"
+  valid_data_format = {'id':int, 'active':bool}
+
 class ClearedToReconciledUpdate(object):
   """ Set the status of cleared transactions to reconciled in an account if the balance and transaction total of reconciled, cleared, and suspect are equal. """
   @write_permission

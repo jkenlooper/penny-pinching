@@ -60,11 +60,13 @@ jQuery(document).ready(function($) {
     $.getJSON("/"+db_name+"/account-list", function(data){
 
       active_data = [];
+      inactive_data = [];
       for (i=0; i<data.length; i++) {
         if (data[i]['active'] == 1) {
           data[i]['active_checked'] = "checked='checked'";
           active_data.push(data[i]);
         } else {
+          inactive_data.push(data[i]);
           data[i]['active_checked'] = "";
         }
         data[i]['transaction_difference'] = (parseFloat(data[i]['transaction_total']) - parseFloat(data[i]['balance'])).toFixed(2);
@@ -73,9 +75,13 @@ jQuery(document).ready(function($) {
           data[i]['disable_reconcile'] = "";
         }
       }
-      hash = {account:data};
+      hash = {account:active_data};
       html = ich.account_listing(hash);
       $("#account_listing").html(html);
+
+      hash = {account:inactive_data};
+      html = ich.inactive_account_listing(hash);
+      $("#inactive_account_listing").html(html);
 
       hash = {accounts:active_data};
       html = ich.account_select_list(hash);
@@ -152,6 +158,7 @@ jQuery(document).ready(function($) {
     $("div#transaction_items div.transaction_item").remove();
     add_blank_transaction_item();
   }
+
 
 
   $("div.transaction_list").delegate("span.transaction-edit", "click", function(e) {
@@ -392,6 +399,15 @@ jQuery(document).ready(function($) {
       data_string = {'name':a.find(".account_name").text(), 'active':active, 'balance':a.find("input[name='balance']").val(), 'balance_date':today};
       d = {'data_string':JSON.stringify(data_string)};
       $.post("/"+db_name+"/account/"+id+"/update", d, function(d) {
+        load_accounts();
+      });
+  });
+  $("div#inactive_account_listing").delegate("input[name='active']", "click", function(e) {
+      var a = $(this).parents("div.account-block");
+      var id = a.attr("db_id");
+      data_string = {'active':1};
+      d = {'data_string':JSON.stringify(data_string)};
+      $.post("/"+db_name+"/account/"+id+"/activate", d, function(d) {
         load_accounts();
       });
   });
