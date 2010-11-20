@@ -79,9 +79,11 @@ jQuery(document).ready(function($) {
       html = ich.account_listing(hash);
       $("#account_listing").html(html);
 
-      hash = {account:inactive_data};
-      html = ich.inactive_account_listing(hash);
-      $("#inactive_account_listing").html(html);
+      if (inactive_data.length) {
+        hash = {account:inactive_data};
+        html = ich.inactive_account_listing(hash);
+        $("#inactive_account_listing").html(html);
+      }
 
       hash = {accounts:active_data};
       html = ich.account_select_list(hash);

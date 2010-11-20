@@ -25,6 +25,37 @@ config = ConfigParser.ConfigParser()
 config.read("app.conf")
 db_config = dict(config.items('database'))
 
+def mf(dec):
+  "format money from decimal (modified from recipe)"
+  q = Decimal((0, (1,), -2))
+  sign, digits, exp = dec.quantize(q).as_tuple()
+  assert exp == -2
+  result = []
+  digits = map(str, digits)
+  build, next = result.append, digits.pop
+  #if sign:
+    #build(trailneg)
+  for i in range(2):
+    if digits:
+      build(next())
+    else:
+      build('0')
+  build('.') # decimal point
+  i = 0
+  while digits:
+    build(next())
+    i += 1
+    if i == 3 and digits:
+      i = 0
+      build("") # seperator
+  if sign:
+    build('-')
+  else:
+    build('') # blank for positive
+  result.reverse()
+  return ''.join(result)
+
+
 def get_db_cnx(db_name):
   if db_name:
     db_cnx = sqlite3.connect(os.path.join(db_config["db_directory"], db_name))
@@ -119,10 +150,8 @@ def validate(user_input, valid):
         if v in ('false', 'False', 'FALSE', 'f', 'F', 0, 'off', 'no', 'OFF', 'No', 'n', 'N'):
           v = False
       if t == Decimal:
-        v = str(v)
-        v = v.strip()
-
-      if t == 'chart_type': # if string then switch to int
+        v = mf(t(str(v)))
+      elif t == 'chart_type': # if string then switch to int
         if v in CHART_TYPE_ENUM:
           v = CHART_TYPE_ENUM.index(v)
         elif (int(v) < len(CHART_TYPE_ENUM)) and (int(v) >= 0):
@@ -143,9 +172,6 @@ def validate(user_input, valid):
         v = v.strip()
         v = v[:255]
         v = v.lower()
-      if t == Decimal:
-        v = str(v)
-        v = v.strip()
       d[k] = v
     else:
       raise ValueError("keys are not valid. expected: %s but got %s" % (valid.keys(), user_input.keys()))
@@ -301,7 +327,7 @@ class AccountListView(object):
         t = status_total[int(item['id'])-1]['status_total']
         if t == None:
           t = 0.00
-        item['%s_total' % status_name] = str(Decimal(str(t)))
+        item['%s_total' % status_name] = mf(Decimal(str(t)))
 
     for item in data:
       t = item['transaction_total']
@@ -316,9 +342,8 @@ class AccountListView(object):
       no_receipt = Decimal(item['no_receipt_total'])
       scheduled = Decimal(item['scheduled_total'])
 
-      #difference = (balance - (reconciled + (cleared + suspect))) - (receipt + no_receipt + scheduled)
       difference = (transaction_total - (receipt + no_receipt + scheduled)) - balance
-      item['balance_difference'] = str(Decimal(str(difference)))
+      item['balance_difference'] = mf(Decimal(str(difference)))
 
     return dump_data_formatted(_user["data_format"], data)
 
@@ -360,7 +385,7 @@ class ClearedToReconciledUpdate(object):
       ) using (id) where id = :id;"""
     data = normalize(cur.execute(query, {'id':account_id}).fetchall(), cur.description)
     data = data[0]
-    if Decimal(str(data['balance'])) == Decimal(str(data['transaction_total'])):
+    if float(mf(Decimal(str(data['balance'])))) == float(mf(Decimal(str(data['transaction_total'])))): # .00 != -.00
       cur.execute("update FinancialTransaction set status = 5 where account = :id and status = 4;", {'id':int(account_id)})
       db_cnx.commit()
     else:
@@ -420,15 +445,15 @@ class FinancialTransactionItemAdd(object):
         self._update_category_balance(item)
         item['amount'] = "-%s" % (item['amount'])
       else:
-        available = float(item['amount'])
+        available = Decimal(item['amount'])
         available = self._distribute_to_bill_categories(available)
         #TODO: split available between saving and expense
         if available > 0:
           setting_query = "select * from Setting where name = 'expense_allotment';"
-          expense_allotment = float(normalize(self.cur.execute(setting_query), self.cur.description)[0]['setting'])
+          expense_allotment = Decimal(normalize(self.cur.execute(setting_query), self.cur.description)[0]['setting'])
 
-          expense_available = available * (expense_allotment/100.0)
-          saving_available = available * ((100.0 - expense_allotment)/100.0)
+          expense_available = available * (expense_allotment/Decimal('100.0'))
+          saving_available = available * ((Decimal('100.0') - expense_allotment)/Decimal('100.0'))
           available = self._distribute_to_expense_categories(expense_available)
           available = self._distribute_to_saving_categories(t['date'], available+saving_available)
 
@@ -447,8 +472,8 @@ class FinancialTransactionItemAdd(object):
     "Distribute between bill categories based on allotment date"
     bill_categories = normalize(self.cur.execute("select * from BillCategory join (select date('now') as now) where active = 1 and allotment_date < now and balance != maximum order by due;"), self.cur.description)
     for cat in bill_categories:
-      diff = float(cat['maximum']) - float(cat['balance'])
-      cat['balance'] = str(Decimal(str(float(cat['balance'])+min(diff, available))))
+      diff = Decimal(cat['maximum']) - Decimal(cat['balance'])
+      cat['balance'] = mf(Decimal(cat['balance'])+min(diff, available))
       if diff < available:
         available = available - diff
       else:
@@ -459,19 +484,19 @@ class FinancialTransactionItemAdd(object):
   def _distribute_to_saving_categories(self, t_date, available):
     "Distribute between saving categories that the current date is after the allotment date"
     saving_categories = normalize(self.cur.execute("select * from SavingCategory where active = 1 and allotment_date < :t_date and cast(balance as numeric) < cast(maximum as numeric);", {'t_date':t_date}), self.cur.description) #and allotment_amount < minimum
-    saving_allotment_total = int(normalize(self.cur.execute("select total(allotment) as total_allotment from SavingCategory where active = 1 and allotment_date < :t_date and cast(balance as numeric) < cast(maximum as numeric);", {'t_date':t_date}), self.cur.description)[0]['total_allotment'])
+    saving_allotment_total = Decimal(str(normalize(self.cur.execute("select total(allotment) as total_allotment from SavingCategory where active = 1 and allotment_date < :t_date and cast(balance as numeric) < cast(maximum as numeric);", {'t_date':t_date}), self.cur.description)[0]['total_allotment']))
     if saving_allotment_total > 0:
       available_remainder = available
       for cat in saving_categories:
-        share = (float(cat['allotment'])/float(saving_allotment_total)) * available
-        diff = float(cat['minimum']) - float(cat['allotment_amount'])
-        max_diff = float(cat['maximum']) - float(cat['balance'])
+        share = (Decimal(cat['allotment'])/saving_allotment_total) * available
+        diff = Decimal(cat['minimum']) - Decimal(cat['allotment_amount'])
+        max_diff = Decimal(cat['maximum']) - Decimal(cat['balance'])
         change = min(share, diff, max_diff)
         available_remainder = available_remainder - change
-        cat['balance'] = str(Decimal(str(float(cat['balance'])+change)))
-        cat['allotment_amount'] = str(Decimal(str(float(cat['allotment_amount'])+change)))
-        if (float(cat['allotment_amount']) == float(cat['minimum'])):
-          cat['allotment_amount'] = "0.00"
+        cat['balance'] = mf(Decimal(cat['balance'])+change)
+        cat['allotment_amount'] = mf(Decimal(cat['allotment_amount'])+change)
+        if (Decimal(cat['allotment_amount']) == Decimal(cat['minimum'])):
+          cat['allotment_amount'] = mf(Decimal("0.00"))
           # set the repeat date
           if cat['repeat_date'] != 0:
             dates = normalize(self.cur.execute("select date(:allotment_date, :repeat_date) as allotment_date", cat), self.cur.description)[0]
@@ -485,25 +510,25 @@ class FinancialTransactionItemAdd(object):
   def _distribute_to_expense_categories(self, available):
     "Distribute the income item between categories based on allotments"
     expense_categories = normalize(self.cur.execute("select * from ExpenseCategory where active=1 order by allotment desc;"), self.cur.description)
-    expense_allotment_total = int(normalize(self.cur.execute("select total(allotment) as total_allotment from ExpenseCategory where active=1;"), self.cur.description)[0]['total_allotment'])
+    expense_allotment_total = Decimal(str(normalize(self.cur.execute("select total(allotment) as total_allotment from ExpenseCategory where active=1;"), self.cur.description)[0]['total_allotment']))
     for cat in expense_categories: #update minimums first
-      if float(cat['balance']) < float(cat['minimum']):
-        diff = float(cat['minimum']) - float(cat['balance'])
-        cat['balance'] = str(Decimal(str(float(cat['balance'])+min(diff, available))))
+      if Decimal(cat['balance']) < Decimal(cat['minimum']):
+        diff = Decimal(cat['minimum']) - Decimal(cat['balance'])
+        cat['balance'] = mf(Decimal(cat['balance'])+min(diff, available))
         if diff < available:
           available = available - diff
         else:
-          available = 0
+          available = Decimal('0.00')
         self.cur.execute("update ExpenseCategory set balance = :balance where id = :id;", cat)
 
     if expense_allotment_total > 0:
       available_remainder = available
       for cat in expense_categories:
-        share = (float(cat['allotment'])/float(expense_allotment_total)) * available
-        diff = float(cat['maximum']) - float(cat['balance'])
+        share = (Decimal(cat['allotment'])/expense_allotment_total) * available
+        diff = Decimal(cat['maximum']) - Decimal(cat['balance'])
         change = min(share, diff)
         available_remainder = available_remainder - change
-        cat['balance'] = str(Decimal(str(float(cat['balance'])+change)))
+        cat['balance'] = mf(Decimal(cat['balance'])+change)
         self.cur.execute("update ExpenseCategory set balance = :balance where id = :id;", cat)
         self.db_cnx.commit()
       available = available_remainder
@@ -511,17 +536,17 @@ class FinancialTransactionItemAdd(object):
     if available > 0:
       extra_allotment_total = 0
       for cat in expense_categories:
-        if float(cat['balance']) < float(cat['maximum']):
+        if Decimal(cat['balance']) < Decimal(cat['maximum']):
           extra_allotment_total += int(cat['allotment'])
       if extra_allotment_total > 0:
         available_remainder = available
         for cat in expense_categories:
-          if float(cat['balance']) < float(cat['maximum']):
-            share = (float(cat['allotment'])/float(extra_allotment_total)) * available
-            diff = float(cat['maximum']) - float(cat['balance'])
+          if Decimal(cat['balance']) < Decimal(cat['maximum']):
+            share = (Decimal(cat['allotment'])/Decimal(extra_allotment_total)) * available
+            diff = Decimal(cat['maximum']) - Decimal(cat['balance'])
             change = min(share, diff)
             available_remainder = available_remainder - change
-            cat['balance'] = str(Decimal(str(float(cat['balance'])+change)))
+            cat['balance'] = mf(Decimal(cat['balance'])+change)
             self.cur.execute("update ExpenseCategory set balance = :balance where id = :id;", cat)
         available = available_remainder
 
@@ -529,8 +554,8 @@ class FinancialTransactionItemAdd(object):
 
   def _distribute_to_buffer(self, available):
     if available > 0:
-      buff = float(normalize(self.cur.execute("select balance from ExpenseCategory where id = 1;"), self.cur.description)[0]['balance'])
-      self.cur.execute("update ExpenseCategory set balance = :available where id = 1;", {'available':str(Decimal(str(buff+available)))})
+      buff = Decimal(normalize(self.cur.execute("select balance from ExpenseCategory where id = 1;"), self.cur.description)[0]['balance'])
+      self.cur.execute("update ExpenseCategory set balance = :available where id = 1;", {'available':mf(buff+available)})
 
 
   def _update_category_balance(self, item):
@@ -549,43 +574,46 @@ class FinancialTransactionItemAdd(object):
     category = normalize(self.cur.execute(category_select, {'id':item['category']}), self.cur.description)
     if len(category):
       category = category[0]
-      #print "%s > %s" % (float(item['amount']), float(category['balance']))
-      if float(item['amount']) > float(category['balance']):
+      item_amount = Decimal(item['amount'])
+      category_balance = Decimal(category['balance'])
+      if item_amount > category_balance:
         print "item amount exceds category balance"
-        item_amount_over = float(item['amount']) - float(category['balance'])
+        item_amount_over = item_amount - category_balance
         buffer_category = normalize(self.cur.execute("select * from ExpenseCategory where id = 1"), self.cur.description)
         if len(buffer_category):
           buffer_category = buffer_category[0]
-          if item_amount_over > float(buffer_category['balance']):
+          buffer_category_balance = Decimal(buffer_category['balance'])
+          if item_amount_over > buffer_category_balance:
             print "item amount over exceds buffer balance"
           else:
-            item_amount_over = float("-%s" % (item_amount_over))
+            item_amount_over = item_amount_over - item_amount_over*2 # make negative
             print "splitting item amount with buffer balance %s" % item_amount_over
             b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':1, 'financial_transaction':self.inserted_transaction_id}
             buffer_item = validate(b, self.v_i) 
-            buffer_balance = Decimal(str(float(buffer_category['balance'])+float(item_amount_over)))
-            self.cur.execute("update ExpenseCategory set balance = :balance where id = 1", {'balance':str(buffer_balance)})
+            buffer_balance = buffer_category_balance+item_amount_over
+            self.cur.execute("update ExpenseCategory set balance = :balance where id = 1", {'balance':mf(buffer_balance)})
             self.validated_items.append(buffer_item)
-            item['amount'] = category['balance']
+            item['amount'] = mf(category_balance)
+            item_amount = category_balance
         else:
           print "no buffer found"
 
-      balance = Decimal(str(float(category['balance'])-float(item['amount'])))
+      balance = category_balance - item_amount
       if int(item['type']) != 2:
-        self.cur.execute(category_update, {'balance':str(balance), 'id':item['category']})
+        self.cur.execute(category_update, {'balance':mf(balance), 'id':item['category']})
         self.db_cnx.commit()
 
       else: #mark the bill as paid by inactivating it or setting new due date
         if str(category['repeat_due_date']) != '0':
           dates = normalize(self.cur.execute("select date(:allotment_date, :repeat_due_date) as allotment_date, date(:due, :repeat_due_date) as due", category), self.cur.description)[0]
           if len(dates):
-            self.cur.execute("update BillCategory set allotment_date = :allotment_date, due = :due, balance = :balance where id = :id", {'allotment_date':dates['allotment_date'], 'due':dates['due'], 'balance':str(balance), 'id':category['id']})
+            self.cur.execute("update BillCategory set allotment_date = :allotment_date, due = :due, balance = :balance where id = :id", {'allotment_date':dates['allotment_date'], 'due':dates['due'], 'balance':mf(balance), 'id':category['id']})
             self.db_cnx.commit()
           else:
             print 'invalid date?'
         else:
           #print "inactivating paid bill"
-          self.cur.execute("update BillCategory set active = 0, balance = :balance where id = :id", {'id':item['category'], 'balance':str(balance)})
+          self.cur.execute("update BillCategory set active = 0, balance = :balance where id = :id", {'id':item['category'], 'balance':mf(balance)})
           self.db_cnx.commit()
     else:
       print "no category"
@@ -668,8 +696,8 @@ class SettingUpdate(object):
 class CategoryAdd(Add):
  def check_data(self, data):
    t = get_total_balance_data(self.cur)
-   available = float(t['available'])
-   if available < float(data['balance']):
+   available = Decimal(t['available'])
+   if available < Decimal(data['balance']):
      print "insufficient funds..."
      #TODO: alert user
    return data
@@ -678,8 +706,8 @@ class CategoryUpdate(Update):
  def check_data(self, data):
    if 'balance' in data:
      t = get_total_balance_data(self.cur)
-     available = float(t['available'])
-     balance = float(str(data['balance']))
+     available = Decimal(t['available'])
+     balance = Decimal(data['balance'])
      if available < balance:
        print "insufficient funds..."
        #TODO: alert user
@@ -791,13 +819,13 @@ def get_total_balance_data(cur):
   bill_data = normalize(cur.execute(query_bill).fetchall(), cur.description)[0]
   saving_data = normalize(cur.execute(query_saving).fetchall(), cur.description)[0]
   transaction_data = normalize(cur.execute(query_transaction).fetchall(), cur.description)[0]
-  category_total = Decimal(str(sum((float(expense_data['total']), float(bill_data['total']), float(saving_data['total'])))))
-  data = {'expense':str(Decimal(str(expense_data['total']))),
-      'bill':str(Decimal(str(bill_data['total']))),
-      'saving':str(Decimal(str(saving_data['total']))),
-      'transaction':str(Decimal(str(transaction_data['total']))),
-      'category_total':str(category_total)}
-  data['available'] = str(float(data['transaction']) - float(category_total))
+  category_total = sum((Decimal(str(expense_data['total'])), Decimal(str(bill_data['total'])), Decimal(str(saving_data['total']))))
+  data = {'expense':mf(Decimal(str(expense_data['total']))),
+      'bill':mf(Decimal(str(bill_data['total']))),
+      'saving':mf(Decimal(str(saving_data['total']))),
+      'transaction':mf(Decimal(str(transaction_data['total']))),
+      'category_total':mf(category_total)}
+  data['available'] = mf(Decimal(data['transaction']) - Decimal(category_total))
   return data
 
 class TotalBalanceView(object):
