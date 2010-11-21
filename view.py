@@ -447,7 +447,6 @@ class FinancialTransactionItemAdd(object):
       else:
         available = Decimal(item['amount'])
         available = self._distribute_to_bill_categories(available)
-        #TODO: split available between saving and expense
         if available > 0:
           setting_query = "select * from Setting where name = 'expense_allotment';"
           expense_allotment = Decimal(normalize(self.cur.execute(setting_query), self.cur.description)[0]['setting'])
@@ -790,10 +789,10 @@ class SavingCategoryUpdateActive(CategoryUpdate):
   query = "update SavingCategory set active = :active where id = :id"
   valid_data_format = {'active':int, 'id':int}
 
-class AllCategoryListActiveView(object):
-  query = {'expense':"select * from ExpenseCategory where active = 1;",
-           'bill':"select * from BillCategory where active = 1;",
-           'saving':"select * from SavingCategory where active = 1;",
+class AllCategoryListView(object):
+  query = {'expense':"select * from ExpenseCategory;",
+           'bill':"select * from BillCategory;",
+           'saving':"select * from SavingCategory;",
            'income':"select * from TransactionItem where type = 0;"}
   @read_permission
   def GET(self, db_name, _user=None):
@@ -803,6 +802,12 @@ class AllCategoryListActiveView(object):
     for (t, q) in self.query.items():
       data[t] = normalize(cur.execute(q).fetchall(), cur.description)
     return dump_data_formatted(_user["data_format"], data)
+
+class AllCategoryListActiveView(AllCategoryListView):
+  query = {'expense':"select * from ExpenseCategory where active = 1;",
+           'bill':"select * from BillCategory where active = 1;",
+           'saving':"select * from SavingCategory where active = 1;",
+           'income':"select * from TransactionItem where type = 0;"}
 
 def get_total_balance_data(cur):
   query_expense = "select total(balance) as total from ExpenseCategory where active = 1;"

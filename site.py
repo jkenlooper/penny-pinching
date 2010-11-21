@@ -74,6 +74,7 @@ urls = (
     '/([a-z]+)/saving/([0-9]+)/update/?', 'SavingCategoryUpdate',
     '/([a-z]+)/saving-active/([0-9]+)/?', 'SavingCategoryUpdateActive',
 
+    '/([a-z]+)/all-category-list/?', 'AllCategoryListView', # GET
     '/([a-z]+)/all-category-list-active/?', 'AllCategoryListActiveView', # GET
 
     '/([a-z]+)/total-balance/?', 'TotalBalanceView',

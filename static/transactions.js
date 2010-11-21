@@ -26,17 +26,22 @@ jQuery(document).ready(function($) {
   });
   $("input#period-end").datepicker("setDate", today);
   function get_all_category_list(add_blank_item) {
-    $.getJSON("/"+db_name+"/all-category-list-active", function(data){
+    $.getJSON("/"+db_name+"/all-category-list", function(data){
       all_category_list = data;
       for (chart_type in all_category_list) {
+        var c = all_category_list[chart_type];
         if (chart_type != 'income') {
-          var c = all_category_list[chart_type];
-
           var chart_hash = {'chart_name':chart_type, 'category':c};
-          chart_category_hash['chart'].push(chart_hash);
+          if (add_blank_item){
+            chart_category_hash['chart'].push(chart_hash);
+          }
 
           for (i=0; i<c.length; i++) {
-            all_category_hash[chart_type][c[i].id] = c[i];
+            all_category_hash[chart_type][parseInt(c[i].id)] = c[i];
+          }
+        } else {
+          for (i=0; i<c.length; i++) {
+            all_category_hash[chart_type][parseInt(c[i].id)] = c[i];
           }
         }
       }
@@ -219,8 +224,8 @@ jQuery(document).ready(function($) {
       } else if (group_by == 'category') {
         category_id = item.category;
         type_name = CHART_TYPE_MAP[item.type];
-        if (type_name != 'income') {
-          group_id = all_category_hash[type_name][category_id].name;
+        if ((type_name != 'income') && (category_id != 0)) {
+          group_id = all_category_hash[type_name][parseInt(category_id)].name;
         } else {
           group_id = 'income';
         }
