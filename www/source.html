@@ -1,41 +1,42 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<title>Penny Pinching - </title>
+<title>Penny Pinching - Source Files </title>
 <meta name="description" content="tracking finances by categorizing expenses">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta http-equiv="content-style-type" content="text/css">
 
-<link href="static/site.css" type="text/css" rel="stylesheet" media="all"/>
-<link href="static/jquery-ui-1.7.2.custom.css" type="text/css" rel="stylesheet" media="all"/>
+<link href="/static/site.css" type="text/css" rel="stylesheet" media="all"/>
+<!--
+<link href="/static/jquery-ui-1.7.2.custom.css" type="text/css" rel="stylesheet" media="all"/>
 
 <script type="text/javascript" src="/static/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="/static/jquery-ui-1.7.2.custom.min.js"></script>
-<!--
 <script type="text/javascript" src="/static/jquery.verify_form.js"></script>
 <script type="text/javascript" src="/static/jquery.constrain.js"></script>		
--->
 <script type="text/javascript" src="/static/site.js"></script>		
+-->
 
 </head>
 <body>
   <div id="page">
-    $login_links
+
+    $header
+
+    <div id="source_files_list">
+      $source_files_list
+    </div>
 
     <div id="content">
       $content
     </div>
 
-    <div id="footer">
-      <p>
-        This application is licensed under the
-        <a href="/static/agpl.txt">GNU Affreo General Public License</a>
-        <br>
-        <a href="/source">Source code of this application</a>
-        <br>
-        Copyright &copy; 2010 Jake Hickenlooper
-      </p>
+    <div id="source">
+      <pre>
+$source
+      </pre>
     </div>
+
 
   </div>
 </body>
