@@ -100,28 +100,28 @@ jQuery(document).ready(function($) {
           var max = Math.max(balance, (Math.abs(reconciled_total)+Math.abs(cleared_total)+Math.abs(suspect_total)));
           
           var bbb = $(this).find("div.bank-balance-block");
-          var h = (balance/max) * 10;
-          bbb.find("div.bank-balance").css({'height':h+'em'});
+          var w = (balance/max) * 100;
+          bbb.find("div.bank-balance").css({'width':w+'%'});
 
-          var reconciled_total_h = (Math.abs(reconciled_total)/max) * 10;
-          var reconciled_b = Math.min((reconciled_total/max)*10, 0);
-          bbb.find("div.reconciled-total").css({'bottom':reconciled_b+'em', 'height':reconciled_total_h+'em'});
+          var reconciled_total_w = (Math.abs(reconciled_total)/max) * 100;
+          var reconciled_l = Math.min((reconciled_total/max)*100, 0);
+          bbb.find("div.reconciled-total").css({'left':reconciled_l+'%', 'width':reconciled_total_w+'%'});
 
-          var cleared_total_h = (Math.abs(cleared_total)/max) * 10;
+          var cleared_total_w = (Math.abs(cleared_total)/max) * 100;
           var overlap = 0;
-          var suspect_overlap = cleared_total_h;
+          var suspect_overlap = cleared_total_w;
           if (cleared_total < 0) {
-            overlap = cleared_total_h;
-            suspect_overlap = cleared_total_h - cleared_total_h*2;
+            overlap = cleared_total_w;
+            suspect_overlap = cleared_total_w - cleared_total_w*2;
           }
-          bbb.find("div.cleared-total").css({'bottom':((reconciled_total_h+reconciled_b)-overlap)+'em', 'height':cleared_total_h+'em'});
+          bbb.find("div.cleared-total").css({'left':((reconciled_total_w+reconciled_l)-overlap)+'%', 'width':cleared_total_w+'%'});
 
-          var suspect_total_h = (Math.abs(suspect_total)/max) * 10;
+          var suspect_total_w = (Math.abs(suspect_total)/max) * 100;
           var overlap = 0;
           if (suspect_total < 0) {
-            overlap = suspect_total_h;
+            overlap = suspect_total_w;
           }
-          bbb.find("div.suspect-total").css({'bottom':(((reconciled_total_h+reconciled_b)+suspect_overlap)-overlap)+'em', 'height':suspect_total_h+'em'});
+          bbb.find("div.suspect-total").css({'left':(((reconciled_total_w+reconciled_l)+suspect_overlap)-overlap)+'%', 'width':suspect_total_w+'%'});
 
           if (balance_difference < 0) {
             bbb.find("div.graph-difference").css({'color':'red'});

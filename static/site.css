@@ -62,7 +62,7 @@ div#accounts-block {
   div#account_listing {
   }
     div.account-block {
-      width: 200px;
+      width: 20em;
       float: left;
       border: 1px solid #5d4322;
       margin: 1.0em;
@@ -75,47 +75,47 @@ div#accounts-block {
         font-size: 1.0em;
       }
       div.balance-graph-block {
-        width: 20px;
-        height: 10em;
-        float: left;
+        width: 20em;
+        height: 20px;
         position: relative;
-        margin-right: 10px;
+        margin-top: 1em;
+        margin-bottom: 1em;
       }
         div.graph-difference {
-          position: absolute;
-          right: 0;
-          top: 0;
+          position: relative;
+          top: -1em;
+          text-align: right;
           color: green;
         }
         div.graph-bar {
-          width: 10px;
+          height: 10px;
           position: absolute;
-          left: 0;
+          top: 0;
         }
         div.graph-bar span {
           display: none;
         }
         div.bank-balance {
           background-color: blue;
-          bottom: 0;
+          left: 0;
         }
         div.reconciled-total {
           background-color: black;
-          bottom: 0;
-          left: 10px;
+          left: 0;
+          top: 10px;
         }
         div.cleared-total {
-          border-left: 3px solid gray;
-          border-right: 3px solid gray;
-          width: 6px;
-          left: 9px;
+          border-top: 3px solid gray;
+          border-bottom: 3px solid gray;
+          height: 6px;
+          top: 9px;
         }
         div.suspect-total {
           background-color: white;
-          border-left: 2px solid gold;
-          border-right: 2px solid gold;
-          left: 12px;
-          width: 2px;
+          border-top: 2px solid gold;
+          border-bottom: 2px solid gold;
+          top: 12px;
+          height: 2px;
         }
         div.transaction-total {
           background-color: blue;
