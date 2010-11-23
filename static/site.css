@@ -62,7 +62,7 @@ div#accounts-block {
   div#account_listing {
   }
     div.account-block {
-      width: 20em;
+      width: 200px;
       float: left;
       border: 1px solid #5d4322;
       margin: 1.0em;
@@ -74,6 +74,58 @@ div#accounts-block {
       div.account-block input[name='update'] {
         font-size: 1.0em;
       }
+      div.balance-graph-block {
+        width: 20px;
+        height: 10em;
+        float: left;
+        position: relative;
+        margin-right: 10px;
+      }
+        div.graph-difference {
+          position: absolute;
+          right: 0;
+          top: 0;
+          color: green;
+        }
+        div.graph-bar {
+          width: 10px;
+          position: absolute;
+          left: 0;
+        }
+        div.graph-bar span {
+          display: none;
+        }
+        div.bank-balance {
+          background-color: blue;
+          bottom: 0;
+        }
+        div.reconciled-total {
+          background-color: black;
+          bottom: 0;
+          left: 10px;
+        }
+        div.cleared-total {
+          border-left: 3px solid gray;
+          border-right: 3px solid gray;
+          width: 6px;
+          left: 9px;
+        }
+        div.suspect-total {
+          background-color: white;
+          border-left: 2px solid gold;
+          border-right: 2px solid gold;
+          left: 12px;
+          width: 2px;
+        }
+        div.transaction-total {
+          background-color: blue;
+        }
+        div.no_receipt-total {
+          background-color: yellow;
+        }
+        div.receipt-total {
+          background-color: gold;
+        }
   div#new_account-button-block {
     clear: both;
   }

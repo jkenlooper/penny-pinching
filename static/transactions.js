@@ -67,6 +67,11 @@ jQuery(document).ready(function($) {
       active_data = [];
       inactive_data = [];
       for (i=0; i<data.length; i++) {
+        data[i]['transaction_difference'] = (parseFloat(data[i]['transaction_total']).toFixed(2) - parseFloat(data[i]['balance']).toFixed(2)).toFixed(2);
+        data[i]['disable_reconcile'] = "disabled='disabled'";
+        if (parseFloat(data[i]['balance_difference']).toFixed(2) == '0.00' && parseFloat(data[i]['cleared_total']).toFixed(2) != '0.00' ) {
+          data[i]['disable_reconcile'] = "";
+        }
         if (data[i]['active'] == 1) {
           data[i]['active_checked'] = "checked='checked'";
           active_data.push(data[i]);
@@ -74,15 +79,61 @@ jQuery(document).ready(function($) {
           inactive_data.push(data[i]);
           data[i]['active_checked'] = "";
         }
-        data[i]['transaction_difference'] = (parseFloat(data[i]['transaction_total']).toFixed(2) - parseFloat(data[i]['balance'])).toFixed(2);
-        data[i]['disable_reconcile'] = "disabled='disabled'";
-        if (parseFloat(data[i]['balance_difference']).toFixed(2) == '0.00' && parseFloat(data[i]['cleared_total']).toFixed(2) != '0.00' ) {
-          data[i]['disable_reconcile'] = "";
-        }
       }
       hash = {account:active_data};
       html = ich.account_listing(hash);
       $("#account_listing").html(html);
+      // position the graph data for each account
+
+      $("#account_listing .account-block").each(function(i){
+          //i = $("#account_listing .account-block").index(this);
+          var balance = parseFloat(active_data[i]['balance']);
+          var transaction_total = parseFloat(active_data[i]['transaction_total']);
+          var transaction_difference = parseFloat(active_data[i]['transaction_difference']);
+          var balance_difference = parseFloat(active_data[i]['balance_difference']);
+          var suspect_total = parseFloat(active_data[i]['suspect_total']);
+          var no_receipt_total = parseFloat(active_data[i]['no_receipt_total']);
+          var receipt_total = parseFloat(active_data[i]['receipt_total']);
+          var cleared_total = parseFloat(active_data[i]['cleared_total']);
+          var reconciled_total = parseFloat(active_data[i]['reconciled_total']);
+
+          var max = Math.max(balance, (Math.abs(reconciled_total)+Math.abs(cleared_total)+Math.abs(suspect_total)));
+          
+          var bbb = $(this).find("div.bank-balance-block");
+          var h = (balance/max) * 10;
+          bbb.find("div.bank-balance").css({'height':h+'em'});
+
+          var reconciled_total_h = (Math.abs(reconciled_total)/max) * 10;
+          var reconciled_b = Math.min((reconciled_total/max)*10, 0);
+          bbb.find("div.reconciled-total").css({'bottom':reconciled_b+'em', 'height':reconciled_total_h+'em'});
+
+          var cleared_total_h = (Math.abs(cleared_total)/max) * 10;
+          var overlap = 0;
+          var suspect_overlap = cleared_total_h;
+          if (cleared_total < 0) {
+            overlap = cleared_total_h;
+            suspect_overlap = cleared_total_h - cleared_total_h*2;
+          }
+          bbb.find("div.cleared-total").css({'bottom':((reconciled_total_h+reconciled_b)-overlap)+'em', 'height':cleared_total_h+'em'});
+
+          var suspect_total_h = (Math.abs(suspect_total)/max) * 10;
+          var overlap = 0;
+          if (suspect_total < 0) {
+            overlap = suspect_total_h;
+          }
+          bbb.find("div.suspect-total").css({'bottom':(((reconciled_total_h+reconciled_b)+suspect_overlap)-overlap)+'em', 'height':suspect_total_h+'em'});
+
+          if (balance_difference < 0) {
+            bbb.find("div.graph-difference").css({'color':'red'});
+          }
+
+            
+          
+
+
+      });
+
+
 
       if (inactive_data.length) {
         hash = {account:inactive_data};

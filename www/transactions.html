@@ -47,6 +47,28 @@
       Receipt total: {{receipt_total}}<br>
       Cleared total: {{cleared_total}}<br>
       Reconciled total: {{reconciled_total}}
+      <br>
+
+      <div class="balance-graph-block bank-balance-block">
+        <div class="graph-difference">{{balance_difference}}</div>
+
+        <div class="graph-bar bank-balance"><span>{{balance}}</span></div>
+        <div class="graph-bar reconciled-total"><span>{{reconciled_total}}</span></div>
+      <div class="graph-bar cleared-total"><span>{{cleared_total}}</span></div>
+    <div class="graph-bar suspect-total"><span>{{suspect_total}}</span></div>
+      </div>
+
+      <div class="balance-graph-block penny-balance-block">
+        <div class="difference">{{transaction_difference}}</div>
+
+        <div class="graph-bar bank-balance">{{balance}}</div>
+        <div class="graph-bar transaction-total">{{transaction_total}}</div>
+        <div class="graph-bar reconciled-total">{{reconciled_total}}</div>
+        <div class="graph-bar cleared-total">{{cleared_total}}</div>
+        <div class="graph-bar suspect-total">{{suspect_total}}</div>
+        <div class="graph-bar no_receipt-total">{{no_receipt_total}}</div>
+        <div class="graph-bar receipt-total">{{receipt_total}}</div>
+      </div>
     </div>
   {{/account}}
 </script>

@@ -358,7 +358,7 @@ class AccountListView(object):
       no_receipt = Decimal(item['no_receipt_total'])
       scheduled = Decimal(item['scheduled_total'])
 
-      difference = (transaction_total - (receipt + no_receipt + scheduled)) - balance
+      difference = balance - (transaction_total - (receipt + no_receipt + scheduled))
       item['balance_difference'] = mf(Decimal(str(difference)))
 
     return dump_data_formatted(_user["data_format"], data)
