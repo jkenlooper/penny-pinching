@@ -456,6 +456,8 @@ class FinancialTransactionItemAdd(object):
     self.v_i = {'name':str, 'amount':Decimal, 'type':'chart_type', 'category':int, 'financial_transaction':int}
     for item in t['items']:
       item = validate(item, self.v_i)
+      if item['name'].strip() == "":
+        item['name'] = "item from %s" % t['name']
       item['financial_transaction'] = self.inserted_transaction_id
       if int(item['type']) != 0:
         self._update_category_balance(item)
