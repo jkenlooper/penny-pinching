@@ -45,6 +45,7 @@ urls = (
 
     '/([a-z]+)/financial-transaction-list/?', 'FinancialTransactionListView', # GET
     '/([a-z]+)/financial-transaction-list/status/(%s)/?' % status_or, 'FinancialTransactionStatusListView', # GET
+    '/([a-z]+)/financial-transaction-list/period/(%s)/status/(%s)/?' % (period, status_or), 'FinancialTransactionPeriodStatusListView', # GET
     '/([a-z]+)/financial-transaction-list/cleared_suspect/?', 'FinancialTransactionClearedSuspectListView', # GET
     '/([a-z]+)/financial-transaction-list/receipt_no_receipt_scheduled/?', 'FinancialTransactionReceiptNoReceiptScheduledListView', # GET
     '/([a-z]+)/financial-transaction/?', 'FinancialTransactionAdd', # POST

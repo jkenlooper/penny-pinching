@@ -412,12 +412,42 @@ class FinancialTransactionListView(ListView):
   query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) order by date;"
 
 class FinancialTransactionStatusListView(object):
-  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = :status order by date;"
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = :status"
+  valid_order_by = ['name asc', 'name desc', 'total asc', 'total desc', 'date asc', 'date desc']
+  default_order = 'date desc'
+  valid_data_format = {'status':'status'}
   @read_permission
   def GET(self, db_name, status, _user=None):
+    user_input = web.input(order_by=None)
+    d = validate({'status':status}, self.valid_data_format)
+    if user_input.order_by in self.valid_order_by:
+      self.query = " ".join((self.query, 'order by', user_input.order_by, ';'))
+    else:
+      self.query = " ".join((self.query, 'order by', self.default_order, ';'))
     db_cnx = get_db_cnx(db_name)
     cur = db_cnx.cursor()
-    data = normalize(cur.execute(self.query, {'status':status}).fetchall(), cur.description)
+    data = normalize(cur.execute(self.query, d).fetchall(), cur.description)
+    return dump_data_formatted(_user["data_format"], data)
+
+class FinancialTransactionPeriodStatusListView(object):
+  query = "select * from FinancialTransaction join (select total(amount) as total, financial_transaction as id from TransactionItem group by id) using (id) where status = :status and date <= :end and date >= :start "
+  valid_order_by = ['name asc', 'name desc', 'total asc', 'total desc', 'date asc', 'date desc']
+  default_order = 'date desc'
+  valid_data_format = {'status':'status'}
+  @read_permission
+  def GET(self, db_name, period, status, _user=None):
+    user_input = web.input(order_by=None)
+    ds = validate({'status':status}, self.valid_data_format)
+    k = ('start', 'end')
+    d = dict(zip(k,period.split(".")))
+    d['status'] = ds['status']
+    if user_input.order_by in self.valid_order_by:
+      self.query = " ".join((self.query, 'order by', user_input.order_by, ';'))
+    else:
+      self.query = " ".join((self.query, 'order by', self.default_order, ';'))
+    db_cnx = get_db_cnx(db_name)
+    cur = db_cnx.cursor()
+    data = normalize(cur.execute(self.query, d).fetchall(), cur.description)
     return dump_data_formatted(_user["data_format"], data)
 
 class FinancialTransactionClearedSuspectListView(OrderedListView):

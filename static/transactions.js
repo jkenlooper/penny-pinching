@@ -170,7 +170,13 @@ jQuery(document).ready(function($) {
   }
   function load_transaction_list(status_set) { // cleared_suspect || receipt_no_receipt_scheduled
     var order_by = $("input[name='sort_by']:checked").val();
-    $.getJSON("/"+db_name+"/financial-transaction-list/"+status_set+"?order_by="+order_by, function(data){
+    var start = formatISO($("input#period-start").datepicker('getDate'));
+    var end = formatISO($("input#period-end").datepicker('getDate'));
+    var url = "/"+db_name+"/financial-transaction-list/period/"+start+"."+end+"/status/"+status_set+"?order_by="+order_by;
+    if (status_set == 'cleared_suspect' || status_set == 'receipt_no_receipt_scheduled') {
+      url = "/"+db_name+"/financial-transaction-list/"+status_set+"?order_by="+order_by;
+    }
+    $.getJSON(url, function(data){
       var transactions_div = $('#'+status_set+'_transactions');
       var TRANSACTION_STATUS_ENUM = ['suspect', 'no_receipt', 'receipt', 'scheduled', 'cleared', 'reconciled'];
       var TRANSACTION_STATUS_SYMBOLS_ENUM = ['?', '&larr;', '&rarr;', '&crarr;', '&harr;', '&radic;'];
@@ -196,6 +202,7 @@ jQuery(document).ready(function($) {
   }
   load_transaction_list('cleared_suspect');
   load_transaction_list('receipt_no_receipt_scheduled');
+  load_transaction_list('reconciled');
   load_accounts();
 
   $("input[name='sort_by']").bind('change', function(e){
