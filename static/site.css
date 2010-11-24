@@ -79,7 +79,6 @@ div#accounts-block {
         height: 20px;
         position: relative;
         margin-top: 1em;
-        margin-bottom: 1em;
       }
         div.graph-difference {
           position: relative;
@@ -94,6 +93,14 @@ div#accounts-block {
         }
         div.graph-bar span {
           display: none;
+        }
+        div.graph-bar:hover span {
+          position: absolute;
+          display: block;
+          padding: 3px;
+          background-color: rgba(200,200,200,0.8);
+          color: black;
+          z-index: 20;
         }
         div.bank-balance {
           background-color: blue;
@@ -116,15 +123,6 @@ div#accounts-block {
           border-bottom: 2px solid gold;
           top: 12px;
           height: 2px;
-        }
-        div.transaction-total {
-          background-color: blue;
-        }
-        div.no_receipt-total {
-          background-color: yellow;
-        }
-        div.receipt-total {
-          background-color: gold;
         }
   div#new_account-button-block {
     clear: both;
