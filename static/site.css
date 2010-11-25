@@ -346,6 +346,13 @@ div#transaction_items_list-block {
           }
           span.item_name {
           }
+        span.item_group-total {
+          border-top: 1px solid #aaa;
+          line-height: 1.2em;
+          clear: both;
+          text-align: right;
+          display: block;
+        }
 
 
 /** categories **/

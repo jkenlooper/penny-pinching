@@ -292,7 +292,7 @@ jQuery(document).ready(function($) {
       }
 
       if (!(group_id in groups)) {
-        groups[group_id] = {'item':[], 'name':group_id, 'group_by':group_by}
+        groups[group_id] = {'item':[], 'name':group_id, 'total':0.00, 'group_by':group_by}
       }
       groups[group_id]['item'].push(item);
     }
@@ -302,7 +302,14 @@ jQuery(document).ready(function($) {
     }
     group_keys.sort();
     while (group_keys.length > 0) {
-      item_group.push(groups[group_keys.shift()]);
+      var k = group_keys.shift();
+      var total = 0.00;
+      for (i in groups[k]['item']) {
+        item = groups[k]['item'][i];
+        total += new Number(item['amount']);
+      }
+      groups[k]['total'] = parseFloat(total.toFixed(2));
+      item_group.push(groups[k]);
     }
     
     var target_width = $("#item_group_list").innerWidth()-25;
@@ -372,6 +379,7 @@ jQuery(document).ready(function($) {
 
   $("button#period-button").bind("click", function(){
       load_item_group_list();
+      load_transaction_list('reconciled');
   });
 
   var add_transaction = function(){
