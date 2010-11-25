@@ -20,7 +20,15 @@ import web
 import doctest
 import sys
 from view import *
-from controller import IndexPage, TransactionsPage, CategoriesPage, SourcePage, SourceIndexPage
+from controller import Page, IndexPage, TransactionsPage, CategoriesPage, SourcePage, SourceIndexPage
+
+__version__ = "0.7"
+__doc__ = "penny-pinching - Manage finances through a web interface."
+__author__ = "Jake Hickenlooper"
+
+#TODO: better way of doing this?
+Page.__version__ = __version__
+
 status_or = "|".join(TRANSACTION_STATUS_ENUM)
 period = "[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}"
 urls = (

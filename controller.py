@@ -27,6 +27,9 @@ TRANSACTION_STATUS_SYMBOLS_ENUM = ('?', '&larr;', '&rarr;', '&crarr;', '&harr;',
 TRANSACTION_STATUS_SYMBOL_MAPPING = dict(zip(TRANSACTION_STATUS_ENUM, TRANSACTION_STATUS_SYMBOLS_ENUM))
 TRANSACTION_STATUS_MAPPING = dict(zip(TRANSACTION_STATUS_ENUM, range(0,len(TRANSACTION_STATUS_ENUM))))
 
+class Page(object):
+  """ Has nothing to do with books """
+
 class WWW(object):
   def __init__(self):
     super(WWW, self).__init__()
@@ -46,7 +49,7 @@ class WWW(object):
       content = "Error with '%s': %s, %s" % (part_file_path, error, msg)
     return content
 
-class IndexPage(WWW):
+class IndexPage(Page, WWW):
   def GET(self):
     web.header('Content-type', "text/html; charset=utf-8")
     template = Template(open(os.path.join(self.www, 'index.html'), 'r').read())
@@ -54,6 +57,9 @@ class IndexPage(WWW):
 
   def part_content(self):
     return self._load_static_part('index_content.html')
+
+  def part_version(self):
+    return self.__version__
 
   def part_login_links(self):
     db_names = set()
@@ -67,7 +73,7 @@ class IndexPage(WWW):
       a.text = db_name
     return tostring(div)
 
-class TransactionsPage(object):
+class TransactionsPage(Page):
   @read_permission
   def GET(self, db_name, _user=None):
     web.header('Content-type', "text/html; charset=utf-8")
@@ -94,7 +100,7 @@ class TransactionsPage(object):
     return tostring(transaction_status_select)
       
 
-class CategoriesPage(object):
+class CategoriesPage(Page):
   @read_permission
   def GET(self, db_name, _user=None):
     web.header('Content-type', "text/html; charset=utf-8")
@@ -102,11 +108,11 @@ class CategoriesPage(object):
     return template.safe_substitute(db_name=db_name,
         currency="$")
 
-class SourceIndexPage(object):
+class SourceIndexPage(Page):
   def GET(self):
     web.redirect("/source/site.py")
 
-class SourcePage(WWW):
+class SourcePage(Page, WWW):
   public_viewable_source_files = (
       'auth.py',
       'client.py',
