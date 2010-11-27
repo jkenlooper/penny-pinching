@@ -54,6 +54,12 @@ div.label_value div.info {
 div#page {
   margin: 8px 2%;
 }
+  div#login_links {
+  }
+  div#login_links a {
+    padding: 0 0.5em;
+  }
+
 
 /** transactions **/
 div#accounts-block {

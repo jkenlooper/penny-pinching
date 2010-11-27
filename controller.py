@@ -27,9 +27,6 @@ TRANSACTION_STATUS_SYMBOLS_ENUM = ('?', '&larr;', '&rarr;', '&crarr;', '&harr;',
 TRANSACTION_STATUS_SYMBOL_MAPPING = dict(zip(TRANSACTION_STATUS_ENUM, TRANSACTION_STATUS_SYMBOLS_ENUM))
 TRANSACTION_STATUS_MAPPING = dict(zip(TRANSACTION_STATUS_ENUM, range(0,len(TRANSACTION_STATUS_ENUM))))
 
-class Page(object):
-  """ Has nothing to do with books """
-
 class WWW(object):
   def __init__(self):
     super(WWW, self).__init__()
@@ -49,7 +46,22 @@ class WWW(object):
       content = "Error with '%s': %s, %s" % (part_file_path, error, msg)
     return content
 
-class IndexPage(Page, WWW):
+class Page(WWW):
+  """ Has nothing to do with books """
+  def part_license(self):
+    return """
+      <p id="license">
+        This application is licensed under the
+        <a href="/static/agpl.txt">GNU Affreo General Public License</a>
+        <br>
+        <a href="/source">Source code of this application</a>
+        <br>
+        <span id="copyright">Copyright &copy; 2010 %s</span>
+      </p>
+    """ % (self.__author__)
+
+
+class IndexPage(Page):
   def GET(self):
     web.header('Content-type', "text/html; charset=utf-8")
     template = Template(open(os.path.join(self.www, 'index.html'), 'r').read())
@@ -67,7 +79,7 @@ class IndexPage(Page, WWW):
       db_names.add(users[user]['database'])
     div = Element('div', id='login_links')
     h2 = SubElement(div, 'h2')
-    h2.text = "Login"
+    h2.text = "Available Databases:"
     for db_name in db_names:
       a = SubElement(div, 'a', href='%s/transactions.html' % db_name)
       a.text = db_name
@@ -112,7 +124,7 @@ class SourceIndexPage(Page):
   def GET(self):
     web.redirect("/source/site.py")
 
-class SourcePage(Page, WWW):
+class SourcePage(Page):
   public_viewable_source_files = (
       'auth.py',
       'client.py',

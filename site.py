@@ -28,6 +28,7 @@ __author__ = "Jake Hickenlooper"
 
 #TODO: better way of doing this?
 Page.__version__ = __version__
+Page.__author__ = __author__
 
 status_or = "|".join(TRANSACTION_STATUS_ENUM)
 period = "[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}"
