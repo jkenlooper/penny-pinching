@@ -31,7 +31,13 @@ jQuery(document).ready(function($) {
       for (chart_type in all_category_list) {
         var c = all_category_list[chart_type];
         if (chart_type != 'income') {
-          var chart_hash = {'chart_name':chart_type, 'category':c};
+          ac = [];
+          for (i=0; i<c.length; i++) {
+            if (c[i]['active'] == 1) {
+              ac.push(c[i]);
+            }
+          }
+          var chart_hash = {'chart_name':chart_type, 'category':ac};
           if (add_blank_item){
             chart_category_hash['chart'].push(chart_hash);
           }
