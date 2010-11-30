@@ -10,7 +10,6 @@ jQuery(document).ready(function($) {
   var CHART_TYPE_MAP = {'0':'income', '1':'expense', '2':'bill', '3':'saving'};
   var all_category_list = {};
   var all_category_hash = {'expense':{}, 'bill':{}, 'saving':{}, 'income':{}};
-  var chart_category_hash = {'chart':[]};
   $("div#new_transaction_date").datepicker({
       dateFormat:'yy-mm-dd',
   });
@@ -31,17 +30,6 @@ jQuery(document).ready(function($) {
       for (chart_type in all_category_list) {
         var c = all_category_list[chart_type];
         if (chart_type != 'income') {
-          ac = [];
-          for (i=0; i<c.length; i++) {
-            if (c[i]['active'] == 1) {
-              ac.push(c[i]);
-            }
-          }
-          var chart_hash = {'chart_name':chart_type, 'category':ac};
-          if (add_blank_item){
-            chart_category_hash['chart'].push(chart_hash);
-          }
-
           for (i=0; i<c.length; i++) {
             all_category_hash[chart_type][parseInt(c[i].id)] = c[i];
           }
@@ -57,9 +45,19 @@ jQuery(document).ready(function($) {
   get_all_category_list(true);
 
   function add_blank_transaction_item() {
-    html = ich.transaction_item(chart_category_hash);
-    html.find("input[name='item_amount']").numeric({format:"0.00", precision : { num: 2,onblur:false} });
-    $('#transaction_items').append(html);
+    $.getJSON("/"+db_name+"/all-category-list-active", function(data){
+      var chart_category_hash = {'chart':[]};
+      for (chart_type in data) {
+        var c = data[chart_type];
+        if (chart_type != 'income') {
+          var chart_hash = {'chart_name':chart_type, 'category':c};
+          chart_category_hash['chart'].push(chart_hash);
+        }
+      }
+      html = ich.transaction_item(chart_category_hash);
+      html.find("input[name='item_amount']").numeric({format:"0.00", precision : { num: 2,onblur:false} });
+      $('#transaction_items').append(html);
+    });
   };
 
 
