@@ -501,7 +501,20 @@ class FinancialTransactionItemAdd(object):
 
           expense_available = available * (expense_allotment/Decimal('100.0'))
           saving_available = available * ((Decimal('100.0') - expense_allotment)/Decimal('100.0'))
-          available = self._distribute_to_expense_categories(expense_available)
+
+          #available = self._distribute_to_expense_categories(expense_available)
+
+          # Disabling this for now, since expense categories will be changed to
+          # receive income from the buffer at intervals. Three new fields will
+          # be added to the expense categories: budget amount, budget date,
+          # budget repeat. (commented out on the categories page)
+
+          # Budget Amount: How much to add to the balance on the budget date.
+          # Budget Date: This is the date that will trigger adding the budget amount to the balance.
+          # Budget Repeat: How often the budget amount is added to the balance.
+
+          # For now this will be handled manually by moving the sliders.
+          
           available = self._distribute_to_saving_categories(t['date'], available+saving_available)
 
           self._distribute_to_buffer(available)
