@@ -1,0 +1,17 @@
+0.8 category list update totals on adding transactions
+0.8 savings account type and savings category are separate
+0.9 README documentation
+0.9 enable the 'quick list of items'
+0.9 drag and drop the transaction remainder
+0.9 show the source with syntax hilighting
+1.0 add a way to revert transactions by recording their distribution
+1.0 more useful user friendly documentation
+1.0 setup scheduled transactions so they can repeat and set their status to no_reciept when after their date.
+1.1 set account_name in query
+1.1 show proper alert messages for user
+1.1 allow admin to create new databases/users
+1.1 store passwords as a hash
+1.2 export/import data in different formats
+1.5 stand alone mac app with py2app
+1.6 internationalization?
+2.0 add allotment_amount for bigger bills that will need to save up for

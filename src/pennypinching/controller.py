@@ -16,7 +16,6 @@
 ##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import web
-import json
 import os.path
 import httplib
 from auth import read_permission, users
@@ -39,7 +38,7 @@ class WWW(object):
         self.parts[part[5:]] = getattr(self, part)()
 
   def _load_static_part(self, part_file):
-    part_file_path = os.path.join(self.www, part_file)
+    part_file_path = os.path.join(os.path.dirname(__file__), self.www, part_file)
     try:
       content = open(part_file_path, 'r').read()
     except IOError, (error, msg):
@@ -64,7 +63,7 @@ class Page(WWW):
 class IndexPage(Page):
   def GET(self):
     web.header('Content-type', "text/html; charset=utf-8")
-    template = Template(open(os.path.join(self.www, 'index.html'), 'r').read())
+    template = Template(open(os.path.join(os.path.dirname(__file__), self.www, 'index.html'), 'r').read())
     return template.safe_substitute(**self.parts)
 
   def part_content(self):
@@ -89,7 +88,7 @@ class TransactionsPage(Page):
   @read_permission
   def GET(self, db_name, _user=None):
     web.header('Content-type', "text/html; charset=utf-8")
-    template = Template(open('www/transactions.html', 'r').read())
+    template = Template(open(os.path.join(os.path.dirname(__file__), self.www, 'transactions.html'), 'r').read())
     return template.safe_substitute(db_name=db_name,
         currency="$",
         transaction_status_select=self.build_transaction_status_select(),
@@ -116,7 +115,7 @@ class CategoriesPage(Page):
   @read_permission
   def GET(self, db_name, _user=None):
     web.header('Content-type', "text/html; charset=utf-8")
-    template = Template(open('www/categories.html', 'r').read())
+    template = Template(open(os.path.join(os.path.dirname(__file__), self.www, 'categories.html'), 'r').read())
     return template.safe_substitute(db_name=db_name,
         currency="$")
 
@@ -126,10 +125,11 @@ class SourceIndexPage(Page):
 
 class SourcePage(Page):
   public_viewable_source_files = (
+      '__init__.py',
+      '_version.py',
       'auth.py',
       'client.py',
       'controller.py',
-      'conversion.py',
       'site.py',
       'user_interface.py',
       'view.py',
@@ -137,7 +137,7 @@ class SourcePage(Page):
   #TODO: show the source with syntax hilighting
   def GET(self, python_file):
     web.header('Content-type', "text/html; charset=utf-8")
-    template = Template(open(os.path.join(self.www, 'source.html'), 'r').read())
+    template = Template(open(os.path.join(os.path.dirname(__file__), self.www, 'source.html'), 'r').read())
     return template.safe_substitute(source=self.source(python_file), **self.parts)
 
   def part_header(self):
@@ -157,7 +157,7 @@ class SourcePage(Page):
   def source(self, python_file):
     if python_file in self.public_viewable_source_files:
       try:
-        content = open(python_file, 'r').read()
+        content = open(os.path.join(os.path.dirname(__file__), python_file), 'r').read()
       except IOError, (error, msg):
         content = "Error with '%s': %s, %s" % (python_file, error, msg)
       return content

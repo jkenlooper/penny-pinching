@@ -19,7 +19,10 @@
 import web
 import doctest
 import yaml
-import json
+try:
+  import json
+except ImportError:
+  import simplejson as json 
 import sqlite3
 import os.path
 from decimal import Decimal
@@ -197,13 +200,13 @@ def dump_data_formatted(data_format, data):
   if data_format == 'yaml':
     return yaml.safe_dump(data)
   elif data_format == 'json':
-    return json.write(data)
+    return json.dumps(data)
 
 def load_formatted_data(data_format, data_string):
   if data_format == 'yaml':
     return yaml.safe_load(data_string)
   elif data_format == 'json':
-    return json.read(str(data_string))
+    return json.loads(str(data_string))
 
 class IDView(object):
   query = "select * from ExpenseCategory where id = :id;"
@@ -502,7 +505,10 @@ class FinancialTransactionItemAdd(object):
           expense_available = available * (expense_allotment/Decimal('100.0'))
           saving_available = available * ((Decimal('100.0') - expense_allotment)/Decimal('100.0'))
 
-          #available = self._distribute_to_expense_categories(expense_available)
+          available = self._distribute_to_expense_categories(expense_available)
+
+          # Update: no need to disable this as the user can just set the main
+          # expense/savings slider to be on savings completly
 
           # Disabling this for now, since expense categories will be changed to
           # receive income from the buffer at intervals. Three new fields will

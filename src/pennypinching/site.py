@@ -22,13 +22,11 @@ import sys
 from view import *
 from controller import Page, IndexPage, TransactionsPage, CategoriesPage, SourcePage, SourceIndexPage
 
-__version__ = "0.7"
-__doc__ = "penny-pinching - Manage finances through a web interface."
-__author__ = "Jake Hickenlooper"
+import _version
 
 #TODO: better way of doing this?
-Page.__version__ = __version__
-Page.__author__ = __author__
+Page.__version__ = _version.__version__
+Page.__author__ = _version.__author__
 
 status_or = "|".join(TRANSACTION_STATUS_ENUM)
 period = "[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}"
@@ -129,6 +127,17 @@ def set_yaml_content():
 
 app.add_processor(web.loadhook(set_yaml_content))
 
+def run():
+  app.run()
+
+def start():
+  """ setup for running in wsgi """
+  web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)
+  app.run()
+
+def stop():
+  """ Oh, no!!!  No brakes!!!"""
+  pass
 
 if __name__ == "__main__":
   if sys.argv[-1] == '--test':
