@@ -38,24 +38,17 @@ jQuery(document).ready(function($) {
 
   $.getJSON("/"+db_name+"/setting/expense_allotment/", function(data){
       var v = data[0]['setting'];
+      var el = $("#expense_saving_allotment");
       $("div#expense > h2 .allotment").text("["+v+"]");
       $("div#saving > h2 .allotment").text("["+(100-v)+"]");
-      $("#expense_saving_allotment").slider({
-        step: 1,
-        min: 0, 
-        max: 100,
-        value: v,
-        slide: function(event, ui) {
-          var v = ui.value;
-          $("div#expense > h2 .allotment").text("["+v+"]");
-          $("div#saving > h2 .allotment").text("["+(100-v)+"]");
-        },
-        stop: function(event, ui) {
-          var allotment = new Number(ui.value);
-          data_string = {'setting':parseInt(ui.value)};
-          d = {'data_string':JSON.stringify(data_string)};
-          $.post("/"+db_name+"/setting/expense_allotment/update", d, function(data){});
-          }
+      el.val(v);
+      el.change(function(event) {
+        var v = $(this).val();
+        var data_string = {'setting':parseInt(el.val(), 10)};
+        $("div#expense > h2 .allotment").text("["+v+"]");
+        $("div#saving > h2 .allotment").text("["+(100-v)+"]");
+        d = {'data_string':JSON.stringify(data_string)};
+        $.post("/"+db_name+"/setting/expense_allotment/update", d, function(data){});
       });
   });
 
@@ -66,36 +59,30 @@ jQuery(document).ready(function($) {
       html = ich.expense_category_list(hash);
       $('#expense_category_list').html(html);
       available_balance = new Number(parseFloat($("#available-balance").text()));
-      $(".category_list div.balance-slider").slider({
-        step: 0.01,
-        min: 0,
-        max: 0,
-        value: 0,
-        slide: function(event, ui) {
-          $(this).find("span.slider-balance-value").text(ui.value);
-        },
-        stop: function(event, ui) {
-          var start_balance = new Number(parseFloat($(this).siblings("h2").find("span.balance").text()));
-          var new_balance = new Number(ui.value);
+      $(".balance-slider").change(function(event){
+        var el = $(this);
+        var expense_category_el = el.parents(".expense_category");
+        expense_category_el.find("span.slider-balance-value").text(el.val());
+
+          var start_balance = new Number(parseFloat(expense_category_el.find("span.balance").text()));
+          var new_balance = new Number(el.val());
           var change_balance = new_balance - start_balance;
           if (change_balance > available_balance) {
-            ui.value = start_balance+available_balance;
+            el.val( start_balance+available_balance );
             available_balance = 0;
           } else {
             available_balance = available_balance - change_balance;
           }
 
-          $(this).siblings("h2").find("span.balance").text(parseFloat(ui.value).toFixed(2));
-          data_string = { 'balance':parseFloat(ui.value).toFixed(2) };
+          expense_category_el.find("span.balance").text(parseFloat(el.val()).toFixed(2));
+          data_string = { 'balance':parseFloat(el.val()).toFixed(2) };
 
           d = {'data_string':JSON.stringify(data_string)};
-          var cat_id = $(this).parents("div.expense_category").attr("db_id");
+          var cat_id = expense_category_el.attr("db_id");
           $.post("/"+db_name+"/expense-balance/"+cat_id, d, function(data){
             total_balance();
             slider_values();
           });
-
-        }
       });
       slider_values();
     });
@@ -147,12 +134,13 @@ jQuery(document).ready(function($) {
     });
   }
   function slider_values() {
-    $(".category_list div.balance-slider").each(function(){
-      var b = new Number(parseFloat($(this).siblings("h2").find("span.balance").text()));
+    $(".category_list .expense_category").each(function(){
+      var b = new Number(parseFloat($(this).find("span.balance").text()));
       var max = new Number(parseFloat($(this).find("span.maximum").text()));
       var min = new Number(parseFloat($(this).find("span.minimum").text()));
-      $(this).slider('option', 'max', max);
-      $(this).slider('option', 'value', b);
+      var slider = $(this).find(".balance-slider");
+      slider.attr('max', max);
+      slider.val(b);
 
       var minimum_graph = $(this).find(".minimum_graph");
       if (b < min) {

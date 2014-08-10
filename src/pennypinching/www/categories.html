@@ -30,7 +30,8 @@
 <script id="expense_category_list" type="text/html">
   {{#category}}
     <div class="expense_category" db_id="{{id}}" id="expense_id-{{id}}">
-      <div class="balance-slider">
+      <input class="balance-slider" type="range" min="0" max="{{maximum}}" value="{{balance}}" step="0.01"/>
+      <div class="balance-graph">
         <div class="minimum_graph"><span class="minimum">{{minimum}}</span></div>
         <div class="available_graph"></div>
         <span class="slider-balance-value">{{balance}}</span>
@@ -261,7 +262,7 @@
       <div id="categories">
 
         <h2>Expense to Saving Allotment</h2>
-        <div id="expense_saving_allotment"></div>
+        <input id="expense_saving_allotment" type="range" min="0" max="100" step="1"/>
 
         <div class="category_type" id="expense">
           <h2>Expense Categories <span class="allotment"></span></h2>
