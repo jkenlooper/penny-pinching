@@ -1,21 +1,5 @@
 #! /usr/bin/env python
 
-##  This file is a part of penny-pinching.
-##  Copyright (C) 2010 Jake Hickenlooper
-##
-##  penny-pinching is free software: you can redistribute it and/or modify
-##  it under the terms of the GNU Affreo General Public License as published by
-##  the Free Software Foundation, either version 3 of the License, or
-##  (at your option) any later version.
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU Affreo General Public License for more details.
-##
-##  You should have received a copy of the GNU Affreo General Public License
-##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import ConfigParser
 from optparse import OptionParser
 import urllib2
@@ -110,7 +94,7 @@ class MainInterface(Interface):
               type: 1
               category: 3
 
-              
+
         -
           name: smiths
           status: 2
@@ -201,9 +185,9 @@ class MainInterface(Interface):
         except urllib2.HTTPError, inst:
           print inst
 
-       
-          
-      
+
+
+
     elif res in self.opt_add_transaction():
       def get_items():
         items = []
@@ -233,11 +217,11 @@ class MainInterface(Interface):
         print inst
 
     elif res in self.opt_account_list():
-      data = urllib2.urlopen('http://%(host)s/%(database)s/account-list-active/' % authenticate) 
+      data = urllib2.urlopen('http://%(host)s/%(database)s/account-list-active/' % authenticate)
       print data.read()
 
     elif res in self.opt_expense_category_list():
-      data = urllib2.urlopen('http://%(host)s/%(database)s/expense-list/' % authenticate) 
+      data = urllib2.urlopen('http://%(host)s/%(database)s/expense-list/' % authenticate)
       print data.read()
 
     elif res in self.opt_expense_category_add():
@@ -253,7 +237,7 @@ class MainInterface(Interface):
         print inst
 
     elif res in self.opt_period_test():
-      data = urllib2.urlopen('http://%(host)s/%(database)s/period/2010-5-25.2010-10-10/financial-transaction-list/' % authenticate) 
+      data = urllib2.urlopen('http://%(host)s/%(database)s/period/2010-5-25.2010-10-10/financial-transaction-list/' % authenticate)
       print data.read()
 
     elif res in self.opt_account_add():

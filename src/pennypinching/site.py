@@ -1,26 +1,10 @@
 #! /usr/bin/env python
 
-##  penny-pinching - Management of finances using a web interface.
-##  Copyright (C) 2010 Jake Hickenlooper
-##
-##  This program is free software: you can redistribute it and/or modify
-##  it under the terms of the GNU Affreo General Public License as published by
-##  the Free Software Foundation, either version 3 of the License, or
-##  (at your option) any later version.
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU Affreo General Public License for more details.
-##
-##  You should have received a copy of the GNU Affreo General Public License
-##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import web
 import doctest
 import sys
 from view import *
-from controller import Page, IndexPage, TransactionsPage, CategoriesPage, SourcePage, SourceIndexPage
+from controller import Page, IndexPage, TransactionsPage, CategoriesPage
 
 import _version
 
@@ -32,8 +16,6 @@ status_or = "|".join(TRANSACTION_STATUS_ENUM)
 period = "[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\.[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}"
 urls = (
     '/', 'IndexPage',
-    '/source/?', 'SourceIndexPage',
-    '/source/(.+.py)', 'SourcePage', # because it's under AGPL
     '/([a-z]+)/transactions\.html', 'TransactionsPage',
     '/([a-z]+)/categories\.html', 'CategoriesPage',
     '/([a-z]+)/user/?', 'UserView',

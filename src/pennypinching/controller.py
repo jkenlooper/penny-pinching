@@ -1,20 +1,3 @@
-
-##  This file is a part of penny-pinching.
-##  Copyright (C) 2010 Jake Hickenlooper
-##
-##  penny-pinching is free software: you can redistribute it and/or modify
-##  it under the terms of the GNU Affreo General Public License as published by
-##  the Free Software Foundation, either version 3 of the License, or
-##  (at your option) any later version.
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU Affreo General Public License for more details.
-##
-##  You should have received a copy of the GNU Affreo General Public License
-##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import web
 import os.path
 import httplib
@@ -51,9 +34,9 @@ class Page(WWW):
     return """
       <p id="license">
         This application is licensed under the
-        <a href="/static/agpl.txt">GNU Affreo General Public License</a>
+        <a href="https://opensource.org/licenses/agpl-3.0">GNU Affreo General Public License</a>
         <br>
-        <a href="/source">Source code of this application</a>
+        <a href="https://github.com/jkenlooper/penny-pinching">Source code</a>
         <br>
         <span id="copyright">Copyright &copy; 2010 %s</span>
       </p>
@@ -93,7 +76,7 @@ class TransactionsPage(Page):
         currency="$",
         transaction_status_select=self.build_transaction_status_select(),
         transaction_status_buttons=self.build_transaction_status_buttons())
-    
+
   def build_transaction_status_buttons(self):
     transaction_status_buttons = Element('div', {'class':'transaction_status'})
     for status in [ x for x in TRANSACTION_STATUS_ENUM if x not in ('reconciled',) ]:
@@ -109,7 +92,7 @@ class TransactionsPage(Page):
       if (default_status == status): option.attrib['selected'] = 'selected'
       option.text = status
     return tostring(transaction_status_select)
-      
+
 
 class CategoriesPage(Page):
   @read_permission
@@ -118,48 +101,3 @@ class CategoriesPage(Page):
     template = Template(open(os.path.join(os.path.dirname(__file__), self.www, 'categories.html'), 'r').read())
     return template.safe_substitute(db_name=db_name,
         currency="$")
-
-class SourceIndexPage(Page):
-  def GET(self):
-    web.redirect("/source/site.py")
-
-class SourcePage(Page):
-  public_viewable_source_files = (
-      '__init__.py',
-      '_version.py',
-      'auth.py',
-      'client.py',
-      'controller.py',
-      'site.py',
-      'user_interface.py',
-      'view.py',
-      )
-  #TODO: show the source with syntax hilighting
-  def GET(self, python_file):
-    web.header('Content-type', "text/html; charset=utf-8")
-    template = Template(open(os.path.join(os.path.dirname(__file__), self.www, 'source.html'), 'r').read())
-    return template.safe_substitute(source=self.source(python_file), **self.parts)
-
-  def part_header(self):
-    return self._load_static_part('source_header.html')
-
-  def part_content(self):
-    return self._load_static_part('source_content.html')
-
-  def part_source_files_list(self):
-    ul = Element('ul')
-    for f in self.public_viewable_source_files:
-      li = SubElement(ul, 'li')
-      a = SubElement(li, 'a', href='/source/%s' % f)
-      a.text = f
-    return tostring(ul)
-
-  def source(self, python_file):
-    if python_file in self.public_viewable_source_files:
-      try:
-        content = open(os.path.join(os.path.dirname(__file__), python_file), 'r').read()
-      except IOError, (error, msg):
-        content = "Error with '%s': %s, %s" % (python_file, error, msg)
-      return content
-    else:
-      return "No access to that file"

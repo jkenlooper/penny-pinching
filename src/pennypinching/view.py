@@ -1,28 +1,12 @@
 #! /usr/bin/env python
 
-##  This file is a part of penny-pinching.
-##  Copyright (C) 2010 Jake Hickenlooper
-##
-##  penny-pinching is free software: you can redistribute it and/or modify
-##  it under the terms of the GNU Affreo General Public License as published by
-##  the Free Software Foundation, either version 3 of the License, or
-##  (at your option) any later version.
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU Affreo General Public License for more details.
-##
-##  You should have received a copy of the GNU Affreo General Public License
-##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import web
 import doctest
 import yaml
 try:
   import json
 except ImportError:
-  import simplejson as json 
+  import simplejson as json
 import sqlite3
 import os.path
 from decimal import Decimal
@@ -153,7 +137,7 @@ def normalize(l, description):
   else:
     print l, description
   return d
-  
+
 def year_month_day(ymd):
   " validate a str in the format YYYY-MM-DD "
   ymd = str(ymd)
@@ -195,7 +179,7 @@ def validate(user_input, valid):
     else:
       raise ValueError("keys are not valid. expected: %s but got %s" % (valid.keys(), user_input.keys()))
   return d
-    
+
 def dump_data_formatted(data_format, data):
   if data_format == 'yaml':
     return yaml.safe_dump(data)
@@ -330,7 +314,7 @@ class AccountListView(object):
       select account as id, total(total) as status_total from (
         select * from FinancialTransaction join (
           select total(amount) as total, financial_transaction as id from TransactionItem group by id
-        ) using (id) where status = :status 
+        ) using (id) where status = :status
       ) group by id
     ) using (id) order by id;"""
 
@@ -376,15 +360,15 @@ class AccountListActiveView(ListView):
       ) group by id
     ) using (id) where active = 1;"""
 
-class AccountAdd(Add): 
+class AccountAdd(Add):
   query = "insert into Account (name, balance, balance_date) values (:name, :balance, date(current_timestamp));"
   valid_data_format = {'name':str, 'balance':Decimal}
 
-class AccountUpdate(Update): 
+class AccountUpdate(Update):
   query = "update Account set name = :name, active = :active, balance = :balance, balance_date = :balance_date where id = :id;"
   valid_data_format = {'id':int, 'name':str, 'active':bool, 'balance':Decimal, 'balance_date':year_month_day}
 
-class AccountActivate(Update): 
+class AccountActivate(Update):
   query = "update Account set active = :active where id = :id;"
   valid_data_format = {'id':int, 'active':bool}
 
@@ -463,7 +447,7 @@ class FinancialTransactionReceiptNoReceiptScheduledListView(OrderedListView):
   valid_order_by = ['name asc', 'name desc', 'total asc', 'total desc', 'date asc', 'date desc']
   default_order = 'date desc'
 
-class FinancialTransactionAdd(Add): 
+class FinancialTransactionAdd(Add):
   query = "insert into FinancialTransaction (name, status, date, account) values (:name, :status, :date, :account);"
   valid_data_format = {'name':str, 'status':int, 'date':year_month_day, 'account':int}
 
@@ -520,7 +504,7 @@ class FinancialTransactionItemAdd(object):
           # Budget Repeat: How often the budget amount is added to the balance.
 
           # For now this will be handled manually by moving the sliders.
-          
+
           available = self._distribute_to_saving_categories(t['date'], available+saving_available)
 
           self._distribute_to_buffer(available)
@@ -636,7 +620,7 @@ class FinancialTransactionItemAdd(object):
     category_update = "update %s set balance = :balance where id = :id;" % (table)
 
     #print item
-     
+
     category = normalize(self.cur.execute(category_select, {'id':item['category']}), self.cur.description)
     if len(category):
       category = category[0]
@@ -655,7 +639,7 @@ class FinancialTransactionItemAdd(object):
             item_amount_over = item_amount_over - item_amount_over*2 # make negative
             print "splitting item amount with buffer balance %s" % item_amount_over
             b = {'name':item['name'], 'amount':item_amount_over, 'type':item['type'], 'category':1, 'financial_transaction':self.inserted_transaction_id}
-            buffer_item = validate(b, self.v_i) 
+            buffer_item = validate(b, self.v_i)
             buffer_balance = buffer_category_balance+item_amount_over
             self.cur.execute("update ExpenseCategory set balance = :balance where id = 1", {'balance':mf(buffer_balance)})
             self.validated_items.append(buffer_item)
@@ -827,7 +811,7 @@ class BillCategoryAdd(CategoryAdd):
 class BillCategoryUpdate(CategoryUpdate):
   query = "update BillCategory set name = :name, balance = :balance, maximum = :maximum, allotment_date = :allotment_date, repeat_due_date = :repeat_due_date, due = :due, active = :active where id = :id"
   valid_data_format = {'name':str, 'balance':Decimal, 'maximum':Decimal, 'allotment_date':year_month_day, 'repeat_due_date':str, 'due':year_month_day, 'active':int, 'id':int}
-    
+
 class BillCategoryUpdateActive(CategoryUpdate):
   query = "update BillCategory set active = :active where id = :id"
   valid_data_format = {'active':int, 'id':int}
