@@ -36,7 +36,7 @@ urls = (
     '/source/(.+.py)', 'SourcePage', # because it's under AGPL
     '/([a-z]+)/transactions\.html', 'TransactionsPage',
     '/([a-z]+)/categories\.html', 'CategoriesPage',
-    '/([a-z]+)/user/?', 'UserView', 
+    '/([a-z]+)/user/?', 'UserView',
 
     '/([a-z]+)/?', 'DatabaseView', # GET
     '/([a-z]+)/init/?', 'DatabaseInitialize', # GET
@@ -138,6 +138,15 @@ def start():
 def stop():
   """ Oh, no!!!  No brakes!!!"""
   pass
+
+def main():
+  "first arg is the port, second is command"
+  if sys.argv[2] == 'run':
+    run()
+  elif sys.argv[2] == 'start':
+    start()
+  elif sys.argv[2] == 'stop':
+    stop()
 
 if __name__ == "__main__":
   if sys.argv[-1] == '--test':
